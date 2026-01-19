@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titrations-Simulator Master Pro</title>
+    <style>
+        :root {
+            --primary: #2563eb; --primary-dark: #1e40af; --bg-site: #f8fafc; --bg-card: #ffffff;
+            --border: #e2e8f0; --text-main: #1e293b; --text-muted: #64748b;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-site); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .app-container { max-width: 1000px; width: 100%; background: var(--bg-card); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); padding: 24px; }
+        
+        header { border-bottom: 2px solid var(--border); margin-bottom: 20px; padding-bottom: 10px; }
+        h1 { font-size: 1.5rem; margin: 0; color: var(--primary-dark); }
+
+        .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .controls { background: #f1f5f9; padding: 20px; border-radius: 8px; display: flex; flex-direction: column; gap: 15px; }
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+
+        select, input { padding: 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 1rem; }
+
+        /* Simulation Visuals */
+        .simulation-view { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+        .beaker { width: 100px; height: 120px; border: 3px solid #94a3b8; border-top: none; border-radius: 0 0 15px 15px; position: relative; overflow: hidden; background: #e2e8f0; }
+        .liquid { position: absolute; bottom: 0; left: 0; width: 100%; height: 70%; transition: background 0.3s ease; }
+
+        .chart-container { grid-column: 1 / -1; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 15px; position: relative; }
+        canvas { width: 100%; height: 300px; }
+
+        .stats-display { display: flex; justify-content: space-around; margin-top: 15px; font-weight: bold; font-size: 1.2rem; background: var(--primary); color: #fff; padding: 10px; border-radius: 8px; }
+
+        .slider-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        input[type=range] { flex-grow: 1; cursor: pointer; }
+
+        @media (max-width: 750px) { .layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>Titrations-Simulator Master Pro</h1>
+    </header>
+
+    <div class="layout">
+        <div class="controls">
+            <div class="control-group">
+                <label>System</label>
+                <select id="setup-select" onchange="resetTitration()">
+                    <option value="s-s">Starke Säure (HCl) / Starke Base (NaOH)</option>
+                    <option value="w-s">Schwache Säure (Essigsäure) / Starke Base</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Konzentration Probe (mol/l)</label>
+                <input type="number" id="c-acid" value="0.1" step="0.01" onchange="resetTitration()">
+            </div>
+            <div class="control-group">
+                <label>Konzentration Maßlösung (mol/l)</label>
+                <input type="number" id="c-base" value="0.1" step="0.01" onchange="resetTitration()">
+            </div>
+            <div class="control-group">
+                <label>Indikator</label>
+                <select id="indicator-select" onchange="updateView()">
+                    <option value="btb">Bromthymolblau (pH 6.0-7.6)</option>
+                    <option value="phph">Phenolphthalein (pH 8.2-10.0)</option>
+                    <option value="mo">Methylorange (pH 3.1-4.4)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="simulation-view">
+            <label>Becherglas (Probe)</label>
+            <div class="beaker">
+                <div id="liquid" class="liquid"></div>
+            </div>
+            <div class="slider-row" style="width: 100%;">
+                <span>0 ml</span>
+                <input type="range" id="volume-slider" min="0" max="50" step="0.1" value="0" oninput="calculatePH()">
+                <span>50 ml</span>
+            </div>
+            <div style="margin-top: 10px; font-weight: bold;">Zugabe Maßlösung: <span id="vol-display">0</span> ml</div>
+        </div>
+
+        <div class="stats-display">
+            <div>pH-Wert: <span id="ph-display">7.00</span></div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="titrationChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('titrationChart');
+    const ctx = canvas.getContext('2d');
+    let dataPoints = [];
+
+    function getPH(vBase) {
+        const cS = parseFloat(document.getElementById('c-acid').value);
+        const cB = parseFloat(document.getElementById('c-base').value);
+        const vS = 20; // Startvolumen Säure in ml
+        const type = document.getElementById('setup-select').value;
+        
+        const nS_start = cS * vS;
+        const nB_added = cB * vBase;
+        const totalVol = vS + vBase;
+
+        if (type === 's-s') {
+            // Starke Säure / Starke Base
+            if (nB_added < nS_start) {
+                const cH = (nS_start - nB_added) / totalVol;
+                return -Math.log10(cH);
+            } else if (Math.abs(nB_added - nS_start) < 0.000001) {
+                return 7.0;
+            } else {
+                const cOH = (nB_added - nS_start) / totalVol;
+                return 14 + Math.log10(cOH);
+            }
+        } else {
+            // Schwache Säure (pKa = 4.76) / Starke Base
+            const pKa = 4.76;
+            if (nB_added === 0) {
+                return 0.5 * (pKa - Math.log10(cS));
+            } else if (nB_added < nS_start) {
+                // Pufferbereich (Henderson-Hasselbalch)
+                return pKa + Math.log10(nB_added / (nS_start - nB_added));
+            } else if (Math.abs(nB_added - nS_start) < 0.000001) {
+                // Äquivalenzpunkt (schwache Base nS_start in totalVol)
+                const cBaseFormed = nS_start / totalVol;
+                const pKb = 14 - pKa;
+                const pOH = 0.5 * (pKb - Math.log10(cBaseFormed));
+                return 14 - pOH;
+            } else {
+                // Übertitriert
+                const cOH = (nB_added - nS_start) / totalVol;
+                return 14 + Math.log10(cOH);
+            }
+        }
+    }
+
+    function calculatePH() {
+        const v = parseFloat(document.getElementById('volume-slider').value);
+        const ph = getPH(v);
+        
+        document.getElementById('vol-display').innerText = v.toFixed(1);
+        document.getElementById('ph-display').innerText = ph.toFixed(2);
+        
+        updateView(ph);
+        drawChart(v);
+    }
+
+    function updateView(ph) {
+        const liquid = document.getElementById('liquid');
+        const indicator = document.getElementById('indicator-select').value;
+        let color = "#e2e8f0"; // farblos/neutral
+
+        if (indicator === 'phph') {
+            color = ph > 8.2 ? `rgba(219, 39, 119, ${Math.min((ph-8.2)*0.5, 1)})` : "#f8fafc";
+        } else if (indicator === 'btb') {
+            if (ph < 6.0) color = "#facc15"; // gelb
+            else if (ph > 7.6) color = "#2563eb"; // blau
+            else color = "#22c55e"; // grün
+        } else if (indicator === 'mo') {
+            if (ph < 3.1) color = "#ef4444"; // rot
+            else if (ph > 4.4) color = "#fbbf24"; // gelb
+            else color = "#f97316"; // orange
+        }
+        
+        liquid.style.backgroundColor = color;
+    }
+
+    function drawChart(currentV) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const w = canvas.width;
+        const h = canvas.height;
+        const padding = 40;
+
+        // Achsen
+        ctx.beginPath();
+        ctx.strokeStyle = "#64748b";
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, h - padding);
+        ctx.lineTo(w - padding, h - padding);
+        ctx.stroke();
+
+        // Kurve zeichnen
+        ctx.beginPath();
+        ctx.strokeStyle = varProp('--primary');
+        ctx.lineWidth = 2;
+        
+        for (let v = 0; v <= 50; v += 0.5) {
+            const ph = getPH(v);
+            const x = padding + (v / 50) * (w - 2 * padding);
+            const y = (h - padding) - (ph / 14) * (h - 2 * padding);
+            if (v === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Aktueller Punkt
+        const phCur = getPH(currentV);
+        const curX = padding + (currentV / 50) * (w - 2 * padding);
+        const curY = (h - padding) - (phCur / 14) * (h - 2 * padding);
+        
+        ctx.beginPath();
+        ctx.fillStyle = "#dc2626";
+        ctx.arc(curX, curY, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Beschriftung
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "12px sans-serif";
+        ctx.fillText("V (Maßlösung) in ml", w/2 - 40, h - 5);
+        ctx.save();
+        ctx.translate(15, h/2 + 20);
+        ctx.rotate(-Math.PI/2);
+        ctx.fillText("pH-Wert", 0, 0);
+        ctx.restore();
+    }
+
+    function varProp(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    function resetTitration() {
+        document.getElementById('volume-slider').value = 0;
+        calculatePH();
+    }
+
+    // Init
+    window.addEventListener('resize', () => {
+        canvas.width = canvas.parentElement.offsetWidth - 30;
+        canvas.height = 300;
+        calculatePH();
+    });
+    
+    canvas.width = canvas.parentElement.offsetWidth - 30;
+    canvas.height = 300;
+    calculatePH();
+
+</script>
+</body>
+</html>
