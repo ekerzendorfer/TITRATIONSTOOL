@@ -4,39 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Titrations-Simulator Master Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #2563eb; --primary-dark: #1e40af; --bg-site: #f8fafc; --bg-card: #ffffff;
-            --border: #e2e8f0; --text-main: #1e293b; --text-muted: #64748b;
+            --primary: #2563eb; --primary-dark: #1e40af; --success: #16a34a; --error: #dc2626;
+            --bg-site: #f8fafc; --bg-card: #ffffff; --border: #e2e8f0; --text-main: #1e293b; --text-muted: #64748b;
         }
+        * { box-sizing: border-box; transition: all 0.1s ease; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-site); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .app-container { max-width: 1000px; width: 100%; background: var(--bg-card); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); padding: 24px; }
+        .app-container { max-width: 1200px; width: 100%; background: var(--bg-card); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); padding: 24px; }
         
-        header { border-bottom: 2px solid var(--border); margin-bottom: 20px; padding-bottom: 10px; }
+        header { border-bottom: 2px solid var(--border); margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         h1 { font-size: 1.5rem; margin: 0; color: var(--primary-dark); }
+        
+        .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; }
+        @media (max-width: 950px) { .layout { grid-template-columns: 1fr; } }
 
-        .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        /* Panels */
+        .panel { background: #f1f5f9; padding: 20px; border-radius: 8px; border: 1px solid var(--border); }
+        .chart-panel { display: flex; flex-direction: column; gap: 20px; }
+        .chart-card { background: #fff; padding: 15px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 
-        .controls { background: #f1f5f9; padding: 20px; border-radius: 8px; display: flex; flex-direction: column; gap: 15px; }
-        .control-group { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+        .control-group { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; }
+        .control-group:last-child { border-bottom: none; }
+        label { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+        
+        select, input[type="number"], input[type="text"] {
+            width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; outline: none; background: #fff;
+        }
+        select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
 
-        select, input { padding: 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 1rem; }
+        /* Buttons */
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        button { padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 1rem; }
+        .btn-start { background: var(--primary); color: white; }
+        .btn-pause { background: #64748b; color: white; }
+        .btn-reset { background: #fff; color: var(--text-muted); border: 1px solid #cbd5e1; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        /* Simulation Visuals */
-        .simulation-view { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
-        .beaker { width: 100px; height: 120px; border: 3px solid #94a3b8; border-top: none; border-radius: 0 0 15px 15px; position: relative; overflow: hidden; background: #e2e8f0; }
-        .liquid { position: absolute; bottom: 0; left: 0; width: 100%; height: 70%; transition: background 0.3s ease; }
+        /* Visuals */
+        .ph-badge { 
+            font-size: 2.2rem; text-align: center; font-weight: 800; color: var(--primary-dark); 
+            background: #fff; padding: 15px; border-radius: 8px; border: 2px solid var(--primary); margin: 10px 0;
+        }
+        .indicator-sample { 
+            height: 40px; width: 100%; border-radius: 6px; border: 1px solid #cbd5e1; 
+            margin-bottom: 10px; transition: background 0.4s ease; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;
+        }
 
-        .chart-container { grid-column: 1 / -1; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 15px; position: relative; }
-        canvas { width: 100%; height: 300px; }
+        .chart-container { position: relative; height: 320px; width: 100%; }
+        .caption { text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; font-style: italic; }
 
-        .stats-display { display: flex; justify-content: space-around; margin-top: 15px; font-weight: bold; font-size: 1.2rem; background: var(--primary); color: #fff; padding: 10px; border-radius: 8px; }
-
-        .slider-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-        input[type=range] { flex-grow: 1; cursor: pointer; }
-
-        @media (max-width: 750px) { .layout { grid-template-columns: 1fr; } }
+        input[type="range"] { width: 100%; cursor: pointer; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -44,206 +63,223 @@
 <div class="app-container">
     <header>
         <h1>Titrations-Simulator Master Pro</h1>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Solver: Bisektion / Ladungsbilanz</div>
     </header>
 
     <div class="layout">
-        <div class="controls">
+        <!-- STEUERUNG -->
+        <div class="panel">
             <div class="control-group">
-                <label>System</label>
-                <select id="setup-select" onchange="resetTitration()">
-                    <option value="s-s">Starke Säure (HCl) / Starke Base (NaOH)</option>
-                    <option value="w-s">Schwache Säure (Essigsäure) / Starke Base</option>
+                <label>1. Probe (Becherglas)</label>
+                <select id="titrandType">
+                    <option value="acid">Säure (z.B. HCl, Essigsäure)</option>
+                    <option value="base">Base (z.B. NaOH, Ammoniak)</option>
                 </select>
-            </div>
-            <div class="control-group">
-                <label>Konzentration Probe (mol/l)</label>
-                <input type="number" id="c-acid" value="0.1" step="0.01" onchange="resetTitration()">
-            </div>
-            <div class="control-group">
-                <label>Konzentration Maßlösung (mol/l)</label>
-                <input type="number" id="c-base" value="0.1" step="0.01" onchange="resetTitration()">
-            </div>
-            <div class="control-group">
-                <label>Indikator</label>
-                <select id="indicator-select" onchange="updateView()">
-                    <option value="btb">Bromthymolblau (pH 6.0-7.6)</option>
-                    <option value="phph">Phenolphthalein (pH 8.2-10.0)</option>
-                    <option value="mo">Methylorange (pH 3.1-4.4)</option>
+                <label style="margin-top:10px;">Wertigkeit</label>
+                <select id="polyType">
+                    <option value="1">Einprotonig</option>
+                    <option value="2">Zweiprotonig</option>
                 </select>
+                <div style="display: flex; gap: 10px; margin-top:10px;">
+                    <div><label>c₀ (mol/l)</label><input type="number" id="titrandConc" value="0.1" step="0.01"></div>
+                    <div><label>V₀ (ml)</label><input type="number" id="titrandVol" value="50" step="1"></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>2. pKs-Werte (der Säure)</label>
+                <div style="display: flex; gap: 10px;">
+                    <div><label>pKs₁</label><input type="number" id="pk1" value="4.75" step="0.1"></div>
+                    <div id="pk2-group" style="display:none;"><label>pKs₂</label><input type="number" id="pk2" value="10.33" step="0.1"></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>3. Titrator (Maßlösung)</label>
+                <div style="font-weight: bold; margin-bottom: 5px; color: var(--primary);" id="titratorName">Starke Base (OH⁻)</div>
+                <label>Konzentration (mol/l)</label>
+                <input type="number" id="titratorConc" value="0.1" step="0.01">
+            </div>
+
+            <div class="control-group">
+                <label>4. Simulation</label>
+                <div id="indicatorColor" class="indicator-sample">INDIKATORFARBE</div>
+                <div id="ph-display" class="ph-badge">pH --</div>
+                <label>Tropfengröße: <span id="dropSizeVal">0.2 ml</span></label>
+                <input type="range" id="dropSize" min="0.02" max="1.0" step="0.02" value="0.2">
+                <label>Geschwindigkeit</label>
+                <input type="range" id="speed" min="10" max="400" step="10" value="100" style="direction: rtl">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-start" id="startBtn" onclick="startSimulation()">Start / Weiter</button>
+                <button class="btn-pause" onclick="stopSimulation()">Pause</button>
+                <button class="btn-reset" onclick="resetSimulation()">Reset</button>
             </div>
         </div>
 
-        <div class="simulation-view">
-            <label>Becherglas (Probe)</label>
-            <div class="beaker">
-                <div id="liquid" class="liquid"></div>
+        <!-- DIAGRAMME -->
+        <div class="chart-panel">
+            <div class="chart-card">
+                <div class="chart-container">
+                    <canvas id="titrationChart"></canvas>
+                </div>
+                <div class="caption">Titrationskurve: pH vs. Volumen V (ml)</div>
             </div>
-            <div class="slider-row" style="width: 100%;">
-                <span>0 ml</span>
-                <input type="range" id="volume-slider" min="0" max="50" step="0.1" value="0" oninput="calculatePH()">
-                <span>50 ml</span>
+            
+            <div class="chart-card">
+                <div class="chart-container">
+                    <canvas id="haeggChart"></canvas>
+                </div>
+                <div class="caption">Hägg-Diagramm: Speziesverteilung log c vs. pH</div>
             </div>
-            <div style="margin-top: 10px; font-weight: bold;">Zugabe Maßlösung: <span id="vol-display">0</span> ml</div>
-        </div>
-
-        <div class="stats-display">
-            <div>pH-Wert: <span id="ph-display">7.00</span></div>
-        </div>
-
-        <div class="chart-container">
-            <canvas id="titrationChart"></canvas>
         </div>
     </div>
 </div>
 
 <script>
-    const canvas = document.getElementById('titrationChart');
-    const ctx = canvas.getContext('2d');
-    let dataPoints = [];
+    let titrationChart, haeggChart, timer = null, currentVolAdded = 0;
+    let state = { isAcidTitrand: true, isDiprotic: false, c0: 0.1, v0: 50, cTitrator: 0.1, pK1: 4.75, pK2: 10.0 };
 
-    function getPH(vBase) {
-        const cS = parseFloat(document.getElementById('c-acid').value);
-        const cB = parseFloat(document.getElementById('c-base').value);
-        const vS = 20; // Startvolumen Säure in ml
-        const type = document.getElementById('setup-select').value;
-        
-        const nS_start = cS * vS;
-        const nB_added = cB * vBase;
-        const totalVol = vS + vBase;
+    window.onload = function() {
+        initCharts();
+        setupListeners();
+        resetSimulation();
+    };
 
-        if (type === 's-s') {
-            // Starke Säure / Starke Base
-            if (nB_added < nS_start) {
-                const cH = (nS_start - nB_added) / totalVol;
-                return -Math.log10(cH);
-            } else if (Math.abs(nB_added - nS_start) < 0.000001) {
-                return 7.0;
+    function setupListeners() {
+        document.getElementById('dropSize').oninput = (e) => document.getElementById('dropSizeVal').innerText = e.target.value + " ml";
+        document.getElementById('titrandType').onchange = (e) => {
+            const isAcid = e.target.value === 'acid';
+            document.getElementById('titratorName').innerText = isAcid ? "Starke Base (OH⁻)" : "Starke Säure (H₃O⁺)";
+            if(isAcid) { document.getElementById('pk1').value = 4.75; document.getElementById('pk2').value = 9.0; }
+            else { document.getElementById('pk1').value = 9.25; document.getElementById('pk2').value = 6.35; }
+            resetSimulation();
+        };
+        document.getElementById('polyType').onchange = (e) => {
+            document.getElementById('pk2-group').style.display = e.target.value === "2" ? 'block' : 'none';
+            resetSimulation();
+        };
+    }
+
+    function calculatePH(vAdded) {
+        const Kw = 1e-14;
+        const vTotal = state.v0 + vAdded;
+        const C_tit_dil = state.c0 * (state.v0 / vTotal);
+        const C_tr_dil = state.cTitrator * (vAdded / vTotal);
+        const K1 = Math.pow(10, -state.pK1), K2 = state.isDiprotic ? Math.pow(10, -state.pK2) : 0;
+
+        const targetFunc = (h) => {
+            const oh = Kw / h;
+            let D = state.isDiprotic ? (h*h + h*K1 + K1*K2) : (h + K1);
+            let avgNegCharge = state.isDiprotic ? ((h*K1 + 2*K1*K2) / D) : (K1 / D);
+            
+            if (state.isAcidTitrand) {
+                return h + C_tr_dil - oh - (C_tit_dil * avgNegCharge);
             } else {
-                const cOH = (nB_added - nS_start) / totalVol;
-                return 14 + Math.log10(cOH);
+                const naFactor = state.isDiprotic ? 2 : 1;
+                return h + (C_tit_dil * naFactor) - oh - C_tr_dil - (C_tit_dil * avgNegCharge);
             }
+        };
+
+        let low = 1e-15, high = 1.0, h_guess = 1e-7;
+        for(let i=0; i<60; i++) {
+            h_guess = (low + high) * 0.5;
+            if(targetFunc(h_guess) > 0) high = h_guess; else low = h_guess;
+        }
+        return -Math.log10(h_guess);
+    }
+
+    function startSimulation() {
+        if (timer) return;
+        updateState();
+        timer = setInterval(() => {
+            currentVolAdded += parseFloat(document.getElementById('dropSize').value);
+            const ph = calculatePH(currentVolAdded);
+            document.getElementById('ph-display').innerText = "pH " + ph.toFixed(2);
+            updateIndicator(ph);
+            titrationChart.data.labels.push(currentVolAdded.toFixed(2));
+            titrationChart.data.datasets[0].data.push(ph);
+            const maxX = titrationChart.options.scales.x.max || state.v0;
+            if (currentVolAdded > maxX - 5) titrationChart.options.scales.x.max += 10;
+            titrationChart.update('none');
+            updateHaeggCursor(ph);
+            if (currentVolAdded > state.v0 * 3) stopSimulation();
+        }, parseInt(document.getElementById('speed').value));
+    }
+
+    function stopSimulation() { clearInterval(timer); timer = null; }
+
+    function resetSimulation() {
+        stopSimulation(); updateState(); currentVolAdded = 0;
+        document.getElementById('ph-display').innerText = "pH --";
+        titrationChart.data.labels = []; titrationChart.data.datasets[0].data = [];
+        titrationChart.options.scales.x.max = state.v0 * 1.5;
+        const startPH = calculatePH(0);
+        document.getElementById('ph-display').innerText = "pH " + startPH.toFixed(2);
+        updateIndicator(startPH);
+        titrationChart.update();
+        drawHaeggBackground();
+        updateHaeggCursor(startPH);
+    }
+
+    function updateState() {
+        state.isAcidTitrand = document.getElementById('titrandType').value === 'acid';
+        state.isDiprotic = document.getElementById('polyType').value === "2";
+        state.c0 = parseFloat(document.getElementById('titrandConc').value);
+        state.v0 = parseFloat(document.getElementById('titrandVol').value);
+        state.cTitrator = parseFloat(document.getElementById('titratorConc').value);
+        state.pK1 = parseFloat(document.getElementById('pk1').value);
+        state.pK2 = parseFloat(document.getElementById('pk2').value);
+        if(state.isDiprotic && state.pK1 > state.pK2) [state.pK1, state.pK2] = [state.pK2, state.pK1];
+    }
+
+    function updateIndicator(ph) {
+        const box = document.getElementById('indicatorColor');
+        const colors = [
+            {limit: 3, col: '#ef4444'}, {limit: 5, col: '#f97316'}, {limit: 7, col: '#facc15'},
+            {limit: 8, col: '#22c55e'}, {limit: 10, col: '#3b82f6'}, {limit: 14, col: '#a855f7'}
+        ];
+        let color = colors.find(c => ph < c.limit)?.col || '#a855f7';
+        box.style.backgroundColor = color;
+        box.style.color = ph > 5 && ph < 9 ? '#1e293b' : '#fff';
+    }
+
+    function initCharts() {
+        titrationChart = new Chart(document.getElementById('titrationChart'), {
+            type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#2563eb', borderWidth: 3, pointRadius: 0, tension: 0.1 }] },
+            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { y: { min: 0, max: 14 }, x: { type: 'linear', min: 0 } }, plugins: { legend: {display: false} } }
+        });
+        haeggChart = new Chart(document.getElementById('haeggChart'), {
+            type: 'line', data: { datasets: [] },
+            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { type: 'linear', min: 0, max: 14 }, y: { min: -8, max: 0 } }, elements: { point: { radius: 0 } } }
+        });
+    }
+
+    function drawHaeggBackground() {
+        const phs = []; for(let i=0; i<=14; i+=0.25) phs.push(i);
+        const logC0 = Math.log10(state.c0), K1 = Math.pow(10, -state.pK1), K2 = Math.pow(10, -state.pK2);
+        let ds = [
+            { label: 'H⁺', data: phs.map(p => ({x:p, y:-p})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 },
+            { label: 'OH⁻', data: phs.map(p => ({x:p, y:p-14})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 }
+        ];
+        if (!state.isDiprotic) {
+            ds.push({ label: 'HA', data: phs.map(p => ({x:p, y: logC0 - Math.log10(1 + Math.pow(10, p - state.pK1))})), borderColor: '#dc2626', borderWidth: 2 });
+            ds.push({ label: 'A⁻', data: phs.map(p => ({x:p, y: logC0 - Math.log10(1 + Math.pow(10, state.pK1 - p))})), borderColor: '#16a34a', borderWidth: 2 });
         } else {
-            // Schwache Säure (pKa = 4.76) / Starke Base
-            const pKa = 4.76;
-            if (nB_added === 0) {
-                return 0.5 * (pKa - Math.log10(cS));
-            } else if (nB_added < nS_start) {
-                // Pufferbereich (Henderson-Hasselbalch)
-                return pKa + Math.log10(nB_added / (nS_start - nB_added));
-            } else if (Math.abs(nB_added - nS_start) < 0.000001) {
-                // Äquivalenzpunkt (schwache Base nS_start in totalVol)
-                const cBaseFormed = nS_start / totalVol;
-                const pKb = 14 - pKa;
-                const pOH = 0.5 * (pKb - Math.log10(cBaseFormed));
-                return 14 - pOH;
-            } else {
-                // Übertitriert
-                const cOH = (nB_added - nS_start) / totalVol;
-                return 14 + Math.log10(cOH);
-            }
+            ds.push({ label: 'H₂A', data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + Math.log10(h*h/(h*h+h*K1+K1*K2))}}), borderColor: '#dc2626', borderWidth: 2 });
+            ds.push({ label: 'HA⁻', data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + Math.log10(h*K1/(h*h+h*K1+K1*K2))}}), borderColor: '#f97316', borderWidth: 2 });
+            ds.push({ label: 'A²⁻', data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + Math.log10(K1*K2/(h*h+h*K1+K1*K2))}}), borderColor: '#16a34a', borderWidth: 2 });
         }
+        ds.push({ label: 'pH-Ist', data: [{x: 7, y: 0}, {x: 7, y: -10}], borderColor: '#1e293b', borderWidth: 2, borderDash: [3,3] });
+        haeggChart.data.datasets = ds; haeggChart.update();
     }
 
-    function calculatePH() {
-        const v = parseFloat(document.getElementById('volume-slider').value);
-        const ph = getPH(v);
-        
-        document.getElementById('vol-display').innerText = v.toFixed(1);
-        document.getElementById('ph-display').innerText = ph.toFixed(2);
-        
-        updateView(ph);
-        drawChart(v);
+    function updateHaeggCursor(ph) {
+        if(!haeggChart.data.datasets.length) return;
+        haeggChart.data.datasets[haeggChart.data.datasets.length - 1].data = [{x: ph, y: 0}, {x: ph, y: -10}];
+        haeggChart.update('none');
     }
-
-    function updateView(ph) {
-        const liquid = document.getElementById('liquid');
-        const indicator = document.getElementById('indicator-select').value;
-        let color = "#e2e8f0"; // farblos/neutral
-
-        if (indicator === 'phph') {
-            color = ph > 8.2 ? `rgba(219, 39, 119, ${Math.min((ph-8.2)*0.5, 1)})` : "#f8fafc";
-        } else if (indicator === 'btb') {
-            if (ph < 6.0) color = "#facc15"; // gelb
-            else if (ph > 7.6) color = "#2563eb"; // blau
-            else color = "#22c55e"; // grün
-        } else if (indicator === 'mo') {
-            if (ph < 3.1) color = "#ef4444"; // rot
-            else if (ph > 4.4) color = "#fbbf24"; // gelb
-            else color = "#f97316"; // orange
-        }
-        
-        liquid.style.backgroundColor = color;
-    }
-
-    function drawChart(currentV) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const w = canvas.width;
-        const h = canvas.height;
-        const padding = 40;
-
-        // Achsen
-        ctx.beginPath();
-        ctx.strokeStyle = "#64748b";
-        ctx.moveTo(padding, padding);
-        ctx.lineTo(padding, h - padding);
-        ctx.lineTo(w - padding, h - padding);
-        ctx.stroke();
-
-        // Kurve zeichnen
-        ctx.beginPath();
-        ctx.strokeStyle = varProp('--primary');
-        ctx.lineWidth = 2;
-        
-        for (let v = 0; v <= 50; v += 0.5) {
-            const ph = getPH(v);
-            const x = padding + (v / 50) * (w - 2 * padding);
-            const y = (h - padding) - (ph / 14) * (h - 2 * padding);
-            if (v === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-
-        // Aktueller Punkt
-        const phCur = getPH(currentV);
-        const curX = padding + (currentV / 50) * (w - 2 * padding);
-        const curY = (h - padding) - (phCur / 14) * (h - 2 * padding);
-        
-        ctx.beginPath();
-        ctx.fillStyle = "#dc2626";
-        ctx.arc(curX, curY, 5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Beschriftung
-        ctx.fillStyle = "#1e293b";
-        ctx.font = "12px sans-serif";
-        ctx.fillText("V (Maßlösung) in ml", w/2 - 40, h - 5);
-        ctx.save();
-        ctx.translate(15, h/2 + 20);
-        ctx.rotate(-Math.PI/2);
-        ctx.fillText("pH-Wert", 0, 0);
-        ctx.restore();
-    }
-
-    function varProp(name) {
-        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    }
-
-    function resetTitration() {
-        document.getElementById('volume-slider').value = 0;
-        calculatePH();
-    }
-
-    // Init
-    window.addEventListener('resize', () => {
-        canvas.width = canvas.parentElement.offsetWidth - 30;
-        canvas.height = 300;
-        calculatePH();
-    });
-    
-    canvas.width = canvas.parentElement.offsetWidth - 30;
-    canvas.height = 300;
-    calculatePH();
-
 </script>
 </body>
 </html>
