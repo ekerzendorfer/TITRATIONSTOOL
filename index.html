@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Titrations-Labor Expert v13.1</title>
+    <title>Titrations-Labor Expert v14.0</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -13,7 +13,6 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-site); color: var(--text-main); margin: 0; padding: 10px; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
         .app-container { max-width: 1600px; width: 100%; height: 98vh; background: var(--bg-card); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); padding: 15px; display: flex; flex-direction: column; }
         header { border-bottom: 2px solid var(--border); margin-bottom: 10px; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        h1 { font-size: 1.2rem; margin: 0; color: var(--primary-dark); }
         .layout { display: grid; grid-template-columns: 320px 1fr; gap: 15px; flex-grow: 1; min-height: 0; }
 
         .panel { background: #f1f5f9; padding: 12px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; overflow-y: auto; height: 100%; }
@@ -22,17 +21,17 @@
         select, input { width: 100%; padding: 5px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; margin-bottom: 2px; }
 
         .beaker-view { background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
-        .beaker { width: 80px; height: 110px; border: 3px solid #94a3b8; border-top: none; border-radius: 0 0 12px 12px; margin: 0 auto; position: relative; overflow: hidden; }
+        .beaker { width: 90px; height: 120px; border: 3px solid #94a3b8; border-top: none; border-radius: 0 0 12px 12px; margin: 0 auto; position: relative; overflow: hidden; }
         .liquid { position: absolute; bottom: 0; left: 0; width: 100%; height: 35%; transition: background 0.4s ease; background: #e2e8f0; }
         .ph-badge { font-size: 2.2rem; font-weight: 800; color: var(--primary-dark); margin-top: 5px; }
-        .vol-badge { font-size: 1.2rem; font-weight: 700; color: #64748b; background: #f8fafc; padding: 4px; border-radius: 4px; border: 1px solid #e2e8f0; margin-top: 5px; }
+        .vol-badge { font-size: 1.1rem; font-weight: 700; color: #64748b; background: #f8fafc; padding: 3px; border-radius: 4px; border: 1px solid #e2e8f0; margin-top: 5px; text-align: center; }
 
         .chart-panel { display: flex; flex-direction: column; gap: 10px; height: 100%; }
         .chart-card { background: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--border); flex: 1; min-height: 0; display: flex; flex-direction: column; }
         .chart-container { flex: 1; position: relative; min-height: 0; }
         .caption { font-size: 0.7rem; text-align: center; color: var(--text-muted); font-weight: bold; margin-bottom: 2px; text-transform: uppercase; }
 
-        .btn-drop { background: #0ea5e9; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 1rem; border-bottom: 4px solid #0369a1; user-select: none; }
+        .btn-drop { background: #0ea5e9; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 1.1rem; border-bottom: 4px solid #0369a1; user-select: none; }
         .btn-drop:active { transform: translateY(2px); border-bottom: 1px solid #0369a1; background: #0284c7; }
         .btn-start { background: var(--primary); color: white; width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-pause { background: var(--warning); color: black; width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
@@ -49,8 +48,8 @@
 
 <div class="app-container">
     <header>
-        <h1>Titrations-Labor Expert v13.1</h1>
-        <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">Präzisions-Analyse</div>
+        <h1>Titrations-Labor Expert v14.0</h1>
+        <div id="sim-status" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">System bereit</div>
     </header>
 
     <div class="layout">
@@ -63,8 +62,8 @@
 
             <div class="control-group">
                 <label>Modus</label>
-                <select id="simMode" onchange="toggleChallenge()">
-                    <option value="expert">Lehrer-Modus (Vollzugriff)</option>
+                <select id="simMode" onchange="toggleChallengeMode()">
+                    <option value="expert">Lehrer-Modus</option>
                     <option value="challenge">Schüler-Challenge (Geheim)</option>
                 </select>
             </div>
@@ -73,14 +72,14 @@
                 <label>Titrand & Maßlösung</label>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
                     <div><label>c₀ Probe</label><input type="number" id="c0" value="0.1" step="0.01" onchange="resetSim()"></div>
-                    <div id="v0-container"><label>V₀ Probe (ml)</label><input type="number" id="v0" value="20" step="0.1" onchange="resetSim()"></div>
+                    <div id="v0-container"><label>V₀ ml</label><input type="number" id="v0" value="20" step="0.1" onchange="resetSim()"></div>
                 </div>
-                <label style="margin-top:4px;">Konzentration Titrator</label>
+                <label style="margin-top:4px;">c Maßlösung</label>
                 <input type="number" id="cTit" value="0.1" step="0.01" onchange="resetSim()">
             </div>
 
             <div class="control-group">
-                <label>pKₛ & Wertigkeit</label>
+                <label>Säure-Parameter</label>
                 <select id="poly" onchange="resetSim()">
                     <option value="1">Einprotonig</option>
                     <option value="2">Zweiprotonig</option>
@@ -93,7 +92,7 @@
 
             <div class="control-group">
                 <label>Indikator</label>
-                <select id="indicator" onchange="refreshVisuals()">
+                <select id="indicator" onchange="updateUI()">
                     <option value="btb">Bromthymolblau</option>
                     <option value="phph">Phenolphthalein</option>
                     <option value="mo">Methylorange</option>
@@ -146,7 +145,8 @@
     let volAdded = 0, lastPH = 7, secretV0 = 20;
     let titrationData = [];
     let markersFound = { hap1: false, ap1: false, hap2: false, ap2: false };
-    let challengeSolved = false;
+    let challengeActive = false;
+    let challengeResolved = false;
 
     window.onload = function() {
         initCharts();
@@ -154,21 +154,9 @@
         resetSim();
     };
 
-    function setupDropLogic() {
-        const btn = document.getElementById('dropBtn');
-        const start = (e) => { 
-            if(e.cancelable) e.preventDefault();
-            if(autoTimer) return; 
-            addStep(); 
-            holdTimer = setTimeout(() => { dropInterval = setInterval(addStep, 80); }, 350); 
-        };
-        const stop = () => { clearTimeout(holdTimer); clearInterval(dropInterval); };
-        btn.onmousedown = start; btn.onmouseup = stop; btn.onmouseleave = stop;
-        btn.ontouchstart = start; btn.ontouchend = stop;
-    }
-
     function initCharts() {
-        tChart = new Chart(document.getElementById('titrateChart'), {
+        const ctxT = document.getElementById('titrateChart');
+        tChart = new Chart(ctxT, {
             type: 'line',
             data: { datasets: [
                 { label: 'pH', data: [], borderColor: '#2563eb', borderWidth: 3, pointRadius: 0, yAxisID: 'y', tension: 0.1 },
@@ -179,20 +167,22 @@
             options: {
                 responsive: true, maintainAspectRatio: false, animation: false,
                 scales: {
-                    x: { type: 'linear', title: { display: true, text: 'Maßlösung (ml)' } },
+                    x: { type: 'linear', title: { display: true, text: 'V (ml)' } },
                     y: { min: 0, max: 14, title: { display: true, text: 'pH' } },
-                    yAbl: { position: 'right', display: false, title: { display: true, text: 'Ableitungen' } }
-                }
+                    yAbl: { position: 'right', display: false, title: { display: true, text: 'Abl.' } }
+                },
+                plugins: { legend: { display: false } }
             }
         });
 
-        hChart = new Chart(document.getElementById('haeggChart'), {
+        const ctxH = document.getElementById('haeggChart');
+        hChart = new Chart(ctxH, {
             type: 'line',
             data: { datasets: [] },
             options: {
                 responsive: true, maintainAspectRatio: false, animation: false,
                 scales: {
-                    x: { type: 'linear', min: 0, max: 14, title: { display: true, text: 'pH' } },
+                    x: { type: 'linear', min: 0, max: 14 },
                     y: { type: 'linear', min: -14, max: 0, title: { display: true, text: 'log c' } }
                 },
                 elements: { point: { radius: 0 } },
@@ -201,14 +191,29 @@
         });
     }
 
+    function setupDropLogic() {
+        const btn = document.getElementById('dropBtn');
+        const start = (e) => { 
+            if(autoTimer) return; 
+            addStep(); 
+            holdTimer = setTimeout(() => { dropInterval = setInterval(addStep, 80); }, 350); 
+        };
+        const stop = () => { clearTimeout(holdTimer); clearInterval(dropInterval); };
+        btn.onmousedown = start; btn.onmouseup = stop; btn.onmouseleave = stop;
+    }
+
     function getPH(vAdd) {
         const Kw = 1e-14;
-        const v0 = (document.getElementById('simMode').value === 'challenge') ? secretV0 : parseFloat(document.getElementById('v0').value);
-        const c0 = parseFloat(document.getElementById('c0').value), cTit = parseFloat(document.getElementById('cTit').value);
-        const pk1 = parseFloat(document.getElementById('pk1').value), pk2 = parseFloat(document.getElementById('pk2').value);
+        const v0 = challengeActive ? secretV0 : parseFloat(document.getElementById('v0').value);
+        const c0 = parseFloat(document.getElementById('c0').value);
+        const cTit = parseFloat(document.getElementById('cTit').value);
+        const pk1 = parseFloat(document.getElementById('pk1').value);
+        const pk2 = parseFloat(document.getElementById('pk2').value);
         const isDi = document.getElementById('poly').value === '2';
+
         const K1 = Math.pow(10, -pk1), K2 = isDi ? Math.pow(10, -pk2) : 0;
         const vTot = v0 + vAdd, C_dil = c0 * (v0 / vTot), T_dil = cTit * (vAdd / vTot);
+
         const f = (h) => {
             const oh = Kw / h;
             let alpha = isDi ? (h*K1 + 2*K1*K2)/(h*h + h*K1 + K1*K2) : K1/(h+K1);
@@ -220,10 +225,9 @@
     }
 
     function addStep() {
-        const v0 = (document.getElementById('simMode').value === 'challenge') ? secretV0 : parseFloat(document.getElementById('v0').value);
-        const c0 = parseFloat(document.getElementById('c0').value), cTit = parseFloat(document.getElementById('cTit').value);
-        const vEP = (v0 * c0 / cTit);
-        const vLimit = vEP * (document.getElementById('poly').value==='2'?2.2:1.2) * 2;
+        const v0 = challengeActive ? secretV0 : parseFloat(document.getElementById('v0').value);
+        const vEP = (v0 * parseFloat(document.getElementById('c0').value) / parseFloat(document.getElementById('cTit').value));
+        const vLimit = vEP * (document.getElementById('poly').value==='2'?2.2:1.5) * 2;
         
         if (volAdded >= vLimit) return;
 
@@ -237,7 +241,7 @@
         volAdded = forced ? forced : nextVol;
         lastPH = getPH(volAdded);
         titrationData.push({ x: volAdded, y: lastPH });
-        refreshVisuals(lastPH);
+        updateUI();
     }
 
     function toggleAutoSim() {
@@ -247,98 +251,80 @@
             btn.innerText = "Pausieren"; btn.className = "btn-pause";
             autoTimer = setInterval(() => {
                 addStep();
-                const v0 = (document.getElementById('simMode').value === 'challenge') ? secretV0 : parseFloat(document.getElementById('v0').value);
-                const c0 = parseFloat(document.getElementById('c0').value), cTit = parseFloat(document.getElementById('cTit').value);
-                const vEP = (v0 * c0 / cTit) * (document.getElementById('poly').value==='2'?2:1);
+                const v0 = challengeActive ? secretV0 : parseFloat(document.getElementById('v0').value);
+                const vEP = (v0 * parseFloat(document.getElementById('c0').value) / parseFloat(document.getElementById('cTit').value)) * (document.getElementById('poly').value==='2'?2:1);
                 if (volAdded >= vEP * 2.1) { clearInterval(autoTimer); autoTimer = null; btn.innerText = "Beendet"; btn.disabled = true; }
             }, 80);
         }
     }
 
-    function toggleChallenge() {
-        const isCh = document.getElementById('simMode').value === 'challenge';
-        document.getElementById('v0-container').style.display = isCh ? 'none' : 'block';
-        document.getElementById('challenge-ui').style.display = isCh ? 'block' : 'none';
-        if(isCh) {
-            secretV0 = 15 + Math.random() * 5;
-            challengeSolved = false;
-        }
+    function resetSim() {
+        clearInterval(autoTimer); autoTimer = null; volAdded = 0; titrationData = [];
+        challengeResolved = false;
+        const btn = document.getElementById('startBtn');
+        btn.innerText = "Auto-Titration"; btn.className = "btn-start"; btn.disabled = false;
+        document.getElementById('pk2').style.display = (document.getElementById('poly').value === '2') ? "inline" : "none";
+        markersFound = { hap1: false, ap1: false, hap2: false, ap2: false };
+        
+        const v0 = challengeActive ? secretV0 : parseFloat(document.getElementById('v0').value);
+        const vEP = (v0 * parseFloat(document.getElementById('c0').value) / parseFloat(document.getElementById('cTit').value));
+        
+        tChart.options.scales.x.max = Math.ceil(vEP * (document.getElementById('poly').value==='2'?2.5:1.6));
+        tChart.data.datasets.forEach(d => d.data = []);
+        
+        lastPH = getPH(0);
+        titrationData.push({ x: 0, y: lastPH });
+        updateUI();
+        drawHaegg();
+        
+        if(!challengeActive) document.getElementById('info-box').innerHTML = `ÄP erwartet bei: ${(vEP * (document.getElementById('poly').value==='2'?2:1)).toFixed(2)} ml`;
+        else document.getElementById('info-box').innerHTML = "V₀ ist geheim. Finde den ÄP!";
+    }
+
+    function toggleChallengeMode() {
+        challengeActive = document.getElementById('simMode').value === 'challenge';
+        document.getElementById('v0-container').style.visibility = challengeActive ? 'hidden' : 'visible';
+        document.getElementById('challenge-ui').style.display = challengeActive ? 'block' : 'none';
+        if(challengeActive) secretV0 = 15 + Math.random() * 5;
         resetSim();
     }
 
     function checkChallenge() {
-        challengeSolved = true;
-        const v0 = secretV0;
-        const c0 = parseFloat(document.getElementById('c0').value), cTit = parseFloat(document.getElementById('cTit').value);
-        const vEP = (v0 * c0 / cTit) * (document.getElementById('poly').value==='2'?2:1);
+        challengeResolved = true;
+        const vEP = (secretV0 * parseFloat(document.getElementById('c0').value) / parseFloat(document.getElementById('cTit').value)) * (document.getElementById('poly').value==='2'?2:1);
         const guess = parseFloat(document.getElementById('guess').value) || 0;
-        document.getElementById('info-box').innerHTML = `<b>Ergebnis:</b><br>Echter ÄP: ${vEP.toFixed(2)} ml<br>Geheimes V₀: ${v0.toFixed(2)} ml<br>Abweichung: ${Math.abs(guess - vEP).toFixed(2)} ml`;
-        refreshVisuals();
+        document.getElementById('info-box').innerHTML = `<b>Ergebnis:</b><br>Echter ÄP: ${vEP.toFixed(2)} ml<br>Geheimes V₀: ${secretV0.toFixed(2)} ml<br>Diff: ${Math.abs(guess - vEP).toFixed(2)} ml`;
+        updateUI();
     }
 
-    function resetSim() {
-        clearInterval(autoTimer); autoTimer = null; volAdded = 0; titrationData = [];
-        document.getElementById('startBtn').innerText = "Auto-Titration";
-        document.getElementById('startBtn').disabled = false;
-        document.getElementById('pk2').style.display = (document.getElementById('poly').value === '2') ? "inline" : "none";
-        markersFound = { hap1: false, ap1: false, hap2: false, ap2: false };
-        
-        const isCh = document.getElementById('simMode').value === 'challenge';
-        const v0 = isCh ? secretV0 : parseFloat(document.getElementById('v0').value);
-        const vEP = (v0 * parseFloat(document.getElementById('c0').value) / parseFloat(document.getElementById('cTit').value));
-        
-        tChart.options.scales.x.max = Math.ceil(vEP * (document.getElementById('poly').value==='2'?2.5:1.5) + 2);
-        tChart.data.datasets.forEach(d => d.data = []);
-        
-        if(!isCh) document.getElementById('info-box').innerHTML = `ÄP erwartet bei: ${(vEP * (document.getElementById('poly').value==='2'?2:1)).toFixed(2)} ml`;
-        else document.getElementById('info-box').innerHTML = "V₀ ist geheim. Titriere bis zum Farbumschlag!";
-
-        lastPH = getPH(0);
-        titrationData.push({ x: 0, y: lastPH });
-        refreshVisuals(lastPH);
-        drawHaegg();
-    }
-
-    function refreshVisuals(ph = lastPH) {
-        document.getElementById('ph-display').innerText = ph.toFixed(2);
+    function updateUI() {
+        document.getElementById('ph-display').innerText = lastPH.toFixed(2);
         document.getElementById('vol-display').innerHTML = `V<sub>zu</sub>: ${volAdded.toFixed(2)} ml`;
-        const v0 = (document.getElementById('simMode').value === 'challenge') ? secretV0 : parseFloat(document.getElementById('v0').value);
+        const v0 = challengeActive ? secretV0 : parseFloat(document.getElementById('v0').value);
         document.getElementById('liquid').style.height = Math.min(30 + (volAdded / v0) * 15, 98) + "%";
         
         const ind = document.getElementById('indicator').value;
         let col = "#f1f5f9";
-        if(ind==='btb') col = ph<6 ? "#facc15" : (ph>7.6 ? "#2563eb" : "#22c55e");
-        else if(ind==='phph') col = ph>8.2 ? `rgba(219,39,119,${Math.min((ph-8.2)*0.6, 1)})` : "#fff";
-        else if(ind==='mo') col = ph<3.1 ? "#ef4444" : (ph>4.4 ? "#facc15" : "#f97316");
+        if(ind==='btb') col = lastPH<6 ? "#facc15" : (lastPH>7.6 ? "#2563eb" : "#22c55e");
+        else if(ind==='phph') col = lastPH>8.2 ? `rgba(219,39,119,${Math.min((lastPH-8.2)*0.6, 1)})` : "#fff";
+        else if(ind==='mo') col = lastPH<3.1 ? "#ef4444" : (lastPH>4.4 ? "#facc15" : "#f97316");
         document.getElementById('liquid').style.backgroundColor = col;
 
         tChart.data.datasets[0].data = titrationData;
-        const isCh = document.getElementById('simMode').value === 'challenge';
-        const vEP = (v0 * parseFloat(document.getElementById('c0').value) / parseFloat(document.getElementById('cTit').value));
         
-        if (!isCh || challengeSolved) {
-            const checkP = (v, k, l) => {
-                if(!markersFound[k] && Math.abs(volAdded - v) < 0.001) {
-                    tChart.data.datasets[3].data.push({x: volAdded, y: ph});
-                    markersFound[k] = true;
-                }
-            };
-            checkP(vEP * 0.5, 'hap1', 'HÄP 1');
-            checkP(vEP, 'ap1', 'ÄP 1');
-            if(document.getElementById('poly').value === '2') {
-                checkP(vEP * 1.5, 'hap2', 'HÄP 2');
-                checkP(vEP * 2, 'ap2', 'ÄP 2');
-            }
+        if (!challengeActive || challengeResolved) {
+            const vEP = (v0 * parseFloat(document.getElementById('c0').value) / parseFloat(document.getElementById('cTit').value));
+            const check = (v, k) => { if(!markersFound[k] && Math.abs(volAdded - v) < 0.001) { tChart.data.datasets[3].data.push({x: volAdded, y: lastPH}); markersFound[k] = true; } };
+            check(vEP * 0.5, 'hap1'); check(vEP, 'ap1');
+            if(document.getElementById('poly').value === '2') { check(vEP * 1.5, 'hap2'); check(vEP * 2, 'ap2'); }
         }
 
         tChart.update('none');
-        if(hChart.data.datasets.length) { hChart.data.datasets[hChart.data.datasets.length-1].data = [{x: ph, y: 0}, {x: ph, y: -14}]; hChart.update('none'); }
+        if(hChart.data.datasets.length) { hChart.data.datasets[hChart.data.datasets.length-1].data = [{x: lastPH, y: 0}, {x: lastPH, y: -14}]; hChart.update('none'); }
     }
 
     function updateCharts() {
-        const isCh = document.getElementById('simMode').value === 'challenge';
-        if (isCh && !challengeSolved) { alert("Analyse erst nach Prüfung der Challenge verfügbar!"); return; }
-
+        if(challengeActive && !challengeResolved) return;
         const d1On = document.getElementById('checkD1').checked, d2On = document.getElementById('checkD2').checked;
         tChart.options.scales.yAbl.display = (d1On || d2On);
         tChart.data.datasets[1].hidden = !d1On; tChart.data.datasets[2].hidden = !d2On;
@@ -350,5 +336,46 @@
             }
             for(let i=1; i<d1.length; i++) {
                 let dv = d1[i].x - d1[i-1].x, dd = d1[i].y - d1[i-1].y;
-                // Hier wurde die Logik für den Vorzeichenwechsel korrigiert (Kein Betrag!)
-                if(dv > 0) d2.push({x: d1
+                if(dv > 0) d2.push({x: d1[i].x, y: dd/dv});
+            }
+            tChart.data.datasets[1].data = d1;
+            tChart.data.datasets[2].data = d2;
+        }
+        tChart.update();
+    }
+
+    function drawHaegg() {
+        const c0 = parseFloat(document.getElementById('c0').value) || 0.1;
+        const pk1 = parseFloat(document.getElementById('pk1').value), pk2 = parseFloat(document.getElementById('pk2').value);
+        const isDi = document.getElementById('poly').value === '2';
+        const logC0 = Math.log10(c0), phs = [];
+        for(let i=0; i<=14; i+=0.1) phs.push(i);
+        const logS = (v) => Math.max(Math.log10(v), -14);
+        let ds = [
+            { label: 'H⁺', data: phs.map(p => ({x:p, y: -p})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 },
+            { label: 'OH⁻', data: phs.map(p => ({x:p, y: p-14})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 }
+        ];
+        const K1 = Math.pow(10, -pk1), K2 = Math.pow(10, -pk2);
+        if(!isDi) {
+            ds.push({ label: 'HA', borderColor: '#dc2626', borderWidth: 3, data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + logS(h/(h+K1))}; })});
+            ds.push({ label: 'A⁻', borderColor: '#16a34a', borderWidth: 3, data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + logS(K1/(h+K1))}; })});
+        } else {
+            const h2a=[], ha=[], a2=[];
+            phs.forEach(p => {
+                const h=Math.pow(10,-p), D=h*h+h*K1+K1*K2;
+                h2a.push({x:p, y: logC0 + logS(h*h/D)}); ha.push({x:p, y: logC0 + logS(h*K1/D)}); a2.push({x:p, y: logC0 + logS(K1*K2/D)});
+            });
+            ds.push({label:'H₂A', borderColor:'#dc2626', data:h2a, borderWidth: 3}, {label:'HA⁻', borderColor:'#f97316', data:ha, borderWidth: 3}, {label:'A²⁻', borderColor:'#16a34a', data:a2, borderWidth: 3});
+        }
+        ds.push({ label: 'Aktuell', data: [], borderColor: '#1e293b', borderDash: [2,2], borderWidth: 2 });
+        hChart.data.datasets = ds; hChart.update();
+    }
+
+    function exportCSV() {
+        let csv = "V_ml;pH\n" + titrationData.map(d => `${d.x.toFixed(2)};${d.y.toFixed(2)}`).join("\n");
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "titration.csv"; a.click();
+    }
+</script>
+</body>
+</html>
