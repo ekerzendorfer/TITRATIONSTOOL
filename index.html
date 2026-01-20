@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Titrations-Labor Master Pro v9.0</title>
+    <title>Titrations-Labor Master Pro v9.1</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -10,7 +10,7 @@
             --warning: #facc15; --bg-site: #f8fafc; --bg-card: #ffffff; --border: #e2e8f0; --text-main: #1e293b; --text-muted: #64748b;
         }
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-site); margin: 0; padding: 15px; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-site); color: var(--text-main); margin: 0; padding: 15px; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
         .app-container { max-width: 1600px; width: 100%; height: 98vh; background: var(--bg-card); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); padding: 15px; display: flex; flex-direction: column; }
         header { border-bottom: 2px solid var(--border); margin-bottom: 10px; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .layout { display: grid; grid-template-columns: 320px 1fr; gap: 15px; flex-grow: 1; min-height: 0; }
@@ -43,8 +43,8 @@
 
 <div class="app-container">
     <header>
-        <h1>Titrations-Labor Master Pro v9.0</h1>
-        <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">Präzisions-Modus</div>
+        <h1>Titrations-Labor Master Pro v9.1</h1>
+        <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">Präzisions-Analyse</div>
     </header>
 
     <div class="layout">
@@ -79,7 +79,7 @@
             </div>
 
             <div class="control-group">
-                <label>Analyse (nur bei Stop)</label>
+                <label>Analyse (bei Stop)</label>
                 <div class="check-row">
                     <input type="checkbox" id="checkD1" onchange="updateCharts()"> 1. Abl.
                     <input type="checkbox" id="checkD2" onchange="updateCharts()"> 2. Abl.
@@ -141,7 +141,7 @@
             data: { datasets: [
                 { label: 'pH', data: [], borderColor: '#2563eb', borderWidth: 3, pointRadius: 0, yAxisID: 'y', tension: 0.1 },
                 { label: '1. Abl.', data: [], borderColor: '#16a34a', borderWidth: 2, pointRadius: 0, yAxisID: 'yAbl', hidden: true, borderDash: [5,5] },
-                { label: '2. Abl.', data: [], borderColor: '#dc2626', borderWidth: 1, pointRadius: 0, yAxisID: 'yAbl', hidden: true },
+                { label: '2. Abl.', data: [], borderColor: '#dc2626', borderWidth: 2, pointRadius: 0, yAxisID: 'yAbl', hidden: true },
                 { label: 'Marker', data: [], type: 'scatter', pointRadius: 8, pointBackgroundColor: '#dc2626', yAxisID: 'y' }
             ]},
             options: {
@@ -149,7 +149,7 @@
                 scales: {
                     x: { type: 'linear', title: { display: true, text: 'V (Maßlösung) in ml' } },
                     y: { min: 0, max: 14, title: { display: true, text: 'pH-Wert' } },
-                    yAbl: { position: 'right', display: false, title: { display: true, text: 'Abl.' } }
+                    yAbl: { position: 'right', display: false, title: { display: true, text: 'Ableitungen' } }
                 }
             }
         });
@@ -215,23 +215,20 @@
                 const step = parseFloat(document.getElementById('dropSize').value);
                 const nextVol = volAdded + step;
 
-                // PRÄZISION: Prüfen, ob wir einen Marker (ÄP/HÄP) überspringen würden
+                // Markierungspunkte erzwingen
                 const vEq1 = (20 * c0 / cTit);
                 const pointsToCheck = [vEq1 * 0.5, vEq1, vEq1 * 1.5, vEq1 * 2];
-                
                 let forcedPoint = null;
                 for(let p of pointsToCheck) {
                     if (volAdded < p && nextVol >= p) { forcedPoint = p; break; }
                 }
 
-                if (forcedPoint) volAdded = forcedPoint;
-                else volAdded = nextVol;
-
+                volAdded = forcedPoint ? forcedPoint : nextVol;
                 lastPH = getPH(volAdded);
                 titrationData.push({ x: volAdded, y: lastPH });
                 refreshVisuals(lastPH);
 
-                if (volAdded >= vEP * 2.0) {
+                if (volAdded >= vEP * 2.1) {
                     clearInterval(timer); timer = null;
                     btn.innerText = "Fertig"; btn.disabled = true;
                 }
@@ -247,14 +244,13 @@
         
         const c0 = parseFloat(document.getElementById('c0').value);
         const cTit = parseFloat(document.getElementById('cTit').value);
-        const isDi = document.getElementById('poly').value === '2' && document.getElementById('mode').value === 'acid';
-        const vEP = (20 * c0 / cTit) * (isDi ? 2 : 1);
+        const vEP = (20 * c0 / cTit) * (document.getElementById('poly').value === '2' ? 2 : 1);
         
         markersFound = { hap1: false, ap1: false, hap2: false, ap2: false };
         document.getElementById('info-box').innerHTML = `<b>Berechnung:</b><br>ÄP erwartet bei ${vEP.toFixed(1)} ml`;
         
         tChart.data.datasets.forEach(d => d.data = []);
-        tChart.options.scales.x.max = Math.ceil(vEP * 2.1); // Skalierung sofort fixieren
+        tChart.options.scales.x.max = Math.ceil(vEP * 2.2);
         
         lastPH = getPH(0);
         titrationData.push({ x: 0, y: lastPH });
@@ -276,7 +272,6 @@
 
         tChart.data.datasets[0].data = titrationData;
         
-        // Marker Logic (Exakt)
         const c0 = parseFloat(document.getElementById('c0').value);
         const cTit = parseFloat(document.getElementById('cTit').value);
         const vEP = (20 * c0 / cTit);
@@ -309,7 +304,7 @@
         const isDi = document.getElementById('poly').value === '2' && document.getElementById('mode').value === 'acid';
         const logC0 = Math.log10(c0);
         const phs = []; for(let i=0; i<=14; i+=0.1) phs.push(i);
-        const safeL = (v) => Math.max(Math.log10(Math.max(v, 1e-20)), -14);
+        const safeL = (v) => Math.max(Math.log10(Math.max(v, 1e-25)), -14);
 
         let ds = [
             { label: 'H⁺', data: phs.map(p => ({x:p, y: -p})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 },
@@ -337,18 +332,35 @@
         const d1On = document.getElementById('checkD1').checked, d2On = document.getElementById('checkD2').checked;
         tChart.options.scales.yAbl.display = (d1On || d2On);
         tChart.data.datasets[1].hidden = !d1On; tChart.data.datasets[2].hidden = !d2On;
+        
         if (d1On || d2On) {
             let d1 = [];
+            // 1. Ableitung: Änderung des pH pro Volumenänderung
             for(let i=1; i<titrationData.length; i++) {
-                let dv = titrationData[i].x - titrationData[i-1].x, dp = titrationData[i].y - titrationData[i-1].y;
-                if(dv > 0) d1.push({x: titrationData[i].x, y: Math.abs(dp/dv)});
+                let dv = titrationData[i].x - titrationData[i-1].x;
+                let dp = titrationData[i].y - titrationData[i-1].y;
+                if(dv > 0) {
+                    let slope = dp/dv;
+                    // Wir nutzen den Betrag für die 1. Ableitung (Peak nach oben)
+                    d1.push({x: titrationData[i].x, y: Math.abs(slope)});
+                }
             }
             tChart.data.datasets[1].data = d1;
+
             if (d2On) {
                 let d2 = [];
+                // 2. Ableitung: Änderung der Steigung (Vorzeichenwechsel am Wendepunkt)
                 for(let i=1; i<d1.length; i++) {
-                    let dv = d1[i].x - d1[i-1].x, dd = d1[i].y - d1[i-1].y;
-                    if(dv > 0) d2.push({x: d1[i].x, y: dd/dv});
+                    let dv = d1[i].x - d1[i-1].x;
+                    let dd = d1[i].y - d1[i-1].y;
+                    // Wichtig: Wir berechnen die Steigung der 1. Ableitung
+                    // Um den Wendepunkt der Originalkurve zu finden, muss hier die Richtung beachtet werden.
+                    // Da titrationData[i].y für Säuren steigt, ist dp/dv positiv.
+                    // Die 2. Ableitung wechselt am ÄP von positiv nach negativ (bei Säuren).
+                    if(dv > 0) {
+                        let secondSlope = dd/dv;
+                        d2.push({x: d1[i].x, y: secondSlope});
+                    }
                 }
                 tChart.data.datasets[2].data = d2;
             }
