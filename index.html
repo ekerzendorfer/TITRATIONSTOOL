@@ -13,7 +13,6 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-site); color: var(--text-main); margin: 0; padding: 10px; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
         .app-container { max-width: 1600px; width: 100%; height: 98vh; background: var(--bg-card); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); padding: 15px; display: flex; flex-direction: column; }
         header { border-bottom: 2px solid var(--border); margin-bottom: 10px; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        h1 { font-size: 1.2rem; margin: 0; color: var(--primary-dark); }
         .layout { display: grid; grid-template-columns: 320px 1fr; gap: 15px; flex-grow: 1; min-height: 0; }
 
         .panel { background: #f1f5f9; padding: 12px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; overflow-y: auto; height: 100%; }
@@ -32,13 +31,13 @@
         .chart-container { flex: 1; position: relative; min-height: 0; }
         .caption { font-size: 0.7rem; text-align: center; color: var(--text-muted); font-weight: bold; margin-bottom: 2px; text-transform: uppercase; }
 
-        .btn-drop { background: #0ea5e9; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 1.1rem; border-bottom: 4px solid #0369a1; user-select: none; margin-bottom: 5px; }
+        .btn-drop { background: #0ea5e9; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 1.1rem; border-bottom: 4px solid #0369a1; user-select: none; }
         .btn-drop:active { transform: translateY(2px); border-bottom: 1px solid #0369a1; }
         .btn-start { background: var(--primary); color: white; width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-pause { background: var(--warning); color: black; width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         
         .eval-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 8px; font-size: 0.8rem; margin-top: 5px; }
-        .info-box { font-size: 0.75rem; background: #eff6ff; padding: 8px; border-radius: 6px; border: 1px solid #dbeafe; min-height: 45px; color: var(--primary-dark); }
+        .info-box { font-size: 0.75rem; background: #eff6ff; padding: 8px; border-radius: 6px; border: 1px solid #dbeafe; min-height: 50px; color: var(--primary-dark); }
         .imprint { font-size: 0.6rem; color: #94a3b8; text-align: center; margin-top: auto; padding-top: 10px; line-height: 1.2; }
     </style>
 </head>
@@ -46,7 +45,7 @@
 
 <div class="app-container">
     <header>
-        <h1>Titrations-Labor Master Pro</h1>
+        <h1>Titrations-Labor Expert Master Pro</h1>
         <div id="sim-status" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">Initialisiere...</div>
     </header>
 
@@ -59,17 +58,17 @@
             </div>
 
             <div class="control-group">
-                <label>Modus & System</label>
+                <label>Modus</label>
                 <select id="simMode" onchange="toggleMode()">
-                    <option value="expert">Lehrer-Modus</option>
-                    <option value="challenge">Schüler-Challenge</option>
+                    <option value="expert">Lehrer-Modus (Vollzugriff)</option>
+                    <option value="challenge">Schüler-Challenge (Geheim)</option>
                 </select>
             </div>
 
             <div class="control-group">
                 <label>Titrand & Maßlösung</label>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-                    <div id="c0-box"><label>c₀ mol/l</label><input type="number" id="c0" value="0.1" step="0.01" onchange="resetSim()"></div>
+                    <div id="c0-box"><label>c₀ Probe (mol/l)</label><input type="number" id="c0" value="0.1" step="0.01" onchange="resetSim()"></div>
                     <div id="v0-box"><label>V₀ Probe (ml)</label><input type="number" id="v0" value="20" step="0.1" onchange="resetSim()"></div>
                 </div>
                 <label style="margin-top:4px;">c Maßlösung (mol/l)</label>
@@ -91,7 +90,7 @@
 
             <div class="control-group">
                 <label>Indikator</label>
-                <select id="indicator" onchange="refreshVisuals()">
+                <select id="indicator" onchange="updateUI()">
                     <option value="btb">Bromthymolblau</option>
                     <option value="phph">Phenolphthalein</option>
                     <option value="mo">Methylorange</option>
@@ -102,12 +101,12 @@
 
             <div class="eval-box">
                 <strong>Auswertung: c<sub>1</sub>V<sub>1</sub> = c<sub>2</sub>V<sub>2</sub></strong>
-                <div id="v0-info" style="font-size: 0.75rem; color: var(--primary-dark); margin: 3px 0; display:none;">V<sub>Probe</sub> = <span id="v0-span">20</span> ml</div>
+                <div id="v0-info" style="font-size: 0.7rem; color: var(--primary-dark); margin: 3px 0; display:none;">V<sub>Probe</sub> = <span id="v0-span">20</span> ml</div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
                     <input type="number" id="userVep" placeholder="V ÄP (ml)">
                     <input type="number" id="userC0" placeholder="c₀ (mol/l)">
                 </div>
-                <button class="btn-start" style="padding:4px; font-size:0.7rem; margin-top:5px;" onclick="checkEval()">Prüfen</button>
+                <button class="btn-start" style="padding:4px; font-size:0.75rem; margin-top:5px;" onclick="checkEval()">Prüfen</button>
             </div>
 
             <div class="info-box" id="info-box">Bereit.</div>
@@ -117,11 +116,11 @@
                 <button class="btn-reset" style="flex:1; background:#94a3b8; color:white" onclick="resetSim()">Reset</button>
                 <button class="btn-reset" style="flex:1; background:#16a34a; color:white" onclick="exportCSV()">Export</button>
             </div>
-            <div style="font-size: 0.7rem; margin-top:4px; background: white; padding: 4px; border-radius: 4px; border: 1px solid #ddd;">
+            <div style="display:flex; gap:10px; font-size: 0.7rem; margin-top:4px; background: white; padding: 4px; border-radius: 4px; border: 1px solid #ddd;">
                 <input type="checkbox" id="checkD1" onchange="refreshCharts()"> 1. Ableitung
             </div>
             
-            <div class="imprint">v15.0 | entwickelt von Mag. Erich Kerzendorfer mit Gemini Flash 2.0</div>
+            <div class="imprint">entwickelt von Mag. Erich Kerzendorfer mit Gemini Flash 2.0</div>
         </div>
 
         <div class="chart-panel">
@@ -201,15 +200,17 @@
         const cT = parseFloat(document.getElementById('cTit').value) || 0.1;
         const pk1 = parseFloat(document.getElementById('pk1').value), pk2 = parseFloat(document.getElementById('pk2').value);
         const isDi = document.getElementById('poly').value === '2';
+
         const K1 = Math.pow(10, -pk1), K2 = isDi ? Math.pow(10, -pk2) : 0;
         const vTot = v0 + v, C0_d = c0 * (v0 / vTot), CT_d = cT * (v / vTot);
+
         const f = (h) => {
             const oh = Kw / h;
             let alpha = isDi ? (h*K1 + 2*K1*K2)/(h*h + h*K1 + K1*K2) : K1/(h+K1);
             return h + CT_d - oh - (C0_d * alpha);
         };
         let low = 1e-15, high = 2.0, m = 1e-7;
-        for(let i=0; i<80; i++) { m = (low + high) / 2; if(f(m) > 0) r = m; else l = m; if(f(m)>0) high=m; else low=m;}
+        for(let i=0; i<80; i++) { m = (low + high) / 2; if(f(m) > 0) high = m; else low = m; }
         return -Math.log10(m);
     }
 
@@ -219,23 +220,31 @@
         const c0 = challengeMode ? secretC0 : parseFloat(document.getElementById('c0').value);
         const cT = parseFloat(document.getElementById('cTit').value);
         const vE = (v0 * c0 / cT);
-        if (vAdded < vE && vAdded + step >= vE) vAdded = vE; else vAdded += step;
+
+        let next = vAdded + step;
+        if (vAdded < vE && next >= vE) vAdded = vE; else vAdded += step;
+        
         lastPH = getPH(vAdded);
         dataHist.push({ x: vAdded, y: lastPH });
-        refreshVisuals();
-        if (vAdded > chartT.options.scales.x.max * 0.9) { chartT.options.scales.x.max += 10; chartT.update('none'); }
+        updateUI();
+
+        if (vAdded > chartT.options.scales.x.max * 0.9) {
+            chartT.options.scales.x.max += 10;
+            chartT.update('none');
+        }
     }
 
     function toggleAuto() {
-        if (timerAuto) { clearInterval(timerAuto); timerAuto = null; document.getElementById('startBtn').innerText = "Weiter"; }
+        const b = document.getElementById('startBtn');
+        if (timerAuto) { clearInterval(timerAuto); timerAuto = null; b.innerText = "Weiter"; }
         else {
-            document.getElementById('startBtn').innerText = "Pause";
+            b.innerText = "Pause";
             timerAuto = setInterval(() => {
                 addStep();
                 const c0 = challengeMode ? secretC0 : parseFloat(document.getElementById('c0').value);
                 const v0 = parseFloat(document.getElementById('v0').value);
                 const vEP = (v0 * c0 / parseFloat(document.getElementById('cTit').value)) * (document.getElementById('poly').value==='2'?2:1);
-                if (vAdded >= vEP * 2.1) { clearInterval(timerAuto); timerAuto = null; document.getElementById('startBtn').innerText = "Beendet"; document.getElementById('startBtn').disabled = true; }
+                if (vAdded >= vEP * 2.1) { clearInterval(timerAuto); timerAuto = null; b.innerText = "Beendet"; b.disabled = true; }
             }, parseInt(document.getElementById('speed').value));
         }
     }
@@ -253,7 +262,7 @@
         chartT.data.datasets.forEach(d => d.data = []);
         lastPH = getPH(0);
         dataHist.push({ x: 0, y: lastPH });
-        refreshVisuals();
+        updateUI();
         drawHaegg();
         if(!challengeMode) document.getElementById('info-box').innerHTML = `ÄP erwartet bei: ${(vE * (document.getElementById('poly').value==='2'?2:1)).toFixed(2)} ml`;
         else document.getElementById('info-box').innerHTML = "c₀ ist geheim. Titriere und rechne!";
@@ -274,17 +283,17 @@
         const c0_r = challengeMode ? secretC0 : parseFloat(document.getElementById('c0').value);
         const uC = parseFloat(document.getElementById('userC0').value) || 0;
         alert(`Ergebnis:\nEchtes c₀: ${c0_r.toFixed(3)} mol/l\nAbweichung: ${Math.abs(uC - c0_r).toFixed(3)} mol/l`);
-        refreshVisuals();
+        updateUI();
     }
 
-    function refreshVisuals() {
+    function updateUI() {
         document.getElementById('ph-display').innerText = lastPH.toFixed(2);
         document.getElementById('vol-display').innerHTML = `V<sub>zu</sub>: ${vAdded.toFixed(2)} ml`;
         const v0 = parseFloat(document.getElementById('v0').value);
         document.getElementById('liquid').style.height = Math.min(30 + (vAdded / v0) * 15, 98) + "%";
         const ind = document.getElementById('indicator').value;
-        const colors = { btb: lastPH<6 ? "#facc15" : (lastPH>7.6 ? "#2563eb" : "#22c55e"), phph: lastPH>8.2 ? `rgba(219,39,119,${Math.min((lastPH-8.2)*0.6, 1)})` : "#fff", mo: lastPH<3.1 ? "#ef4444" : (lastPH>4.4 ? "#facc15" : "#f97316") };
-        document.getElementById('liquid').style.backgroundColor = colors[ind];
+        const cols = { btb: lastPH<6 ? "#facc15" : (lastPH>7.6 ? "#2563eb" : "#22c55e"), phph: lastPH>8.2 ? `rgba(219,39,119,${Math.min((lastPH-8.2)*0.6, 1)})` : "#fff", mo: lastPH<3.1 ? "#ef4444" : (lastPH>4.4 ? "#facc15" : "#f97316") };
+        document.getElementById('liquid').style.backgroundColor = cols[ind];
         chartT.data.datasets[0].data = dataHist;
         if (!challengeMode || solved) {
             const vE = (v0 * (challengeMode?secretC0:parseFloat(document.getElementById('c0').value)) / parseFloat(document.getElementById('cTit').value));
@@ -308,7 +317,7 @@
         } else {
             const h2a=[], ha=[], a2=[];
             phs.forEach(p => { const h=Math.pow(10,-p), D=h*h+h*K1+K1*K2; h2a.push({x:p, y: logC0 + logS(h*h/D)}); ha.push({x:p, y: logS(h*K1/D) + logC0}); a2.push({x:p, y: logS(K1*K2/D) + logC0}); });
-            ds.push({label:'H₂A', borderColor:'#dc2626', data:h2a, borderWidth: 2}, {label:'HA⁻', borderColor:'#f97316', data:ha, borderWidth: 2}, {label:'A²⁻', borderColor:'#16a34a', data:a2, borderWidth: 2});
+            ds.push({label:'H₂A', borderColor:'#dc2626', data:h2a}, {label:'HA⁻', borderColor:'#f97316', data:ha}, {label:'A²⁻', borderColor:'#16a34a', data:a2});
         }
         ds.push({ label: 'Ist', data: [], borderColor: '#1e293b', borderDash: [2,2], borderWidth: 2 });
         chartH.data.datasets = ds; chartH.update();
@@ -329,7 +338,7 @@
     }
 
     function exportCSV() {
-        let csv = "Volumen_ml;pH\n" + dataHist.map(d => `${d.x.toFixed(2)};${d.y}`).join("\n");
+        let csv = "V_ml;pH\n" + dataHist.map(d => `${d.x.toFixed(2)};${d.y}`).join("\n");
         window.open('data:text/csv;charset=utf-8,' + encodeURI(csv));
     }
 </script>
