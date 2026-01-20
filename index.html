@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Titrations-Labor Expert v13.0</title>
+    <title>Titrations-Labor Expert v13.1</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -21,20 +21,17 @@
         label { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
         select, input { width: 100%; padding: 5px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; margin-bottom: 2px; }
 
-        /* Displays */
         .beaker-view { background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
         .beaker { width: 80px; height: 110px; border: 3px solid #94a3b8; border-top: none; border-radius: 0 0 12px 12px; margin: 0 auto; position: relative; overflow: hidden; }
         .liquid { position: absolute; bottom: 0; left: 0; width: 100%; height: 35%; transition: background 0.4s ease; background: #e2e8f0; }
-        .ph-badge { font-size: 2rem; font-weight: 800; color: var(--primary-dark); margin-top: 5px; }
+        .ph-badge { font-size: 2.2rem; font-weight: 800; color: var(--primary-dark); margin-top: 5px; }
         .vol-badge { font-size: 1.2rem; font-weight: 700; color: #64748b; background: #f8fafc; padding: 4px; border-radius: 4px; border: 1px solid #e2e8f0; margin-top: 5px; }
 
-        /* Graphen */
         .chart-panel { display: flex; flex-direction: column; gap: 10px; height: 100%; }
         .chart-card { background: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--border); flex: 1; min-height: 0; display: flex; flex-direction: column; }
         .chart-container { flex: 1; position: relative; min-height: 0; }
         .caption { font-size: 0.7rem; text-align: center; color: var(--text-muted); font-weight: bold; margin-bottom: 2px; text-transform: uppercase; }
 
-        /* Buttons */
         .btn-drop { background: #0ea5e9; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 1rem; border-bottom: 4px solid #0369a1; user-select: none; }
         .btn-drop:active { transform: translateY(2px); border-bottom: 1px solid #0369a1; background: #0284c7; }
         .btn-start { background: var(--primary); color: white; width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
@@ -45,14 +42,15 @@
 
         .info-box { font-size: 0.75rem; background: #eff6ff; padding: 8px; border-radius: 6px; border: 1px solid #dbeafe; min-height: 50px; color: var(--primary-dark); }
         .challenge-ui { background: #fff7ed; border: 1px solid #ffedd5; padding: 8px; border-radius: 8px; font-size: 0.75rem; margin-top: 5px; }
+        .imprint { font-size: 0.6rem; color: #94a3b8; text-align: center; margin-top: auto; padding-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <header>
-        <h1>Titrations-Labor Expert v13.0</h1>
-        <div id="sim-status" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">Präzisions-Analyse</div>
+        <h1>Titrations-Labor Expert v13.1</h1>
+        <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">Präzisions-Analyse</div>
     </header>
 
     <div class="layout">
@@ -125,6 +123,8 @@
                 <input type="checkbox" id="checkD1" onchange="updateCharts()"> 1. Abl.
                 <input type="checkbox" id="checkD2" onchange="updateCharts()"> 2. Abl.
             </div>
+            
+            <div class="imprint">entwickelt von Mag. Erich Kerzendorfer mit Gemini Flash 2.0</div>
         </div>
 
         <div class="chart-panel">
@@ -181,7 +181,7 @@
                 scales: {
                     x: { type: 'linear', title: { display: true, text: 'Maßlösung (ml)' } },
                     y: { min: 0, max: 14, title: { display: true, text: 'pH' } },
-                    yAbl: { position: 'right', display: false, title: { display: true, text: 'Abl.' } }
+                    yAbl: { position: 'right', display: false, title: { display: true, text: 'Ableitungen' } }
                 }
             }
         });
@@ -230,7 +230,6 @@
         const step = parseFloat(document.getElementById('dropSize').value);
         const nextVol = volAdded + step;
 
-        // PRÄZISION: Punkte erzwingen
         const targets = [vEP * 0.5, vEP, vEP * 1.5, vEP * 2.0];
         let forced = null;
         for(let t of targets) { if(volAdded < t && nextVol >= t) { forced = t; break; } }
@@ -279,8 +278,8 @@
 
     function resetSim() {
         clearInterval(autoTimer); autoTimer = null; volAdded = 0; titrationData = [];
-        const btn = document.getElementById('startBtn');
-        btn.innerText = "Auto-Titration"; btn.className = "btn-start"; btn.disabled = false;
+        document.getElementById('startBtn').innerText = "Auto-Titration";
+        document.getElementById('startBtn').disabled = false;
         document.getElementById('pk2').style.display = (document.getElementById('poly').value === '2') ? "inline" : "none";
         markersFound = { hap1: false, ap1: false, hap2: false, ap2: false };
         
@@ -317,7 +316,6 @@
         const isCh = document.getElementById('simMode').value === 'challenge';
         const vEP = (v0 * parseFloat(document.getElementById('c0').value) / parseFloat(document.getElementById('cTit').value));
         
-        // Marker nur zeigen wenn nicht Challenge oder Challenge gelöst
         if (!isCh || challengeSolved) {
             const checkP = (v, k, l) => {
                 if(!markersFound[k] && Math.abs(volAdded - v) < 0.001) {
@@ -352,44 +350,5 @@
             }
             for(let i=1; i<d1.length; i++) {
                 let dv = d1[i].x - d1[i-1].x, dd = d1[i].y - d1[i-1].y;
-                if(dv > 0) d2.push({x: d1[i].x, y: dd/dv});
-            }
-            tChart.data.datasets[1].data = d1;
-            tChart.data.datasets[2].data = d2;
-        }
-        tChart.update();
-    }
-
-    function drawHaegg() {
-        const c0 = parseFloat(document.getElementById('c0').value), pk1 = parseFloat(document.getElementById('pk1').value), pk2 = parseFloat(document.getElementById('pk2').value);
-        const isDi = document.getElementById('poly').value === '2', logC0 = Math.log10(c0), phs = [];
-        for(let i=0; i<=14; i+=0.1) phs.push(i);
-        const safeL = (v) => Math.max(Math.log10(Math.max(v, 1e-25)), -14);
-        let ds = [
-            { label: 'H⁺', data: phs.map(p => ({x:p, y: -p})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 },
-            { label: 'OH⁻', data: phs.map(p => ({x:p, y: p-14})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 }
-        ];
-        const K1 = Math.pow(10, -pk1), K2 = Math.pow(10, -pk2);
-        if(!isDi) {
-            ds.push({ label: 'HA', borderColor: '#dc2626', borderWidth: 2, data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + safeL(h/(h+K1))}; })});
-            ds.push({ label: 'A⁻', borderColor: '#16a34a', borderWidth: 2, data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + safeL(K1/(h+K1))}; })});
-        } else {
-            const h2a=[], ha=[], a2=[];
-            phs.forEach(p => {
-                const h=Math.pow(10,-p), D=h*h+h*K1+K1*K2;
-                h2a.push({x:p, y: logC0 + safeL(h*h/D)}); ha.push({x:p, y: logC0 + safeL(h*K1/D)}); a2.push({x:p, y: logC0 + safeL(K1*K2/D)});
-            });
-            ds.push({label:'H₂A', borderColor:'#dc2626', data:h2a, borderWidth: 3}, {label:'HA⁻', borderColor:'#f97316', data:ha, borderWidth: 3}, {label:'A²⁻', borderColor:'#16a34a', data:a2, borderWidth: 3});
-        }
-        ds.push({ label: 'Aktuell', data: [], borderColor: '#1e293b', borderDash: [2,2], borderWidth: 2 });
-        hChart.data.datasets = ds; hChart.update();
-    }
-
-    function exportCSV() {
-        let csv = "V_ml;pH\n" + titrationData.map(d => `${d.x.toFixed(2)};${d.y.toFixed(2)}`).join("\n");
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "titration.csv"; a.click();
-    }
-</script>
-</body>
-</html>
+                // Hier wurde die Logik für den Vorzeichenwechsel korrigiert (Kein Betrag!)
+                if(dv > 0) d2.push({x: d1
