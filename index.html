@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Titrations-Labor Expert v18.0</title>
+    <title>Titrations-Labor Expert Master Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -18,7 +18,7 @@
         .panel { background: #f1f5f9; padding: 12px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; overflow-y: auto; height: 100%; }
         .control-group { border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
         label { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
-        select, input { width: 100%; padding: 5px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; }
+        select, input { width: 100%; padding: 5px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; outline: none; }
 
         .beaker-view { background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
         .beaker { width: 90px; height: 120px; border: 3px solid #94a3b8; border-top: none; border-radius: 0 0 12px 12px; margin: 0 auto; position: relative; overflow: hidden; }
@@ -37,7 +37,7 @@
         .btn-pause { background: var(--warning); color: black; width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         
         .eval-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 8px; font-size: 0.8rem; margin-top: 5px; }
-        .info-box { font-size: 0.75rem; background: #eff6ff; padding: 8px; border-radius: 6px; border: 1px solid #dbeafe; min-height: 50px; color: var(--primary-dark); }
+        .info-box { font-size: 0.75rem; background: #eff6ff; padding: 8px; border-radius: 6px; border: 1px solid #dbeafe; min-height: 40px; color: var(--primary-dark); }
         .imprint { font-size: 0.6rem; color: #94a3b8; text-align: center; margin-top: auto; padding-top: 10px; line-height: 1.2; }
     </style>
 </head>
@@ -45,8 +45,8 @@
 
 <div class="app-container">
     <header>
-        <h1 id="title">Titrations-Labor Master Pro</h1>
-        <div id="sim-status" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">Initialisiere...</div>
+        <h1>Titrations-Labor Expert Master Pro</h1>
+        <div id="sim-status" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">System wird gestartet...</div>
     </header>
 
     <div class="layout">
@@ -121,20 +121,20 @@
                 <button class="btn-reset" style="flex:1; background:#16a34a; color:white;" onclick="exportCSV()">Export</button>
             </div>
             <div style="font-size: 0.7rem; margin-top:4px; background: white; padding: 4px; border-radius: 4px; border: 1px solid #ddd;">
-                <input type="checkbox" id="checkD1" onchange="refreshCharts()"> 1. Ableitung
+                <input type="checkbox" id="checkD1" onchange="refreshCharts()"> 1. Ableitung (dpH/dV)
             </div>
             
-            <div class="imprint">v18.0 | entwickelt von Mag. Erich Kerzendorfer mit Gemini Flash 2.0</div>
+            <div class="imprint">v18.1 | entwickelt von Mag. Erich Kerzendorfer mit Gemini Flash 2.0</div>
         </div>
 
         <div class="chart-panel">
             <div class="chart-card">
                 <div class="caption">Titrationskurve</div>
-                <div class="chart-container"><canvas id="titrateChart"></canvas></div>
+                <div class="chart-container"><canvas id="titrateCanvas"></canvas></div>
             </div>
-            <div class="chart-card">
+            <div class="chart-card" style="flex: 0.85;">
                 <div class="caption">Hägg-Diagramm</div>
-                <div class="chart-container"><canvas id="haeggChart"></canvas></div>
+                <div class="chart-container"><canvas id="haeggCanvas"></canvas></div>
             </div>
         </div>
     </div>
@@ -142,37 +142,37 @@
 
 <script>
     let tChart, hChart;
-    let autoTimer = null, holdTimer = null, dropInterval = null;
+    let timer = null, holdTimer = null, dropInterval = null;
     let volAdded = 0, lastPH = 7, secretC0 = 0.1, secretV0 = 20;
     let titrationData = [];
-    let markersFound = { h1: false, a1: false };
+    let markersFound = { hap1: false, ap1: false };
     let isChallenge = false, isSolved = false;
 
-    // SICHERER START
-    function startApp() {
-        if (typeof Chart === 'undefined') {
-            setTimeout(startApp, 100);
-            return;
-        }
-        setupCharts();
+    // --- MATH ---
+    const getGCD = (a, b) => b ? getGCD(b, a % b) : a;
+    const logS = (v) => Math.max(Math.log10(Math.max(v, 1e-25)), -14);
+
+    // --- STARTUP ---
+    window.addEventListener('load', function() {
+        initCharts();
         setupInteraction();
         resetSim();
-        document.getElementById('sim-status').innerText = "System aktiv";
-    }
-    window.onload = startApp;
+        document.getElementById('sim-status').innerText = "System bereit";
+    });
 
-    function setupCharts() {
-        tChart = new Chart(document.getElementById('titrateChart').getContext('2d'), {
+    function initCharts() {
+        const tCtx = document.getElementById('titrateCanvas').getContext('2d');
+        tChart = new Chart(tCtx, {
             type: 'line',
             data: { datasets: [
                 { label: 'pH', data: [], borderColor: '#2563eb', borderWidth: 3, pointRadius: 0, yAxisID: 'y', tension: 0.1 },
                 { label: 'Abl.', data: [], borderColor: '#16a34a', borderWidth: 2, pointRadius: 0, yAxisID: 'yAbl', hidden: true },
-                { label: 'Marker', data: [], type: 'scatter', pointRadius: 8, pointBackgroundColor: '#dc2626', yAxisID: 'y' }
+                { label: 'Pkt', data: [], type: 'scatter', pointRadius: 8, pointBackgroundColor: '#dc2626', yAxisID: 'y' }
             ]},
             options: {
                 responsive: true, maintainAspectRatio: false, animation: false,
                 scales: {
-                    x: { type: 'linear', title: { display: true, text: 'V (ml)' } },
+                    x: { type: 'linear', title: { display: true, text: 'Volumen (ml)' }, min: 0, max: 40 },
                     y: { min: 0, max: 14, title: { display: true, text: 'pH' } },
                     yAbl: { position: 'right', display: false, title: { display: true, text: 'dpH/dV' } }
                 },
@@ -180,7 +180,8 @@
             }
         });
 
-        hChart = new Chart(document.getElementById('haeggChart').getContext('2d'), {
+        const hCtx = document.getElementById('haeggCanvas').getContext('2d');
+        hChart = new Chart(hCtx, {
             type: 'line',
             data: { datasets: [] },
             options: {
@@ -197,32 +198,29 @@
 
     function setupInteraction() {
         const btn = document.getElementById('dropBtn');
-        btn.onmousedown = () => { if(autoTimer) return; addStep(); holdTimer = setTimeout(() => { dropInterval = setInterval(addStep, 80); }, 350); };
-        btn.onmouseup = () => { clearTimeout(holdTimer); clearInterval(dropInterval); };
-        btn.onmouseleave = () => { clearTimeout(holdTimer); clearInterval(dropInterval); };
+        const start = () => { if(timer) return; addStep(); holdTimer = setTimeout(() => { dropInterval = setInterval(addStep, 80); }, 350); };
+        const stop = () => { clearTimeout(holdTimer); clearInterval(dropInterval); };
+        btn.onmousedown = start; btn.onmouseup = stop; btn.onmouseleave = stop;
     }
 
     function getPH(vAdd) {
         const Kw = 1e-14;
         const v0 = parseFloat(document.getElementById('v0').value) || 20;
-        const c0 = isChallenge ? secretC0 : (parseFloat(document.getElementById('c0').value) || 0.1);
-        const cTit = parseFloat(document.getElementById('cTit').value) || 0.1;
-        const pk1 = parseFloat(document.getElementById('pk1').value) || 4.75;
-        const pk2 = parseFloat(document.getElementById('pk2').value) || 9.2;
+        const c0 = isChallenge ? secretC0 : parseFloat(document.getElementById('c0').value);
+        const cT = parseFloat(document.getElementById('cTit').value) || 0.1;
+        const pk1 = parseFloat(document.getElementById('pk1').value), pk2 = parseFloat(document.getElementById('pk2').value);
         const isDi = document.getElementById('poly').value === '2';
-        const isAcid = document.getElementById('acidBaseType').value === 'acid';
-
+        const isAc = document.getElementById('acidBaseType').value === 'acid';
         const K1 = Math.pow(10, -pk1), K2 = isDi ? Math.pow(10, -pk2) : 0;
-        const vTot = v0 + vAdd, C_dil = c0 * (v0 / vTot), T_dil = cTit * (vAdd / vTot);
-
+        const vTot = v0 + vAdd, C_dil = c0 * (v0 / vTot), T_dil = cT * (vAdd / vTot);
         const f = (h) => {
             const oh = Kw / h;
             let alpha = isDi ? (h*K1 + 2*K1*K2)/(h*h + h*K1 + K1*K2) : K1/(h+K1);
-            if(isAcid) return h + T_dil - oh - (C_dil * alpha);
+            if(isAc) return h + T_dil - oh - (C_dil * alpha);
             else return h + (C_dil * (h / (h + K1))) - oh - T_dil;
         };
         let l = 1e-15, r = 2.0, m = 1e-7;
-        for(let i=0; i<75; i++) { m = (l + r) / 2; if(f(m) > 0) r = m; else l = m; }
+        for(let i=0; i<80; i++) { m = (l + r) / 2; if(f(m) > 0) r = m; else l = m; }
         return -Math.log10(m);
     }
 
@@ -230,8 +228,9 @@
         const step = parseFloat(document.getElementById('dropSize').value);
         const v0 = parseFloat(document.getElementById('v0').value);
         const c0 = isChallenge ? secretC0 : parseFloat(document.getElementById('c0').value);
-        const vE = (v0 * c0 / parseFloat(document.getElementById('cTit').value));
-        
+        const cT = parseFloat(document.getElementById('cTit').value);
+        const vE = (v0 * c0 / cT);
+
         let next = volAdded + step;
         if (volAdded < vE && next >= vE) volAdded = vE;
         else volAdded = next;
@@ -247,27 +246,25 @@
     }
 
     function toggleAuto() {
-        const btn = document.getElementById('startBtn');
-        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; btn.innerText = "Weiter"; }
+        if (timer) { clearInterval(timer); timer = null; document.getElementById('startBtn').innerText = "Weiter"; }
         else {
-            btn.innerText = "Pause";
-            autoTimer = setInterval(() => {
+            document.getElementById('startBtn').innerText = "Pause";
+            timer = setInterval(() => {
                 addStep();
                 const c0 = isChallenge ? secretC0 : parseFloat(document.getElementById('c0').value);
                 const v0 = parseFloat(document.getElementById('v0').value);
                 const vE = (v0 * c0 / parseFloat(document.getElementById('cTit').value)) * (document.getElementById('poly').value==='2'?2:1);
-                if (volAdded >= vE * 2.1) { clearInterval(autoTimer); autoTimer = null; btn.innerText = "Beendet"; btn.disabled = true; }
+                if (volAdded >= vE * 2.2) { clearInterval(timer); timer = null; document.getElementById('startBtn').innerText = "Beendet"; document.getElementById('startBtn').disabled = true; }
             }, parseInt(document.getElementById('speed').value));
         }
     }
 
     function resetSim() {
-        if(autoTimer) clearTimeout(autoTimer); autoTimer = null; volAdded = 0; titrationData = []; isSolved = false;
+        if(timer) clearInterval(timer); timer = null; volAdded = 0; titrationData = []; isSolved = false;
         document.getElementById('startBtn').innerText = "Auto-Titration";
         document.getElementById('startBtn').disabled = false;
         document.getElementById('pk2').style.display = (document.getElementById('poly').value === '2') ? "inline" : "none";
-        markersFound = { h1: false, a1: false };
-        
+        markersFound = { hap1: false, ap1: false };
         const v0 = isChallenge ? secretV0 : parseFloat(document.getElementById('v0').value);
         const c0 = isChallenge ? secretC0 : parseFloat(document.getElementById('c0').value);
         const vE = (v0 * c0 / parseFloat(document.getElementById('cTit').value));
@@ -279,8 +276,9 @@
         updateUI();
         drawHaegg();
         
-        if(!isChallenge) document.getElementById('info-box').innerHTML = `ÄP erwartet bei: ${(vE * (document.getElementById('poly').value==='2'?2:1)).toFixed(2)} ml`;
-        else document.getElementById('info-box').innerHTML = "c₀ ist geheim. Titriere und rechne!";
+        const info = document.getElementById('info-box');
+        if(!isChallenge) info.innerHTML = `ÄP erwartet bei: ${(vE * (document.getElementById('poly').value==='2'?2:1)).toFixed(2)} ml`;
+        else info.innerHTML = "c₀ ist geheim. Titriere und rechne!";
     }
 
     function toggleMode() {
@@ -300,7 +298,7 @@
     function checkCalculation() {
         isSolved = true;
         const c0_r = isChallenge ? secretC0 : parseFloat(document.getElementById('c0').value);
-        const uC = parseFloat(document.getElementById('userC').value) || 0;
+        const uC = parseFloat(document.getElementById('userC0').value) || 0;
         alert(`Ergebnis:\nEchtes c₀: ${c0_r.toFixed(3)} mol/l\nAbweichung: ${Math.abs(uC - c0_r).toFixed(3)} mol/l`);
         updateUI();
     }
@@ -311,17 +309,38 @@
         const v0 = parseFloat(document.getElementById('v0').value);
         document.getElementById('liquid').style.height = Math.min(30 + (volAdded / v0) * 15, 98) + "%";
         
+        const ind = document.getElementById('indicator').value;
         const colors = { btb: lastPH<6 ? "#facc15" : (lastPH>7.6 ? "#2563eb" : "#22c55e"), phph: lastPH>8.2 ? `rgba(219,39,119,${Math.min((lastPH-8.2)*0.6, 1)})` : "#fff", mo: lastPH<3.1 ? "#ef4444" : (lastPH>4.4 ? "#facc15" : "#f97316") };
-        document.getElementById('liquid').style.backgroundColor = colors[document.getElementById('indicator').value];
+        document.getElementById('liquid').style.backgroundColor = colors[ind];
 
         tChart.data.datasets[0].data = titrationData;
         if (!isChallenge || isSolved) {
             const vE = (v0 * (isChallenge?secretC0:parseFloat(document.getElementById('c0').value)) / parseFloat(document.getElementById('cTit').value));
             const check = (v, k) => { if(!markersFound[k] && Math.abs(volAdded - v) < 0.001) { tChart.data.datasets[2].data.push({x: volAdded, y: lastPH}); markersFound[k] = true; } };
-            check(vE * 0.5, 'h1'); check(vE, 'a1');
+            check(vE * 0.5, 'hap1'); check(vE, 'ap1');
         }
         tChart.update('none');
         if(hChart.data.datasets.length) { hChart.data.datasets[hChart.data.datasets.length-1].data = [{x: lastPH, y: 0}, {x: lastPH, y: -14}]; hChart.update('none'); }
+    }
+
+    function drawHaegg() {
+        const c0 = isChallenge ? secretC0 : parseFloat(document.getElementById('c0').value);
+        const pk1 = parseFloat(document.getElementById('pk1').value), pk2 = parseFloat(document.getElementById('pk2').value);
+        const isDi = document.getElementById('poly').value === '2';
+        const logC0 = Math.log10(c0), phs = [];
+        for(let i=0; i<=14; i+=0.1) phs.push(i);
+        let ds = [{ label: 'H⁺', data: phs.map(p => ({x:p, y: -p})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 }, { label: 'OH⁻', data: phs.map(p => ({x:p, y: p-14})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 }];
+        const K1 = Math.pow(10, -pk1), K2 = Math.pow(10, -pk2);
+        if(!isDi) {
+            ds.push({ label: 'HA', borderColor: '#dc2626', borderWidth: 2, data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + logS(h/(h+K1))}; })});
+            ds.push({ label: 'A⁻', borderColor: '#16a34a', borderWidth: 2, data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + logS(K1/(h+K1))}; })});
+        } else {
+            const h2a=[], ha=[], a2=[];
+            phs.forEach(p => { const h=Math.pow(10,-p), D=h*h+h*K1+K1*K2; h2a.push({x:p, y: logC0 + logS(h*h/D)}); ha.push({x:p, y: logS(h*K1/D) + logC0}); a2.push({x:p, y: logS(K1*K2/D) + logC0}); });
+            ds.push({label:'H₂A', borderColor:'#dc2626', data:h2a}, {label:'HA⁻', borderColor:'#f97316', data:ha}, {label:'A²⁻', borderColor:'#16a34a', data:a2});
+        }
+        ds.push({ label: 'Ist', data: [], borderColor: '#1e293b', borderDash: [2,2], borderWidth: 2 });
+        hChart.data.datasets = ds; hChart.update();
     }
 
     function refreshCharts() {
@@ -339,30 +358,9 @@
         tChart.update();
     }
 
-    function drawHaegg() {
-        const c0 = isChallenge ? secretC0 : parseFloat(document.getElementById('c0').value);
-        const pk1 = parseFloat(document.getElementById('pk1').value), pk2 = parseFloat(document.getElementById('pk2').value);
-        const isDi = document.getElementById('poly').value === '2';
-        const logC0 = Math.log10(c0), phs = [], logS = (v) => Math.max(Math.log10(Math.max(v, 1e-25)), -14);
-        for(let i=0; i<=14; i+=0.1) phs.push(i);
-        let ds = [{ label: 'H⁺', data: phs.map(p => ({x:p, y: -p})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 }, { label: 'OH⁻', data: phs.map(p => ({x:p, y: p-14})), borderColor: '#cbd5e1', borderDash: [5,5], borderWidth: 1 }];
-        const K1 = Math.pow(10, -pk1), K2 = Math.pow(10, -pk2);
-        if(!isDi) {
-            ds.push({ label: 'HA', borderColor: '#dc2626', borderWidth: 2, data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + logS(h/(h+K1))}; })});
-            ds.push({ label: 'A⁻', borderColor: '#16a34a', borderWidth: 2, data: phs.map(p => { const h=Math.pow(10,-p); return {x:p, y: logC0 + logS(K1/(h+K1))}; })});
-        } else {
-            const h2a=[], ha=[], a2=[];
-            phs.forEach(p => { const h=Math.pow(10,-p), D=h*h+h*K1+K1*K2; h2a.push({x:p, y: logC0 + logS(h*h/D)}); ha.push({x:p, y: logS(h*K1/D) + logC0}); a2.push({x:p, y: logS(K1*K2/D) + logC0}); });
-            ds.push({label:'H₂A', borderColor:'#dc2626', data:h2a}, {label:'HA⁻', borderColor:'#f97316', data:ha}, {label:'A²⁻', borderColor:'#16a34a', data:a2});
-        }
-        ds.push({ label: 'Ist', data: [], borderColor: '#1e293b', borderDash: [2,2], borderWidth: 2 });
-        hChart.data.datasets = ds; hChart.update();
-    }
-
     function exportCSV() {
         let csv = "Volumen_ml;pH\n" + titrationData.map(d => `${d.x.toFixed(2)};${d.y.toFixed(2)}`).join("\n");
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "titration.csv"; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = "titration.csv"; a.click();
     }
 </script>
 </body>
