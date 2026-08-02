@@ -1,24 +1,27 @@
-# TITRATIONSTOOL v15.5.3 – vorsichtige Reparatur der Apparatur
+# TITRATIONSTOOL v15.5.4 – vorsichtige Reparatur 2
 
 ## Inhalt dieser Version
 
-v15.5.3 ist eine bewusst kleine Reparaturversion auf Basis von v15.5.2. Es wurden nur Geometrie und Mischanimation der Apparatur verfeinert, ohne die fachliche Rechenlogik zu verändern.
+v15.5.4 setzt die Rückmeldungen zur Apparatur erneut sehr gezielt um. Geändert wurden nur die Geometrie der Apparatur, die sichtbare Füllhöhe der Lösung und die Animation der Zugabe.
 
 Umgesetzt wurden:
 
-- Bürette etwas weiter zur Mitte gerückt,
+- Bürette weiter zur Mitte gerückt,
+- Tropfen fällt nun zentraler in Richtung Becherglas,
 - Bürettenspitze klar über der Flüssigkeitsoberfläche,
-- Elektrode weiterhin rechts im Becherglas, aber deutlich weniger tief eingetaucht,
-- Kabel beginnt am oberen Ende der Elektrode,
-- Mischanimation von sprudelnder Wirkung zu einer schmaleren lokalen Farbfahne umgebaut,
-- Tropfen und lokale Schlieren bleiben erhalten,
-- Anzeigeaufbau unverändert, da er sich in v15.5.2 bewährt hat.
+- Kabel startet am oberen Ende der Elektrode,
+- Elektrode weniger tief eingetaucht,
+- Becherglas und sichtbare Lösung höher,
+- Überschrift „Versuch einstellen“ platzsparender,
+- Schlierenanimation entfernt,
+- nur der fallende Tropfen bleibt als Zugabeanimation,
+- Auto-Titrationsgeschwindigkeit deutlich verlangsamt.
 
 ## Unverändert
 
-- Titrationsmodelle,
-- Stoffstammdaten und freie Eingabe,
+- fachliche Berechnungen,
 - Ableitungen und Äquivalenzpunktbestimmung,
+- Stoffstammdaten und freie Eingabe,
 - Indikator- und Farbmodelle,
 - Challenge-Modus,
-- CSV-Export für MESSWERT_LAB.
+- CSV-Export.
