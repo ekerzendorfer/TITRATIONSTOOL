@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.6.2</title>
+<title>Titrations-Labor – v15.6.3</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -261,7 +261,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.6.2</span><br>Unbekannte Säure aus dem HÄP</div>
+    <div class="version"><span class="badge">v15.6.3</span><br>Unbekannte Säure aus dem HÄP</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -278,7 +278,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
   </div>
 
   <section id="taskArea" class="task-area card" hidden>
-    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Neun Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung und die Identifikation einer unbekannten schwachen Säure.</p></div><span class="task-badge">v15.6.2 · Aufgabenpool</span></div>
+    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Neun Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung und die Identifikation einer unbekannten schwachen Säure.</p></div><span class="task-badge">v15.6.3 · Aufgabenpool</span></div>
     <div class="panelbody">
       <div id="taskCatalog" class="task-catalog" aria-label="Aufgabenauswahl"></div>
       <article id="taskWorkspace" class="task-workspace" hidden>
@@ -532,12 +532,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.6.2 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.6.3 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.6.2';
+const APP_VERSION = '15.6.3';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -611,6 +611,7 @@ const SUBSTANCE_PRESETS = {
   hcl: { id:'hcl', type:'strong_acid', name:'Salzsäure', formula:'HCl', molarMass:36.461, poly:1, pk1:null, pk2:null, species:[] },
   nitric: { id:'nitric', type:'strong_acid', name:'Salpetersäure', formula:'HNO₃', molarMass:63.013, poly:1, pk1:null, pk2:null, species:[] },
 
+  chloroacetic: { id:'chloroacetic', type:'weak_acid', name:'Chloressigsäure', formula:'ClCH₂COOH', molarMass:94.497, poly:1, pk1:2.86, pk2:null, species:['ClCH₂COOH','ClCH₂COO⁻'] },
   formic: { id:'formic', type:'weak_acid', name:'Ameisensäure', formula:'HCOOH', molarMass:46.025, poly:1, pk1:3.75, pk2:null, species:['HCOOH','HCOO⁻'] },
   acetic: { id:'acetic', type:'weak_acid', name:'Essigsäure', formula:'CH₃COOH', molarMass:60.052, poly:1, pk1:4.76, pk2:null, species:['CH₃COOH','CH₃COO⁻'] },
   propionic: { id:'propionic', type:'weak_acid', name:'Propionsäure', formula:'CH₃CH₂COOH', molarMass:74.079, poly:1, pk1:4.87, pk2:null, species:['CH₃CH₂COOH','CH₃CH₂COO⁻'] },
@@ -618,6 +619,7 @@ const SUBSTANCE_PRESETS = {
   benzoic: { id:'benzoic', type:'weak_acid', name:'Benzoesäure', formula:'C₆H₅COOH', molarMass:122.123, poly:1, pk1:4.20, pk2:null, species:['C₆H₅COOH','C₆H₅COO⁻'] },
   oxalic: { id:'oxalic', type:'weak_acid', name:'Oxalsäure', formula:'H₂C₂O₄', molarMass:90.034, poly:2, pk1:1.25, pk2:4.28, species:['H₂C₂O₄','HC₂O₄⁻','C₂O₄²⁻'] },
   malonic: { id:'malonic', type:'weak_acid', name:'Malonsäure', formula:'HOOC–CH₂–COOH', molarMass:104.061, poly:2, pk1:2.83, pk2:5.69, species:['H₂Mal','HMal⁻','Mal²⁻'] },
+  pyridinium: { id:'pyridinium', type:'weak_acid', name:'Pyridiniumchlorid', formula:'C₅H₆NCl', molarMass:115.560, poly:1, pk1:5.23, pk2:null, species:['C₅H₅NH⁺','C₅H₅N'] },
 
   naoh: { id:'naoh', type:'strong_base', name:'Natriumhydroxid', formula:'NaOH', molarMass:39.997, poly:1, pk1:null, pk2:null, species:[] },
 
@@ -628,7 +630,7 @@ const SUBSTANCE_PRESETS = {
 
 const TYPE_OPTIONS = {
   strong_acid:['hcl','nitric'],
-  weak_acid:['acetic','formic','propionic','lactic','benzoic','oxalic','malonic'],
+  weak_acid:['acetic','formic','chloroacetic','propionic','lactic','benzoic','pyridinium','oxalic','malonic'],
   strong_base:['naoh'],
   weak_base:['ammonia','methylamine','pyridine']
 };
@@ -737,17 +739,17 @@ const TASKS = [
 {
   id:'TITR_A09', title:'Unbekannte schwache Säure – Identifikation aus dem HÄP', level:'SEK II · geführt', duration:'25–30 min', category:'Stoffidentifikation',
   goal:'Den Halbäquivalenzpunkt bestimmen, dort pH = pKₛ nutzen und eine unbekannte einprotonige schwache Säure identifizieren.',
-  order:'Eine unbekannte einprotonige schwache Säure wird mit 0,100 mol·L⁻¹ NaOH titriert.\n\n1. Bestimme den Äquivalenzpunkt.\n2. Berechne daraus den Halbäquivalenzpunkt.\n3. Lies dort den pH-Wert ab und setze pH = pKₛ.\n4. Ordne die Säure anhand der Kandidaten zu.\n\nKandidaten: Ameisensäure (pKₛ 3,75) · Benzoesäure (pKₛ 4,20) · Essigsäure (pKₛ 4,76).',
+  order:'Eine unbekannte einprotonige schwache Säure wird mit 0,100 mol·L⁻¹ NaOH titriert.\n\n1. Bestimme den Äquivalenzpunkt.\n2. Berechne daraus den Halbäquivalenzpunkt.\n3. Lies dort den pH-Wert ab und setze pH = pKₛ.\n4. Ordne die Säure anhand der Kandidaten zu.\n\nKandidaten: Chloressigsäure (pKₛ 2,86) · Ameisensäure (pKₛ 3,75) · Benzoesäure (pKₛ 4,20) · Essigsäure (pKₛ 4,76) · Pyridinium-Ion aus Pyridiniumchlorid (pKₛ 5,23).',
   setup:{analyteType:'weak_acid',substance:'acetic',c0:0.060,v0:20.0,cTit:0.100,indicator:'phph',dropSize:0.10,speed:420},
   locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','indicator','dropSize'],
   hideAutomaticResults:true, hideSampleConcentration:true, hideSubstanceIdentity:true,
-  randomization:{epMin:9.0,epMax:15.0,epStep:1.0,substances:['formic','benzoic','acetic']},
+  randomization:{epMin:9.0,epMax:15.0,epStep:1.0,substances:['chloroacetic','formic','benzoic','acetic','pyridinium']},
   results:identificationResults(),
   hints:[
     'Bestimme V(ÄP) möglichst genau über den Nulldurchgang der zweiten Ableitung.',
     'Für eine einprotonige schwache Säure gilt V(HÄP) = V(ÄP) / 2.',
     'Am Halbäquivalenzpunkt liegen HA und A⁻ in gleicher Konzentration vor. Daher gilt pH = pKₛ.',
-    'Vergleiche den abgelesenen pKₛ-Wert mit den drei angegebenen Kandidaten.'
+    'Vergleiche den abgelesenen pKₛ-Wert mit den fünf angegebenen Kandidaten.'
   ],
   generate:generateIdentificationVariant
 }
@@ -761,7 +763,7 @@ function identificationResults(){
     {key:'vhep',label:'2. Halbäquivalenzvolumen / mL',kind:'number',expected:0,tolerance:0.10,placeholder:'V(ÄP) / 2',help:'Für eine einprotonige Säure gilt V(HÄP) = V(ÄP) / 2.'},
     {key:'phhep',label:'3. pH am Halbäquivalenzpunkt',kind:'number',expected:0,tolerance:0.10,placeholder:'pH bei V(HÄP)',help:'Die Titration gezielt bis V(HÄP) führen oder den Wert aus der Messreihe ablesen.'},
     {key:'pks',label:'4. daraus bestimmter pKₛ-Wert',kind:'number',expected:0,tolerance:0.10,placeholder:'pKₛ',help:'Am HÄP gilt pH = pKₛ.'},
-    {key:'acid',label:'5. unbekannte Säure',kind:'select',expected:'',options:[['','Bitte wählen'],['formic','Ameisensäure'],['benzoic','Benzoesäure'],['acetic','Essigsäure']],help:'Mit der Kandidatenliste vergleichen.'}
+    {key:'acid',label:'5. unbekannte Säure',kind:'select',expected:'',options:[['','Bitte wählen'],['chloroacetic','Chloressigsäure'],['formic','Ameisensäure'],['benzoic','Benzoesäure'],['acetic','Essigsäure'],['pyridinium','Pyridiniumchlorid / Pyridinium-Ion']],help:'Mit der Kandidatenliste vergleichen.'}
   ];
 }
 function guidedResults(epKey,stoichFactor){
@@ -841,7 +843,9 @@ function generateIdentificationVariant(template){
     `V(ÄP) = ${decimalComma(veq,2)} mL.`,
     `V(HÄP) = ${decimalComma(veq,2)} mL / 2 = ${decimalComma(vhep,2)} mL.`,
     `Am HÄP gilt pH = pKₛ = ${decimalComma(analyte.pk1,2)}.`,
-    `Der Vergleich mit der Kandidatenliste führt zu ${analyte.name}.`
+    substance==='pyridinium'
+      ? 'Der Vergleich mit der Kandidatenliste führt zum Pyridinium-Ion; eingesetzt wird Pyridiniumchlorid.'
+      : `Der Vergleich mit der Kandidatenliste führt zu ${analyte.name}.`
   ].join(' ');
   return{
     setup,
