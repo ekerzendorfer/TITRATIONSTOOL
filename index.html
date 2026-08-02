@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.5.1</title>
+<title>Titrations-Labor – v15.5.2</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -75,48 +75,49 @@ legend{font-weight:850;margin-bottom:10px}
 .seg button{border:0;background:transparent;color:var(--muted);font-weight:700;padding:9px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;flex:1}
 .seg button[aria-pressed="true"]{background:#fff;color:var(--accent2);box-shadow:0 2px 8px rgba(23,32,51,.1)}
 .seg button:disabled{opacity:.5;cursor:not-allowed}
-.apparatus{padding:10px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#f9fbfd,#eaf0f6);display:grid;grid-template-columns:minmax(180px,.9fr) minmax(250px,1.1fr);gap:10px;align-items:stretch;overflow:hidden}
-.lab-scene{position:relative;width:100%;max-width:182px;height:232px;margin:auto;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(225,234,242,.6));border:1px solid rgba(132,148,164,.28);overflow:hidden}
-.lab-bench{position:absolute;left:0;right:0;bottom:14px;height:9px;background:#a6b2bf;box-shadow:0 4px 0 rgba(32,63,91,.12)}
-.stand-base{position:absolute;left:14px;bottom:26px;width:34px;height:7px;border-radius:6px;background:#617285}
-.stand-rod{position:absolute;left:28px;top:26px;bottom:32px;width:4px;border-radius:4px;background:#6b7d8f}
-.burette-clamp{position:absolute;left:28px;top:64px;width:34px;height:6px;border-radius:5px;background:#6b7d8f}
-.burette{position:absolute;left:46px;top:16px;width:14px;height:150px;border:2px solid #7b8da0;border-radius:5px 5px 4px 4px;background:rgba(255,255,255,.76);overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
-.burette-scale{position:absolute;inset:5px 2px 5px auto;width:5px;z-index:3;background:repeating-linear-gradient(to bottom,transparent 0 6px,rgba(32,63,91,.55) 6px 7px)}
+
+.apparatus{padding:9px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#f9fbfd,#eaf0f6);display:grid;grid-template-columns:132px minmax(0,1fr);gap:8px;align-items:stretch;overflow:hidden}
+.lab-scene{position:relative;width:132px;height:232px;margin:auto;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(225,234,242,.62));border:1px solid rgba(132,148,164,.28);overflow:hidden}
+.lab-bench{position:absolute;left:0;right:0;bottom:14px;height:8px;background:#9daab7;box-shadow:0 4px 0 rgba(32,63,91,.12)}
+.stand-base{position:absolute;left:8px;bottom:24px;width:43px;height:7px;border-radius:6px;background:#5d6f80}
+.stand-rod{position:absolute;left:25px;top:26px;bottom:29px;width:4px;border-radius:4px;background:#66798a}
+.burette-clamp{position:absolute;left:25px;top:58px;width:27px;height:5px;border-radius:5px;background:#66798a}
+.burette{position:absolute;left:38px;top:12px;width:14px;height:121px;border:2px solid #788b9e;border-radius:5px 5px 4px 4px;background:rgba(255,255,255,.78);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+.burette-scale{position:absolute;inset:5px 1px 5px auto;width:6px;z-index:3;background:repeating-linear-gradient(to bottom,transparent 0 6px,rgba(32,63,91,.58) 6px 7px)}
 .burette-liquid{position:absolute;left:0;right:0;bottom:0;height:90%;background:linear-gradient(90deg,rgba(75,137,185,.72),rgba(112,171,210,.48));transition:height .3s ease,background .3s ease}
 .burette-liquid:before{content:"";position:absolute;left:1px;right:1px;top:-3px;height:6px;border-radius:50%;background:rgba(75,137,185,.8);border-top:1px solid rgba(32,63,91,.28)}
-.stopcock{position:absolute;left:40px;top:168px;width:26px;height:8px;border-radius:4px;background:#596b7d}
-.stopcock:after{content:"";position:absolute;left:10px;top:6px;width:5px;height:10px;background:#718394;border-radius:0 0 3px 3px}
-.burette-tip{position:absolute;left:50px;top:182px;width:4px;height:16px;background:#718394;clip-path:polygon(18% 0,82% 0,100% 84%,50% 100%,0 84%)}
-.falling-drop{position:absolute;left:52px;top:195px;width:8px;height:13px;border-radius:55% 55% 60% 60%;opacity:0;transform:translate(-50%,0) scale(.4);z-index:9;pointer-events:none;box-shadow:0 0 0 1px rgba(255,255,255,.28)}
-.beaker{position:absolute;left:58px;bottom:31px;width:82px;height:86px;border:3px solid #7b8da0;border-top-width:4px;border-radius:0 0 15px 15px;background:rgba(255,255,255,.82);overflow:hidden;z-index:2}
-.beaker:before{content:"";position:absolute;left:-4px;right:-4px;top:-3px;height:7px;border:2px solid rgba(123,141,160,.58);border-bottom:0;border-radius:11px 11px 0 0}
+.stopcock{position:absolute;left:31px;top:136px;width:28px;height:8px;border-radius:4px;background:#566879;z-index:5}
+.stopcock:after{content:"";position:absolute;left:11px;top:7px;width:5px;height:9px;background:#718394;border-radius:0 0 3px 3px}
+.burette-tip{position:absolute;left:43px;top:151px;width:4px;height:15px;background:#718394;clip-path:polygon(18% 0,82% 0,100% 84%,50% 100%,0 84%);z-index:5}
+.falling-drop{position:absolute;left:45px;top:164px;width:8px;height:12px;border-radius:55% 55% 60% 60%;opacity:0;transform:translate(-50%,0) scale(.4);z-index:12;pointer-events:none;box-shadow:0 0 0 1px rgba(255,255,255,.28)}
+.beaker{position:absolute;left:37px;bottom:32px;width:84px;height:65px;border:3px solid #788b9e;border-top-width:4px;border-radius:0 0 14px 14px;background:rgba(255,255,255,.86);z-index:3;overflow:hidden}
+.beaker:before{content:"";position:absolute;left:-4px;right:-4px;top:-3px;height:7px;border:2px solid rgba(120,139,158,.62);border-bottom:0;border-radius:11px 11px 0 0}
 .beaker-inner{position:relative;width:100%;height:100%;overflow:hidden}
-.beaker-liquid{position:absolute;left:6px;right:6px;bottom:6px;height:46%;background:#e2e8f0;border-radius:0 0 10px 10px;transition:height .3s ease,background-color .38s ease;overflow:hidden}
-.beaker-surface{position:absolute;left:8px;right:8px;top:3px;height:6px;border-radius:50%;background:rgba(255,255,255,.42)}
-.mix-plume{--plume-color:rgba(255,255,255,.85);position:absolute;left:8px;bottom:8px;width:34px;height:68%;opacity:0;pointer-events:none;z-index:7;filter:saturate(1.05)}
+.beaker-liquid{position:absolute;left:5px;right:5px;bottom:5px;height:52%;background:#e2e8f0;border-radius:0 0 10px 10px;transition:height .3s ease,background-color .38s ease;overflow:hidden}
+.beaker-surface{position:absolute;left:7px;right:7px;top:2px;height:6px;border-radius:50%;background:rgba(255,255,255,.45)}
+.mix-plume{--plume-color:rgba(255,255,255,.85);position:absolute;left:8px;bottom:7px;width:37px;height:72%;opacity:0;pointer-events:none;z-index:8;filter:saturate(1.05)}
 .mix-plume:before,.mix-plume:after,.mix-plume .plume-core{content:"";position:absolute;bottom:0;border-radius:52% 48% 60% 40%/38% 42% 58% 62%;background:linear-gradient(180deg,rgba(255,255,255,.15),var(--plume-color) 24%,rgba(255,255,255,.2) 56%,rgba(255,255,255,0) 100%)}
 .mix-plume:before{left:0;width:9px;height:72%;transform:rotate(-10deg)}
-.mix-plume .plume-core{left:11px;width:11px;height:100%;transform:rotate(3deg)}
-.mix-plume:after{left:24px;width:8px;height:68%;transform:rotate(12deg)}
-.electrode{position:absolute;left:118px;top:102px;width:9px;height:92px;border-radius:5px 5px 4px 4px;background:linear-gradient(90deg,#495a68,#8da0ad);z-index:8}
+.mix-plume .plume-core{left:12px;width:11px;height:100%;transform:rotate(3deg)}
+.mix-plume:after{left:26px;width:8px;height:68%;transform:rotate(12deg)}
+.electrode{position:absolute;left:104px;top:92px;width:9px;height:96px;border-radius:5px 5px 4px 4px;background:linear-gradient(90deg,#475866,#8da0ad);z-index:10}
 .electrode:before{content:"";position:absolute;left:2px;right:2px;bottom:-9px;height:13px;border-radius:0 0 6px 6px;background:#394955}
-.electrode-cable{position:absolute;left:122px;top:82px;width:55px;height:24px;border-top:3px solid #4b5c6a;border-right:3px solid #4b5c6a;border-radius:0 18px 0 0}
-.stirrer{position:absolute;left:45px;bottom:16px;width:106px;height:14px;border-radius:6px 6px 3px 3px;background:linear-gradient(#c5d0da,#7d8c99);z-index:1}
-.stir-bar{position:absolute;left:86px;bottom:43px;width:30px;height:6px;border-radius:999px;background:#f3f6fa;box-shadow:0 0 0 1px rgba(102,117,133,.3), inset 0 1px 2px rgba(255,255,255,.85);z-index:8;transform-origin:center;animation:stirBar .9s linear infinite}
+.electrode-cable{position:absolute;left:108px;top:74px;width:24px;height:24px;border-top:3px solid #4b5c6a;border-right:3px solid #4b5c6a;border-radius:0 17px 0 0;z-index:9}
+.stirrer{position:absolute;left:32px;bottom:20px;width:96px;height:14px;border-radius:6px 6px 3px 3px;background:linear-gradient(#c5d0da,#7d8c99);z-index:2}
+.stir-bar{position:absolute;left:66px;bottom:43px;width:29px;height:6px;border-radius:999px;background:#f4f6f8;box-shadow:0 0 0 1px rgba(89,105,121,.35),inset 0 1px 2px rgba(255,255,255,.9);z-index:10;transform-origin:center;animation:stirBar .9s linear infinite}
 @keyframes stirBar{0%{transform:translateX(-2px) scaleX(.82)}50%{transform:translateX(2px) scaleX(1.08)}100%{transform:translateX(-2px) scaleX(.82)}}
-@keyframes dropFall{0%{opacity:0;transform:translate(-50%,-4px) scale(.42)}12%{opacity:1}72%{opacity:1}100%{opacity:0;transform:translate(-50%,48px) scale(1.02)}}
-@keyframes plumeMix{0%{opacity:0;transform:translateY(-7px) scale(.52,.48)}18%{opacity:.92}72%{opacity:.46}100%{opacity:0;transform:translateY(2px) scale(1.08,1.02)}}
-.falling-drop.drop-active{animation:dropFall .68s ease-out}
-.mix-plume.plume-active{animation:plumeMix .96s ease-out}
-.instrument{min-height:210px;border-radius:14px;background:#172033;color:#dff3da;padding:16px 18px 15px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;display:flex;flex-direction:column;justify-content:flex-start;min-width:0}
-.display-label{font-size:.86rem;line-height:1.45;letter-spacing:.05em;opacity:.9}
-.display-value{font-size:clamp(2.2rem,6vw,3.15rem);font-weight:850;line-height:1.02;white-space:nowrap;letter-spacing:.01em;margin-top:8px}
-.display-meta{font-size:.86rem;line-height:1.55;opacity:.92;margin-top:12px}
-.display-secondary{margin-top:14px;padding-top:12px;border-top:1px solid rgba(215,245,220,.18);display:grid;gap:10px;font-size:.95rem;opacity:.95}
-.display-row{display:flex;justify-content:space-between;gap:10px;align-items:baseline;white-space:nowrap}
+@keyframes dropFall{0%{opacity:0;transform:translate(-50%,-3px) scale(.45)}12%{opacity:1}74%{opacity:1}100%{opacity:0;transform:translate(-50%,32px) scale(1)}}
+@keyframes plumeMix{0%{opacity:0;transform:translateY(-6px) scale(.52,.48)}18%{opacity:.9}72%{opacity:.45}100%{opacity:0;transform:translateY(2px) scale(1.08,1.02)}}
+.falling-drop.drop-active{animation:dropFall .62s ease-out}
+.mix-plume.plume-active{animation:plumeMix .92s ease-out}
+.instrument{min-height:232px;border-radius:12px;background:#172033;color:#dcf2d8;padding:13px 12px 12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;display:flex;flex-direction:column;justify-content:flex-start;min-width:0;overflow:hidden}
+.display-label{font-size:.76rem;line-height:1.35;letter-spacing:.05em;opacity:.9}
+.display-value{font-size:clamp(1.85rem,3vw,2.2rem);font-weight:850;line-height:1.04;white-space:nowrap;letter-spacing:-.02em;margin-top:8px}
+.display-meta{font-size:.72rem;line-height:1.5;opacity:.92;margin-top:11px;overflow-wrap:anywhere}
+.display-secondary{margin-top:auto;padding-top:11px;border-top:1px solid rgba(215,245,220,.18);display:grid;gap:8px;font-size:.75rem;opacity:.97}
+.display-row{display:flex;justify-content:space-between;gap:7px;align-items:baseline;white-space:nowrap}
 .display-row-label{color:rgba(223,243,218,.88)}
-.display-row strong{font-size:1.08rem;font-weight:850;color:#f1ffeb}
+.display-row strong{font-size:.84rem;font-weight:850;color:#f2ffec}
 .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
 .metric{padding:12px;border-radius:12px;background:var(--soft);min-width:0}
 .mlabel{font-size:.82rem;color:var(--muted)}
@@ -179,9 +180,10 @@ tbody tr:last-child td{border-bottom:0}
 .lock-note{display:block;margin-top:4px;color:var(--muted);font-size:.79rem;font-weight:450}
 .stoff-table table{min-width:620px}
 .stoff-table td:nth-child(3),.stoff-table td:nth-child(4),.stoff-table th:nth-child(3),.stoff-table th:nth-child(4){white-space:nowrap}
-@media(max-width:940px) and (min-width:651px){.apparatus{grid-template-columns:minmax(186px,.9fr) minmax(235px,1.1fr);gap:12px}.lab-scene{max-width:188px}}
+@media(max-width:1150px){.workspace{grid-template-columns:1fr}}
+@media(max-width:940px) and (min-width:651px){.apparatus{grid-template-columns:210px minmax(0,1fr);gap:14px}.lab-scene{max-width:198px}}
 @media(max-width:940px){header{display:block}.version{text-align:left;margin-top:16px}.workspace{grid-template-columns:1fr}.chartwrap{min-height:400px}.chartwrap canvas{height:370px!important}}
-@media(max-width:650px){.substance-grid{grid-template-columns:minmax(120px,1.4fr) minmax(110px,1fr) minmax(55px,.6fr)}.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:16px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.lab-scene{max-width:210px}.instrument{width:100%}.display-value{font-size:clamp(2rem,12vw,3rem)}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
+@media(max-width:650px){.substance-grid{grid-template-columns:minmax(120px,1.4fr) minmax(110px,1fr) minmax(55px,.6fr)}.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:16px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.lab-scene{width:170px;max-width:170px}.instrument{width:100%;min-height:210px}.display-value{font-size:clamp(2.2rem,12vw,3rem)}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
 @media(max-width:420px){.substance-grid{grid-template-columns:1fr 1fr}.substance-item:first-child{grid-column:1/-1}.parameter-row,.parameter-row.is-diprotic{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.formrow{grid-template-columns:1fr}.statusbar{align-items:flex-start}.seg{display:grid;grid-template-columns:1fr}.buttons{display:grid;grid-template-columns:1fr}.buttons>*{width:100%}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.stir-bar,.falling-drop.drop-active,.mix-plume.plume-active{animation:none!important;opacity:0!important}}
 @media(forced-colors:active){.card,.chartwrap,.apparatus,.analysis-card{border:1px solid CanvasText}.primary,.dropbtn{forced-color-adjust:auto}}
@@ -212,7 +214,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.5.1</span><br>Korrigierte Becherglas-Apparatur</div>
+    <div class="version"><span class="badge">v15.5.2</span><br>Kompakte Titrationsanimation</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -224,7 +226,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     <aside class="card">
       <div class="panelhead"><h2>Versuch einstellen</h2></div>
       <div class="panelbody">
-        <div class="apparatus" aria-label="Korrigierte Titrationsapparatur mit Becherglas, Bürette, pH-Elektrode und Magnetrührer">
+        <div class="apparatus" aria-label="Kompakte Titrationsapparatur mit Bürette, Becherglas, pH-Elektrode und Magnetrührer">
           <div class="lab-scene" aria-hidden="true">
             <div class="lab-bench"></div>
             <div class="stand-base"></div><div class="stand-rod"></div><div class="burette-clamp"></div>
@@ -446,7 +448,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.5.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.5.2 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
@@ -943,13 +945,13 @@ function updateVisualState(){
     el.buretteDisplay.textContent=`${decimalComma(volAdded,2)} mL`;
     el.totalVolumeDisplay.textContent=`${decimalComma(totalVolume,2)} mL`;
     el.buretteLiquid.style.height=`${12+(1-progress)*78}%`;
-    el.liquid.style.height=`${42+progress*28}%`;
+    el.liquid.style.height=`${52+progress*24}%`;
     el.buretteLiquid.style.background=titrantLiquidGradient();
   }else{
     el.buretteDisplay.textContent='0,00 mL';
     el.totalVolumeDisplay.textContent='–';
     el.buretteLiquid.style.height='90%';
-    el.liquid.style.height='42%';
+    el.liquid.style.height='52%';
     el.buretteLiquid.style.background='linear-gradient(90deg,rgba(75,137,185,.72),rgba(112,171,210,.48))';
   }
   el.liquid.style.backgroundColor=indicatorColor(el.indicator.value,lastPH);
