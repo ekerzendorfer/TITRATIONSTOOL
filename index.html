@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.5.2</title>
+<title>Titrations-Labor – v15.5.3</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -82,32 +82,32 @@ legend{font-weight:850;margin-bottom:10px}
 .stand-base{position:absolute;left:8px;bottom:24px;width:43px;height:7px;border-radius:6px;background:#5d6f80}
 .stand-rod{position:absolute;left:25px;top:26px;bottom:29px;width:4px;border-radius:4px;background:#66798a}
 .burette-clamp{position:absolute;left:25px;top:58px;width:27px;height:5px;border-radius:5px;background:#66798a}
-.burette{position:absolute;left:38px;top:12px;width:14px;height:121px;border:2px solid #788b9e;border-radius:5px 5px 4px 4px;background:rgba(255,255,255,.78);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+.burette{position:absolute;left:45px;top:12px;width:14px;height:121px;border:2px solid #788b9e;border-radius:5px 5px 4px 4px;background:rgba(255,255,255,.78);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
 .burette-scale{position:absolute;inset:5px 1px 5px auto;width:6px;z-index:3;background:repeating-linear-gradient(to bottom,transparent 0 6px,rgba(32,63,91,.58) 6px 7px)}
 .burette-liquid{position:absolute;left:0;right:0;bottom:0;height:90%;background:linear-gradient(90deg,rgba(75,137,185,.72),rgba(112,171,210,.48));transition:height .3s ease,background .3s ease}
 .burette-liquid:before{content:"";position:absolute;left:1px;right:1px;top:-3px;height:6px;border-radius:50%;background:rgba(75,137,185,.8);border-top:1px solid rgba(32,63,91,.28)}
 .stopcock{position:absolute;left:31px;top:136px;width:28px;height:8px;border-radius:4px;background:#566879;z-index:5}
 .stopcock:after{content:"";position:absolute;left:11px;top:7px;width:5px;height:9px;background:#718394;border-radius:0 0 3px 3px}
-.burette-tip{position:absolute;left:43px;top:151px;width:4px;height:15px;background:#718394;clip-path:polygon(18% 0,82% 0,100% 84%,50% 100%,0 84%);z-index:5}
+.burette-tip{position:absolute;left:50px;top:151px;width:4px;height:15px;background:#718394;clip-path:polygon(18% 0,82% 0,100% 84%,50% 100%,0 84%);z-index:5}
 .falling-drop{position:absolute;left:45px;top:164px;width:8px;height:12px;border-radius:55% 55% 60% 60%;opacity:0;transform:translate(-50%,0) scale(.4);z-index:12;pointer-events:none;box-shadow:0 0 0 1px rgba(255,255,255,.28)}
 .beaker{position:absolute;left:37px;bottom:32px;width:84px;height:65px;border:3px solid #788b9e;border-top-width:4px;border-radius:0 0 14px 14px;background:rgba(255,255,255,.86);z-index:3;overflow:hidden}
 .beaker:before{content:"";position:absolute;left:-4px;right:-4px;top:-3px;height:7px;border:2px solid rgba(120,139,158,.62);border-bottom:0;border-radius:11px 11px 0 0}
 .beaker-inner{position:relative;width:100%;height:100%;overflow:hidden}
 .beaker-liquid{position:absolute;left:5px;right:5px;bottom:5px;height:52%;background:#e2e8f0;border-radius:0 0 10px 10px;transition:height .3s ease,background-color .38s ease;overflow:hidden}
 .beaker-surface{position:absolute;left:7px;right:7px;top:2px;height:6px;border-radius:50%;background:rgba(255,255,255,.45)}
-.mix-plume{--plume-color:rgba(255,255,255,.85);position:absolute;left:8px;bottom:7px;width:37px;height:72%;opacity:0;pointer-events:none;z-index:8;filter:saturate(1.05)}
-.mix-plume:before,.mix-plume:after,.mix-plume .plume-core{content:"";position:absolute;bottom:0;border-radius:52% 48% 60% 40%/38% 42% 58% 62%;background:linear-gradient(180deg,rgba(255,255,255,.15),var(--plume-color) 24%,rgba(255,255,255,.2) 56%,rgba(255,255,255,0) 100%)}
-.mix-plume:before{left:0;width:9px;height:72%;transform:rotate(-10deg)}
-.mix-plume .plume-core{left:12px;width:11px;height:100%;transform:rotate(3deg)}
-.mix-plume:after{left:26px;width:8px;height:68%;transform:rotate(12deg)}
-.electrode{position:absolute;left:104px;top:92px;width:9px;height:96px;border-radius:5px 5px 4px 4px;background:linear-gradient(90deg,#475866,#8da0ad);z-index:10}
+.mix-plume{--plume-color:rgba(255,255,255,.85);position:absolute;left:15px;top:8px;width:14px;height:32px;opacity:0;pointer-events:none;z-index:8;filter:saturate(1.04)}
+.mix-plume:before,.mix-plume:after,.mix-plume .plume-core{content:"";position:absolute;background:linear-gradient(180deg,rgba(255,255,255,.12),var(--plume-color) 18%,rgba(255,255,255,.18) 58%,rgba(255,255,255,0) 100%)}
+.mix-plume:before{left:3px;top:0;width:8px;height:100%;border-radius:10px 10px 14px 14px;opacity:.82}
+.mix-plume .plume-core{left:-2px;top:4px;width:18px;height:24px;border-radius:50%;background:radial-gradient(circle at 50% 20%, rgba(255,255,255,.22), var(--plume-color) 45%, rgba(255,255,255,0) 100%);opacity:.72}
+.mix-plume:after{left:1px;top:12px;width:12px;height:20px;border-radius:50%;background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.12), rgba(255,255,255,0) 100%);opacity:.5}
+.electrode{position:absolute;left:104px;top:108px;width:9px;height:54px;border-radius:5px 5px 4px 4px;background:linear-gradient(90deg,#475866,#8da0ad);z-index:10}
 .electrode:before{content:"";position:absolute;left:2px;right:2px;bottom:-9px;height:13px;border-radius:0 0 6px 6px;background:#394955}
-.electrode-cable{position:absolute;left:108px;top:74px;width:24px;height:24px;border-top:3px solid #4b5c6a;border-right:3px solid #4b5c6a;border-radius:0 17px 0 0;z-index:9}
+.electrode-cable{position:absolute;left:108px;top:92px;width:24px;height:16px;border-top:3px solid #4b5c6a;border-right:3px solid #4b5c6a;border-radius:0 17px 0 0;z-index:9}
 .stirrer{position:absolute;left:32px;bottom:20px;width:96px;height:14px;border-radius:6px 6px 3px 3px;background:linear-gradient(#c5d0da,#7d8c99);z-index:2}
 .stir-bar{position:absolute;left:66px;bottom:43px;width:29px;height:6px;border-radius:999px;background:#f4f6f8;box-shadow:0 0 0 1px rgba(89,105,121,.35),inset 0 1px 2px rgba(255,255,255,.9);z-index:10;transform-origin:center;animation:stirBar .9s linear infinite}
 @keyframes stirBar{0%{transform:translateX(-2px) scaleX(.82)}50%{transform:translateX(2px) scaleX(1.08)}100%{transform:translateX(-2px) scaleX(.82)}}
-@keyframes dropFall{0%{opacity:0;transform:translate(-50%,-3px) scale(.45)}12%{opacity:1}74%{opacity:1}100%{opacity:0;transform:translate(-50%,32px) scale(1)}}
-@keyframes plumeMix{0%{opacity:0;transform:translateY(-6px) scale(.52,.48)}18%{opacity:.9}72%{opacity:.45}100%{opacity:0;transform:translateY(2px) scale(1.08,1.02)}}
+@keyframes dropFall{0%{opacity:0;transform:translate(-50%,-3px) scale(.45)}12%{opacity:1}74%{opacity:1}100%{opacity:0;transform:translate(-50%,24px) scale(1)}}
+@keyframes plumeMix{0%{opacity:0;transform:translateY(-3px) scale(.7,.55)}20%{opacity:.88}68%{opacity:.42}100%{opacity:0;transform:translateY(8px) scale(1.05,1.18)}}
 .falling-drop.drop-active{animation:dropFall .62s ease-out}
 .mix-plume.plume-active{animation:plumeMix .92s ease-out}
 .instrument{min-height:232px;border-radius:12px;background:#172033;color:#dcf2d8;padding:13px 12px 12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;display:flex;flex-direction:column;justify-content:flex-start;min-width:0;overflow:hidden}
@@ -214,7 +214,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.5.2</span><br>Kompakte Titrationsanimation</div>
+    <div class="version"><span class="badge">v15.5.3</span><br>Kompakte Titrationsanimation</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -226,7 +226,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     <aside class="card">
       <div class="panelhead"><h2>Versuch einstellen</h2></div>
       <div class="panelbody">
-        <div class="apparatus" aria-label="Kompakte Titrationsapparatur mit Bürette, Becherglas, pH-Elektrode und Magnetrührer">
+        <div class="apparatus" aria-label="Reparierte Titrationsapparatur mit Bürette, Becherglas, pH-Elektrode und Magnetrührer">
           <div class="lab-scene" aria-hidden="true">
             <div class="lab-bench"></div>
             <div class="stand-base"></div><div class="stand-rod"></div><div class="burette-clamp"></div>
@@ -448,7 +448,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.5.2 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.5.3 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
