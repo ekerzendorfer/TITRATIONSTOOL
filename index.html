@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.0.1</title>
+<title>Titrations-Labor – v15.1</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -112,9 +112,21 @@ tbody tr:last-child td{border-bottom:0}
 .overlay-option label{display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--accent2);font-weight:700;cursor:pointer}
 .overlay-option input{width:auto;margin:0;accent-color:var(--accent)}
 .overlay-option label:has(input:disabled){opacity:.55;cursor:not-allowed}
+.substance-card{padding:13px 14px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(135deg,#f8fbfd,#eef3f8)}
+.substance-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.substance-title strong{font-size:1.05rem;color:var(--accent2)}
+.substance-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#dce9f4;color:var(--accent2);font-size:.76rem;font-weight:800}
+.substance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:10px}
+.substance-item{padding:8px 9px;border-radius:9px;background:rgba(255,255,255,.84);min-width:0}
+.substance-item span{display:block;color:var(--muted);font-size:.75rem}
+.substance-item strong{display:block;margin-top:2px;overflow-wrap:anywhere}
+.custom-fields{padding:12px;border:1px dashed var(--border);border-radius:11px;background:#fbfcfe}
+.lock-note{display:block;margin-top:4px;color:var(--muted);font-size:.79rem;font-weight:450}
+.stoff-table table{min-width:620px}
+.stoff-table td:nth-child(3),.stoff-table td:nth-child(4),.stoff-table th:nth-child(3),.stoff-table th:nth-child(4){white-space:nowrap}
 @media(max-width:940px){header{display:block}.version{text-align:left;margin-top:16px}.workspace{grid-template-columns:1fr}.chartwrap{min-height:400px}.chartwrap canvas{height:370px!important}}
-@media(max-width:650px){.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:16px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.instrument{width:100%}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
-@media(max-width:420px){.metrics{grid-template-columns:1fr}.formrow{grid-template-columns:1fr}.statusbar{align-items:flex-start}.seg{display:grid;grid-template-columns:1fr}.buttons{display:grid;grid-template-columns:1fr}.buttons>*{width:100%}}
+@media(max-width:650px){.substance-grid{grid-template-columns:1fr 1fr}.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:16px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.instrument{width:100%}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
+@media(max-width:420px){.substance-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.formrow{grid-template-columns:1fr}.statusbar{align-items:flex-start}.seg{display:grid;grid-template-columns:1fr}.buttons{display:grid;grid-template-columns:1fr}.buttons>*{width:100%}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 @media(forced-colors:active){.card,.chartwrap,.apparatus,.analysis-card{border:1px solid CanvasText}.primary,.dropbtn{forced-color-adjust:auto}}
 </style>
@@ -125,9 +137,9 @@ tbody tr:last-child td{border-bottom:0}
     <div>
       <p class="eyebrow">Virtuelles Chemielabor</p>
       <h1>Titrations-Labor</h1>
-      <p class="subtitle">Schwache ein- oder zweiprotonige Säure mit starker Base: Titrationskurve aufnehmen, Ableitungen fachlich korrekt auswerten und den Äquivalenzpunkt aus den Messdaten bestimmen.</p>
+      <p class="subtitle">Ausgewählte schwache ein- oder zweiprotonige Säure mit Natronlauge titrieren, Titrationskurve aufnehmen und den Äquivalenzpunkt fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.0.1</span><br>Zwischenschritt: Diagrammüberblendung</div>
+    <div class="version"><span class="badge">v15.1</span><br>Stoffstammdaten und freie Eingabe</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -160,11 +172,58 @@ tbody tr:last-child td{border-bottom:0}
               </select>
             </label>
 
-            <label>Protonenstufen der Säure
+            <label>Analysierte Säure
+              <select id="acidSelect">
+                <optgroup label="Einprotonige schwache Säuren">
+                  <option value="acetic" selected>Essigsäure – CH₃COOH</option>
+                  <option value="formic">Ameisensäure – HCOOH</option>
+                  <option value="propionic">Propionsäure – CH₃CH₂COOH</option>
+                  <option value="lactic">Milchsäure – CH₃CH(OH)COOH</option>
+                  <option value="benzoic">Benzoesäure – C₆H₅COOH</option>
+                </optgroup>
+                <optgroup label="Zweiprotonige schwache Säuren">
+                  <option value="oxalic">Oxalsäure – H₂C₂O₄</option>
+                  <option value="malonic">Malonsäure – HOOC–CH₂–COOH</option>
+                </optgroup>
+                <option value="custom">Freie Eingabe / eigener Stoff</option>
+              </select>
+            </label>
+
+            <div class="substance-card" aria-live="polite">
+              <div class="substance-title">
+                <strong id="substanceNameDisplay">Essigsäure</strong>
+                <span id="substanceTypeBadge" class="substance-badge">einprotonige schwache Säure</span>
+              </div>
+              <div class="substance-grid">
+                <div class="substance-item"><span>Formel</span><strong id="substanceFormulaDisplay">CH₃COOH</strong></div>
+                <div class="substance-item"><span>Molare Masse</span><strong id="substanceMassDisplay">60,052 g·mol⁻¹</strong></div>
+                <div class="substance-item"><span>pKₛ-Wert(e)</span><strong id="substancePkDisplay">4,76</strong></div>
+              </div>
+              <span class="lock-note">Hinterlegte pKₛ-Werte sind schulgeeignete Näherungswerte für wässrige Lösungen bei etwa 25 °C.</span>
+            </div>
+
+            <div id="customSubstanceFields" class="custom-fields formgrid" hidden>
+              <strong>Stammdaten des eigenen Stoffes</strong>
+              <div class="formrow">
+                <label>Stoffname
+                  <input id="customName" type="text" maxlength="80" value="Eigene Säure" required>
+                </label>
+                <label>Formel
+                  <input id="customFormula" type="text" maxlength="60" value="HA" required>
+                </label>
+              </div>
+              <label>Molare Masse / g·mol⁻¹
+                <input id="customMolarMass" type="number" min="1" max="1000" step="0.001" value="100.000" required>
+              </label>
+              <span class="note">Die App prüft bei eigenen Stoffen nicht, ob Löslichkeit, Gasgleichgewichte oder Nebenreaktionen eine ideale Titration verhindern.</span>
+            </div>
+
+            <label id="polyLabel">Protonenstufen der Säure
               <select id="poly">
                 <option value="1">Einprotonige schwache Säure</option>
                 <option value="2">Zweiprotonige schwache Säure</option>
               </select>
+              <span class="lock-note">Bei hinterlegten Stoffen automatisch gesetzt; für freie Eingaben veränderbar.</span>
             </label>
 
             <div class="formrow">
@@ -180,7 +239,7 @@ tbody tr:last-child td{border-bottom:0}
               <input id="cTit" type="number" min="0.001" max="2" step="0.001" value="0.100">
             </label>
 
-            <div class="formrow">
+            <div id="pkRow" class="formrow">
               <label>pK<sub>S1</sub>
                 <input id="pk1" type="number" min="0" max="14" step="0.01" value="4.75">
               </label>
@@ -188,6 +247,7 @@ tbody tr:last-child td{border-bottom:0}
                 <input id="pk2" type="number" min="0" max="14" step="0.01" value="9.20">
               </label>
             </div>
+            <span class="lock-note">Die pKₛ-Werte werden bei hinterlegten Stoffen aus den Stammdaten übernommen.</span>
 
             <label>Indikator
               <select id="indicator">
@@ -208,6 +268,25 @@ tbody tr:last-child td{border-bottom:0}
                   <input id="speed" type="range" min="40" max="500" step="10" value="130" style="direction:rtl">
                   <span class="note">Links schneller, rechts langsamer.</span>
                 </label>
+              </div>
+            </details>
+
+            <details class="stoff-table">
+              <summary>Hinterlegte Säuren und pKₛ-Werte</summary>
+              <div>
+                <p class="note">Näherungswerte für wässrige Lösungen bei etwa 25 °C; die molare Masse bezieht sich auf die wasserfreie Verbindung.</p>
+                <div class="table-wrap"><table>
+                  <thead><tr><th>Säure</th><th>Formel</th><th>pKₛ₁</th><th>pKₛ₂</th><th>M / g·mol⁻¹</th></tr></thead>
+                  <tbody>
+                    <tr><td>Ameisensäure</td><td>HCOOH</td><td>3,75</td><td>–</td><td>46,025</td></tr>
+                    <tr><td>Essigsäure</td><td>CH₃COOH</td><td>4,76</td><td>–</td><td>60,052</td></tr>
+                    <tr><td>Propionsäure</td><td>CH₃CH₂COOH</td><td>4,87</td><td>–</td><td>74,079</td></tr>
+                    <tr><td>Milchsäure</td><td>CH₃CH(OH)COOH</td><td>3,86</td><td>–</td><td>90,078</td></tr>
+                    <tr><td>Benzoesäure</td><td>C₆H₅COOH</td><td>4,20</td><td>–</td><td>122,123</td></tr>
+                    <tr><td>Oxalsäure</td><td>H₂C₂O₄</td><td>1,25</td><td>4,28</td><td>90,034</td></tr>
+                    <tr><td>Malonsäure</td><td>HOOC–CH₂–COOH</td><td>2,83</td><td>5,69</td><td>104,061</td></tr>
+                  </tbody>
+                </table></div>
               </div>
             </details>
           </div>
@@ -279,16 +358,47 @@ tbody tr:last-child td{border-bottom:0}
     </section>
   </main>
 
-  <div class="footer">TITRATIONSTOOL v15.0.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 
 <script>
 'use strict';
 
-const APP_VERSION = '15.0.1';
+const APP_VERSION = '15.1';
 const KW = 1e-14;
 const COLORS = {
   curve: '#345a7d', d1: '#2f7452', d2: '#9d3037', reference: '#8a5d14', muted: '#8a98a8'
+};
+
+const ACID_PRESETS = {
+  formic: {
+    id: 'formic', name: 'Ameisensäure', formula: 'HCOOH', molarMass: 46.025,
+    poly: 1, pk1: 3.75, pk2: null, species: ['HCOOH', 'HCOO⁻']
+  },
+  acetic: {
+    id: 'acetic', name: 'Essigsäure', formula: 'CH₃COOH', molarMass: 60.052,
+    poly: 1, pk1: 4.76, pk2: null, species: ['CH₃COOH', 'CH₃COO⁻']
+  },
+  propionic: {
+    id: 'propionic', name: 'Propionsäure', formula: 'CH₃CH₂COOH', molarMass: 74.079,
+    poly: 1, pk1: 4.87, pk2: null, species: ['CH₃CH₂COOH', 'CH₃CH₂COO⁻']
+  },
+  lactic: {
+    id: 'lactic', name: 'Milchsäure', formula: 'CH₃CH(OH)COOH', molarMass: 90.078,
+    poly: 1, pk1: 3.86, pk2: null, species: ['CH₃CH(OH)COOH', 'CH₃CH(OH)COO⁻']
+  },
+  benzoic: {
+    id: 'benzoic', name: 'Benzoesäure', formula: 'C₆H₅COOH', molarMass: 122.123,
+    poly: 1, pk1: 4.20, pk2: null, species: ['C₆H₅COOH', 'C₆H₅COO⁻']
+  },
+  oxalic: {
+    id: 'oxalic', name: 'Oxalsäure', formula: 'H₂C₂O₄', molarMass: 90.034,
+    poly: 2, pk1: 1.25, pk2: 4.28, species: ['H₂C₂O₄', 'HC₂O₄⁻', 'C₂O₄²⁻']
+  },
+  malonic: {
+    id: 'malonic', name: 'Malonsäure', formula: 'HOOC–CH₂–COOH', molarMass: 104.061,
+    poly: 2, pk1: 2.83, pk2: 5.69, species: ['H₂Mal', 'HMal⁻', 'Mal²⁻']
+  }
 };
 
 let tChart = null;
@@ -312,13 +422,14 @@ window.addEventListener('DOMContentLoaded', () => {
   cacheElements();
   bindEvents();
   initCharts();
+  syncAcidControls();
   resetSimulation({ regenerateSecret: true });
 });
 
 function cacheElements() {
   [
     'simStatus','statusDot','typeStatus','phDisplay','volDisplay','liquid','errorBox','warningBox','settingsFieldset',
-    'simMode','poly','c0','v0','v0Container','cTit','pk1','pk2','pk2Label','indicator','dropSize','dropVal','speed',
+    'simMode','acidSelect','substanceNameDisplay','substanceTypeBadge','substanceFormulaDisplay','substanceMassDisplay','substancePkDisplay','customSubstanceFields','customName','customFormula','customMolarMass','polyLabel','poly','c0','v0','v0Container','cTit','pk1','pk2','pk2Label','indicator','dropSize','dropVal','speed',
     'dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric',
     'stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart'
   ].forEach(id => el[id] = document.getElementById(id));
@@ -326,7 +437,22 @@ function cacheElements() {
 }
 
 function bindEvents() {
-  ['poly','c0','v0','cTit','pk1','pk2'].forEach(id => el[id].addEventListener('change', () => resetSimulation()));
+  el.acidSelect.addEventListener('change', () => {
+    syncAcidControls();
+    resetSimulation();
+  });
+  el.poly.addEventListener('change', () => {
+    syncAcidControls();
+    resetSimulation();
+  });
+  ['customName','customFormula','customMolarMass'].forEach(id => el[id].addEventListener('change', () => {
+    updateSubstanceCard();
+    resetSimulation();
+  }));
+  ['c0','v0','cTit','pk1','pk2'].forEach(id => el[id].addEventListener('change', () => {
+    updateSubstanceCard();
+    resetSimulation();
+  }));
   el.simMode.addEventListener('change', () => {
     challengeActive = el.simMode.value === 'challenge';
     challengeResolved = false;
@@ -397,6 +523,67 @@ function tooltipLabel(context) {
   return `${label}${decimalComma(context.parsed.y, digits)}`;
 }
 
+function syncAcidControls() {
+  const preset = ACID_PRESETS[el.acidSelect.value];
+  const isCustom = !preset;
+  el.customSubstanceFields.hidden = !isCustom;
+  el.poly.disabled = !isCustom;
+  el.pk1.disabled = !isCustom;
+  el.pk2.disabled = !isCustom;
+
+  if (preset) {
+    el.poly.value = String(preset.poly);
+    el.pk1.value = preset.pk1.toFixed(2);
+    el.pk2.value = preset.pk2 == null ? '9.20' : preset.pk2.toFixed(2);
+  }
+  el.pk2Label.hidden = el.poly.value !== '2';
+  updateSubstanceCard();
+}
+
+function selectedAcidMetadata(errors = null) {
+  const preset = ACID_PRESETS[el.acidSelect.value];
+  if (preset) return { ...preset, custom: false };
+
+  const name = el.customName.value.trim();
+  const formula = el.customFormula.value.trim();
+  const molarMass = Number(el.customMolarMass.value);
+  if (errors) {
+    if (!name) { markInvalid('customName'); errors.push('Für einen eigenen Stoff muss ein Stoffname eingetragen werden.'); }
+    if (!formula) { markInvalid('customFormula'); errors.push('Für einen eigenen Stoff muss eine Formel eingetragen werden.'); }
+    if (!Number.isFinite(molarMass) || molarMass < 1 || molarMass > 1000) {
+      markInvalid('customMolarMass');
+      errors.push('Die molare Masse des eigenen Stoffes muss zwischen 1 und 1000 g·mol⁻¹ liegen.');
+    }
+  }
+  const poly = Number(el.poly.value);
+  return {
+    id: 'custom',
+    name: name || 'Eigene Säure',
+    formula: formula || (poly === 2 ? 'H₂A' : 'HA'),
+    molarMass,
+    poly,
+    pk1: Number(el.pk1.value),
+    pk2: poly === 2 ? Number(el.pk2.value) : null,
+    species: poly === 2 ? ['H₂A', 'HA⁻', 'A²⁻'] : ['HA', 'A⁻'],
+    custom: true
+  };
+}
+
+function updateSubstanceCard() {
+  const acid = selectedAcidMetadata();
+  const poly = Number(el.poly.value);
+  const pk1 = Number(el.pk1.value);
+  const pk2 = Number(el.pk2.value);
+  el.substanceNameDisplay.textContent = acid.name;
+  el.substanceTypeBadge.textContent = `${poly === 2 ? 'zweiprotonige' : 'einprotonige'} schwache Säure${acid.custom ? ' · freie Eingabe' : ''}`;
+  el.substanceFormulaDisplay.textContent = acid.formula;
+  el.substanceMassDisplay.textContent = Number.isFinite(acid.molarMass) ? `${decimalComma(acid.molarMass, 3)} g·mol⁻¹` : '–';
+  el.substancePkDisplay.textContent = poly === 2
+    ? `${Number.isFinite(pk1) ? decimalComma(pk1, 2) : '–'} · ${Number.isFinite(pk2) ? decimalComma(pk2, 2) : '–'}`
+    : (Number.isFinite(pk1) ? decimalComma(pk1, 2) : '–');
+  el.pk2Label.hidden = poly !== 2;
+}
+
 function readAndValidateParams() {
   clearValidation();
   const values = {
@@ -410,6 +597,7 @@ function readAndValidateParams() {
     step: Number(el.dropSize.value)
   };
   const errors = [];
+  values.acid = selectedAcidMetadata(errors);
   validateNumber('c0', values.c0, 0.001, 2, 'Die Konzentration der Probe muss zwischen 0,001 und 2 mol·L⁻¹ liegen.', errors);
   if (!challengeActive) validateNumber('v0', values.v0, 1, 100, 'Das Probenvolumen muss zwischen 1 und 100 mL liegen.', errors);
   validateNumber('cTit', values.cTit, 0.001, 2, 'Die Konzentration der Maßlösung muss zwischen 0,001 und 2 mol·L⁻¹ liegen.', errors);
@@ -446,7 +634,7 @@ function markInvalid(id) {
 }
 
 function clearValidation() {
-  ['c0','v0','cTit','pk1','pk2','dropSize'].forEach(id => el[id].removeAttribute('aria-invalid'));
+  ['c0','v0','cTit','pk1','pk2','dropSize','customName','customFormula','customMolarMass'].forEach(id => el[id].removeAttribute('aria-invalid'));
 }
 
 function showError(message) {
@@ -463,6 +651,7 @@ function hideError() {
 
 function resetSimulation(options = {}) {
   stopAllTimers();
+  syncAcidControls();
   if (options.regenerateSecret && challengeActive) secretV0 = 15 + Math.random() * 5;
   challengeActive = el.simMode.value === 'challenge';
   challengeResolved = false;
@@ -470,7 +659,8 @@ function resetSimulation(options = {}) {
   el.v0Container.hidden = challengeActive;
   el.challengeBox.hidden = !challengeActive;
   el.pk2Label.hidden = el.poly.value !== '2';
-  el.typeStatus.textContent = `Versuchstyp: ${el.poly.value === '2' ? 'Zweiprotonige schwache Säure' : 'Schwache Säure'} – starke Base`;
+  const acidPreview = selectedAcidMetadata();
+  el.typeStatus.textContent = `Versuchstyp: ${acidPreview.name} – Natronlauge`;
   el.dropVal.textContent = decimalComma(Number(el.dropSize.value), 2);
 
   currentParams = readAndValidateParams();
@@ -662,16 +852,20 @@ function detectEquivalencePoints(d1, d2, raw, maxCount) {
   const globalMax = Math.max(...d1.map(p => p.y));
   const localMaxima = [];
 
+  const prominenceRadius = Math.max(5, Math.round(((raw.at(-1)?.x || 1) * 0.06) / medianStep));
+  const relativeHeightThreshold = maxCount > 1 ? 0.015 : 0.08;
+  const relativeProminenceThreshold = maxCount > 1 ? 0.003 : 0.015;
+
   for (let i = 1; i < d1.length - 1; i++) {
     const p = d1[i];
     if (!(p.y >= d1[i - 1].y && p.y >= d1[i + 1].y && (p.y > d1[i - 1].y || p.y > d1[i + 1].y))) continue;
-    const leftStart = Math.max(0, i - 5);
-    const rightEnd = Math.min(d1.length - 1, i + 5);
+    const leftStart = Math.max(0, i - prominenceRadius);
+    const rightEnd = Math.min(d1.length - 1, i + prominenceRadius);
     const leftMin = Math.min(...d1.slice(leftStart, i + 1).map(q => q.y));
     const rightMin = Math.min(...d1.slice(i, rightEnd + 1).map(q => q.y));
     const prominence = p.y - Math.max(leftMin, rightMin);
-    if (p.y < Math.max(0.05, globalMax * 0.08)) continue;
-    if (prominence < Math.max(0.02, globalMax * 0.015)) continue;
+    if (p.y < Math.max(0.05, globalMax * relativeHeightThreshold)) continue;
+    if (prominence < Math.max(0.02, globalMax * relativeProminenceThreshold)) continue;
     localMaxima.push({ index: i, x: p.x, y: p.y, prominence });
   }
 
@@ -743,7 +937,7 @@ function updateAll() {
 
 function updateVisualState() {
   el.phDisplay.textContent = Number.isFinite(lastPH) ? `pH ${decimalComma(lastPH, 2)}` : 'pH –';
-  el.volDisplay.textContent = `V(Maßlösung) = ${decimalComma(volAdded, 3)} mL`;
+  el.volDisplay.textContent = `V(NaOH) = ${decimalComma(volAdded, 3)} mL · ${currentParams?.acid?.name || ''}`;
   if (currentParams) {
     el.liquid.style.height = `${Math.min(34 + volAdded / currentParams.v0 * 18, 96)}%`;
   }
@@ -896,12 +1090,12 @@ function drawHaegg() {
     lineDataset('OH⁻', phValues.map(ph => ({x:ph,y:ph-14})), '#9aa7b5', 1.2, [5,5])
   ];
   if (p.poly === 1) {
-    datasets.push(lineDataset('HA', phValues.map(ph => { const h=Math.pow(10,-ph); return {x:ph,y:logC0+safeLog(h/(h+k1))}; }), '#9d3037', 2.5));
-    datasets.push(lineDataset('A⁻', phValues.map(ph => { const h=Math.pow(10,-ph); return {x:ph,y:logC0+safeLog(k1/(h+k1))}; }), '#2f7452', 2.5));
+    datasets.push(lineDataset(p.acid.species[0] || 'HA', phValues.map(ph => { const h=Math.pow(10,-ph); return {x:ph,y:logC0+safeLog(h/(h+k1))}; }), '#9d3037', 2.5));
+    datasets.push(lineDataset(p.acid.species[1] || 'A⁻', phValues.map(ph => { const h=Math.pow(10,-ph); return {x:ph,y:logC0+safeLog(k1/(h+k1))}; }), '#2f7452', 2.5));
   } else {
-    datasets.push(lineDataset('H₂A', phValues.map(ph => { const h=Math.pow(10,-ph),d=h*h+h*k1+k1*k2; return {x:ph,y:logC0+safeLog(h*h/d)}; }), '#9d3037', 2.5));
-    datasets.push(lineDataset('HA⁻', phValues.map(ph => { const h=Math.pow(10,-ph),d=h*h+h*k1+k1*k2; return {x:ph,y:logC0+safeLog(h*k1/d)}; }), '#d27a2c', 2.5));
-    datasets.push(lineDataset('A²⁻', phValues.map(ph => { const h=Math.pow(10,-ph),d=h*h+h*k1+k1*k2; return {x:ph,y:logC0+safeLog(k1*k2/d)}; }), '#2f7452', 2.5));
+    datasets.push(lineDataset(p.acid.species[0] || 'H₂A', phValues.map(ph => { const h=Math.pow(10,-ph),d=h*h+h*k1+k1*k2; return {x:ph,y:logC0+safeLog(h*h/d)}; }), '#9d3037', 2.5));
+    datasets.push(lineDataset(p.acid.species[1] || 'HA⁻', phValues.map(ph => { const h=Math.pow(10,-ph),d=h*h+h*k1+k1*k2; return {x:ph,y:logC0+safeLog(h*k1/d)}; }), '#d27a2c', 2.5));
+    datasets.push(lineDataset(p.acid.species[2] || 'A²⁻', phValues.map(ph => { const h=Math.pow(10,-ph),d=h*h+h*k1+k1*k2; return {x:ph,y:logC0+safeLog(k1*k2/d)}; }), '#2f7452', 2.5));
   }
   datasets.push(verticalLineDataset('aktueller pH', lastPH, -14, 0, '#172033', 1.6, [3,3]));
   hChart.data.datasets = datasets;
@@ -920,7 +1114,7 @@ function updateWarnings() {
   const warnings = [];
   const step = Number(el.dropSize.value);
   if (step > currentParams.veq1 * 0.02) warnings.push('Die gewählte Schrittweite ist im Verhältnis zum erwarteten Äquivalenzvolumen grob. Eine feinere Dosierung verbessert die Ableitungsauswertung.');
-  if (currentParams.poly === 2 && currentParams.pk2 - currentParams.pk1 < 2) warnings.push('Die beiden pKS-Werte liegen nahe beieinander. Zwei getrennte Äquivalenzpunkte können dadurch schwer erkennbar sein.');
+  if (currentParams.poly === 2 && currentParams.pk2 - currentParams.pk1 < 3.5) warnings.push('Die beiden pKS-Werte liegen relativ nahe beieinander. Besonders der erste Äquivalenzpunkt kann in der Titrationskurve und den Ableitungen deutlich schwächer ausgeprägt sein.');
   el.warningBox.hidden = warnings.length === 0;
   el.warningBox.innerHTML = warnings.map(w => `<div>${w}</div>`).join('');
 }
@@ -928,7 +1122,7 @@ function updateWarnings() {
 function referenceInfoHTML() {
   if (!currentParams) return 'Bereit.';
   const refs = currentParams.referenceEPs.map((v, i) => `${i+1}. ÄP: ${decimalComma(v,3)} mL`).join(' · ');
-  return `<strong>Stöchiometrische Referenz:</strong> ${refs}. Diese Werte werden getrennt von der numerischen Auswertung der Messpunkte dargestellt.`;
+  return `<strong>${escapeHTML(currentParams.acid.name)}:</strong> ${escapeHTML(currentParams.acid.formula)} · <strong>Stöchiometrische Referenz:</strong> ${refs}. Diese Werte werden getrennt von der numerischen Auswertung der Messpunkte dargestellt.`;
 }
 
 function checkChallenge() {
@@ -958,25 +1152,31 @@ function exportCSV() {
     ['App_Version',APP_VERSION],
     ['Versuchstyp','Titration'],
     ['Titrationsart','Schwache_Saeure_starke_Base'],
+    ['Analyt_ID',p.acid.id],
+    ['Analyt_Name',p.acid.name],
+    ['Analyt_Formel',p.acid.formula],
+    ['Molare_Masse_g_mol',decimalComma(p.acid.molarMass,3)],
+    ['Stoffdaten',p.acid.custom ? 'Benutzerdefiniert' : 'Stammdaten'],
     ['Protonenstufen',String(p.poly)],
     ['c_Probe_mol_L',decimalComma(p.c0,4)],
     ['V_Probe_mL',decimalComma(p.v0,3)],
     ['c_Massloesung_mol_L',decimalComma(p.cTit,4)],
     ['pKs1',decimalComma(p.pk1,3)],
     ['pKs2',p.poly === 2 ? decimalComma(p.pk2,3) : ''],
+    ['pKs_Hinweis','Naeherungswerte_waessrig_ca_25_C'],
     ['Indikator',indicatorName(p.indicator)],
     ['Schrittweite_Soll_mL',decimalComma(Number(el.dropSize.value),3)],
     ['Datenart','Simulation'],
     ['Auswertungsmethode','Ableitungen_aus_Rohdaten_berechnen'],
     ['Exportzeit',new Date().toISOString()]
   ];
-  metadata.forEach(([key,value]) => lines.push(`${key};${value}`));
+  metadata.forEach(([key,value]) => lines.push(`${csvCell(key)};${csvCell(value)}`));
   const csv = '\uFEFF' + lines.join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `TITR_SCHWACHE_SAEURE_STARKE_BASE_${timestampForFilename(new Date())}.csv`;
+  anchor.download = `TITR_${substanceFilenameToken(p.acid)}_NAOH_${timestampForFilename(new Date())}.csv`;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
@@ -986,6 +1186,25 @@ function exportCSV() {
 
 function indicatorName(value) {
   return { btb:'Bromthymolblau', phph:'Phenolphthalein', mo:'Methylorange' }[value] || value;
+}
+
+function csvCell(value) {
+  const text = String(value ?? '');
+  return /[;"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function substanceFilenameToken(acid) {
+  if (!acid.custom && acid.id) return acid.id.toUpperCase();
+  return acid.name
+    .replace(/Ä/g, 'AE').replace(/Ö/g, 'OE').replace(/Ü/g, 'UE')
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '').toUpperCase() || 'EIGENER_STOFF';
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 }
 
 function timestampForFilename(date) {
