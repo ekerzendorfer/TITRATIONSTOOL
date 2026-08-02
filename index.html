@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.3.0</title>
+<title>Titrations-Labor – v15.4.0</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -75,15 +75,37 @@ legend{font-weight:850;margin-bottom:10px}
 .seg button{border:0;background:transparent;color:var(--muted);font-weight:700;padding:9px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;flex:1}
 .seg button[aria-pressed="true"]{background:#fff;color:var(--accent2);box-shadow:0 2px 8px rgba(23,32,51,.1)}
 .seg button:disabled{opacity:.5;cursor:not-allowed}
-.apparatus{padding:16px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#f9fbfd,#eaf0f6);display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center}
-.beaker{width:108px;height:132px;border:3px solid #8494a4;border-top:none;border-radius:0 0 17px 17px;margin:auto;position:relative;overflow:hidden;background:rgba(255,255,255,.72)}
-.beaker:before{content:"";position:absolute;left:-4px;right:-4px;top:0;height:11px;border-top:3px solid #8494a4;border-radius:50%;z-index:2}
-.liquid{position:absolute;bottom:0;left:0;width:100%;height:34%;background:#e2e8f0;transition:height .25s ease,background-color .35s ease}
-.liquid:after{content:"";position:absolute;left:7px;right:7px;top:5px;height:8px;border-radius:50%;background:rgba(255,255,255,.42)}
-.instrument{min-height:116px;border-radius:12px;background:#172033;color:#d7f5dc;padding:16px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;display:flex;flex-direction:column;justify-content:center}
-.display-label{font-size:.78rem;opacity:.76}
-.display-value{font-size:clamp(2rem,5vw,3.1rem);font-weight:800;line-height:1.05}
-.display-meta{font-size:.86rem;opacity:.84;margin-top:7px}
+.apparatus{padding:10px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#f9fbfd,#eaf0f6);display:grid;grid-template-columns:145px minmax(0,1fr);gap:8px;align-items:center;overflow:hidden}
+.lab-scene{position:relative;width:100%;max-width:145px;height:232px;margin:auto;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(225,234,242,.58));border:1px solid rgba(132,148,164,.28);overflow:hidden}
+.lab-bench{position:absolute;left:0;right:0;bottom:15px;height:9px;background:#7d8c99;box-shadow:0 4px 0 rgba(32,63,91,.12)}
+.stand-base{position:absolute;left:10px;bottom:23px;width:42px;height:7px;border-radius:6px;background:#566777}
+.stand-rod{position:absolute;left:28px;top:12px;bottom:27px;width:4px;border-radius:4px;background:#657789}
+.burette-clamp{position:absolute;left:28px;top:43px;width:42px;height:5px;border-radius:5px;background:#657789}
+.burette{position:absolute;left:57px;top:13px;width:25px;height:132px;border:2px solid #718394;border-radius:5px 5px 4px 4px;background:rgba(255,255,255,.66);overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.burette-scale{position:absolute;inset:5px 2px 5px auto;width:8px;z-index:3;background:repeating-linear-gradient(to bottom,transparent 0 7px,rgba(32,63,91,.55) 7px 8px)}
+.burette-liquid{position:absolute;left:0;right:0;bottom:0;height:90%;background:linear-gradient(90deg,rgba(75,137,185,.72),rgba(112,171,210,.48));transition:height .3s ease}
+.burette-liquid:before{content:"";position:absolute;left:1px;right:1px;top:-3px;height:6px;border-radius:50%;background:rgba(75,137,185,.8);border-top:1px solid rgba(32,63,91,.28)}
+.stopcock{position:absolute;left:51px;top:146px;width:37px;height:8px;border-radius:4px;background:#526576}
+.stopcock:after{content:"";position:absolute;left:15px;top:7px;width:7px;height:10px;background:#718394;border-radius:0 0 3px 3px}
+.burette-tip{position:absolute;left:66px;top:164px;width:5px;height:23px;background:#718394;clip-path:polygon(20% 0,80% 0,100% 82%,50% 100%,0 82%)}
+.electrode{position:absolute;right:31px;top:57px;width:10px;height:91px;border-radius:5px 5px 4px 4px;background:linear-gradient(90deg,#495a68,#8da0ad);transform:rotate(3deg);transform-origin:top center;z-index:5}
+.electrode:before{content:"";position:absolute;left:2px;right:2px;bottom:-9px;height:13px;border-radius:0 0 6px 6px;background:#394955}
+.electrode-cable{position:absolute;right:7px;top:20px;width:45px;height:42px;border-right:3px solid #4b5c6a;border-top:3px solid #4b5c6a;border-radius:0 18px 0 0}
+.flask{position:absolute;left:58px;bottom:34px;width:87px;height:77px;clip-path:polygon(39% 0,61% 0,61% 22%,92% 88%,87% 100%,13% 100%,8% 88%,39% 22%);background:#718394;padding:3px;z-index:2}
+.flask-inner{position:relative;width:100%;height:100%;clip-path:inherit;background:rgba(255,255,255,.78);overflow:hidden}
+.flask-neck-line{position:absolute;left:91px;top:122px;width:22px;height:3px;background:rgba(113,131,148,.74);z-index:4}
+.flask-liquid{position:absolute;left:0;right:0;bottom:0;height:29%;background:#e2e8f0;transition:height .3s ease,background-color .38s ease}
+.flask-liquid:after{content:"";position:absolute;left:14px;right:14px;top:3px;height:6px;border-radius:50%;background:rgba(255,255,255,.44)}
+.stirrer{position:absolute;left:54px;bottom:22px;width:98px;height:16px;border-radius:6px 6px 3px 3px;background:linear-gradient(#c5d0da,#7d8c99);z-index:1}
+.stir-bar{position:absolute;left:84px;bottom:44px;width:30px;height:6px;border-radius:999px;background:#253745;z-index:5;transform-origin:center;animation:stirBar .9s linear infinite}
+.apparatus-label{position:absolute;font-size:.62rem;font-weight:800;color:#526576;letter-spacing:.03em;text-transform:uppercase;pointer-events:none}
+.burette-label{left:88px;top:18px}.flask-label{right:7px;bottom:60px}
+@keyframes stirBar{0%{transform:scaleX(1)}25%{transform:scaleX(.35)}50%{transform:scaleX(1)}75%{transform:scaleX(.35)}100%{transform:scaleX(1)}}
+.instrument{min-height:155px;border-radius:12px;background:#172033;color:#d7f5dc;padding:11px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.display-label{font-size:.72rem;opacity:.76;letter-spacing:.04em}
+.display-value{font-size:clamp(1.7rem,3.4vw,2.25rem);font-weight:800;line-height:1.05;white-space:nowrap}
+.display-meta{font-size:.77rem;opacity:.86;margin-top:6px;overflow-wrap:anywhere}
+.display-secondary{margin-top:9px;padding-top:8px;border-top:1px solid rgba(215,245,220,.18);display:grid;gap:3px;font-size:.71rem;opacity:.8}
 .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
 .metric{padding:12px;border-radius:12px;background:var(--soft);min-width:0}
 .mlabel{font-size:.82rem;color:var(--muted)}
@@ -146,10 +168,11 @@ tbody tr:last-child td{border-bottom:0}
 .lock-note{display:block;margin-top:4px;color:var(--muted);font-size:.79rem;font-weight:450}
 .stoff-table table{min-width:620px}
 .stoff-table td:nth-child(3),.stoff-table td:nth-child(4),.stoff-table th:nth-child(3),.stoff-table th:nth-child(4){white-space:nowrap}
+@media(max-width:940px) and (min-width:651px){.apparatus{grid-template-columns:190px minmax(0,1fr);gap:14px}.lab-scene{max-width:178px}}
 @media(max-width:940px){header{display:block}.version{text-align:left;margin-top:16px}.workspace{grid-template-columns:1fr}.chartwrap{min-height:400px}.chartwrap canvas{height:370px!important}}
-@media(max-width:650px){.substance-grid{grid-template-columns:minmax(120px,1.4fr) minmax(110px,1fr) minmax(55px,.6fr)}.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:16px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.instrument{width:100%}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
+@media(max-width:650px){.substance-grid{grid-template-columns:minmax(120px,1.4fr) minmax(110px,1fr) minmax(55px,.6fr)}.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:16px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.lab-scene{max-width:220px}.instrument{width:100%}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
 @media(max-width:420px){.substance-grid{grid-template-columns:1fr 1fr}.substance-item:first-child{grid-column:1/-1}.parameter-row,.parameter-row.is-diprotic{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.formrow{grid-template-columns:1fr}.statusbar{align-items:flex-start}.seg{display:grid;grid-template-columns:1fr}.buttons{display:grid;grid-template-columns:1fr}.buttons>*{width:100%}}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.stir-bar{animation:none!important}}
 @media(forced-colors:active){.card,.chartwrap,.apparatus,.analysis-card{border:1px solid CanvasText}.primary,.dropbtn{forced-color-adjust:auto}}
 
 .parameter-row.is-strong{grid-template-columns:1fr}
@@ -178,7 +201,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.3.0</span><br>Allgemeines Säure-Base-Modell</div>
+    <div class="version"><span class="badge">v15.4.0</span><br>Schematische Titrationsapparatur</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -190,12 +213,26 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     <aside class="card">
       <div class="panelhead"><h2>Versuch einstellen</h2></div>
       <div class="panelbody">
-        <div class="apparatus" aria-label="Schematische Darstellung des Titrationsgefäßes">
-          <div class="beaker"><div id="liquid" class="liquid"></div></div>
+        <div class="apparatus" aria-label="Schematische Titrationsapparatur mit Bürette, Erlenmeyerkolben, pH-Elektrode und Magnetrührer">
+          <div class="lab-scene" aria-hidden="true">
+            <div class="lab-bench"></div>
+            <div class="stand-base"></div><div class="stand-rod"></div><div class="burette-clamp"></div>
+            <div class="burette"><div id="buretteLiquid" class="burette-liquid"></div><div class="burette-scale"></div></div>
+            <div class="stopcock"></div><div class="burette-tip"></div>
+            <div class="electrode-cable"></div><div class="electrode"></div>
+            <div class="flask"><div class="flask-inner"><div id="liquid" class="flask-liquid"></div></div></div>
+            <div class="flask-neck-line"></div><div class="stirrer"></div><div class="stir-bar"></div>
+            <span class="apparatus-label burette-label">Bürette</span><span class="apparatus-label flask-label">Probe</span>
+          </div>
           <div class="instrument" aria-live="polite">
             <span class="display-label">AKTUELLER MESSWERT</span>
             <span class="display-value" id="phDisplay">pH –</span>
             <span class="display-meta" id="volDisplay">V(Maßlösung) = 0,000 mL</span>
+            <div class="display-secondary">
+              <span id="buretteDisplay">Bürettenablesung: 0,000 mL</span>
+              <span id="totalVolumeDisplay">V(Gesamt) = –</span>
+              <span>Magnetrührer: aktiv</span>
+            </div>
           </div>
         </div>
 
@@ -400,12 +437,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.3.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.4.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.3.0';
+const APP_VERSION = '15.4.0';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -518,7 +555,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function cacheElements(){
   [
-    'simStatus','statusDot','typeStatus','phDisplay','volDisplay','liquid','errorBox','warningBox','settingsFieldset','simMode',
+    'simStatus','statusDot','typeStatus','phDisplay','volDisplay','buretteDisplay','totalVolumeDisplay','buretteLiquid','liquid','errorBox','warningBox','settingsFieldset','simMode',
     'analyteType','substanceSelect','substanceSelectText','substanceNameDisplay','substanceTypeBadge','substanceGrid','substanceFormulaDisplay','substanceMassDisplay','substancePkItem','substancePkLabel','substancePkDisplay','substanceNote',
     'customSubstanceFields','customName','customFormula','customMolarMass','customNote','polyLabel','poly','sampleConcTitle','titrantConcTitle','c0','v0','v0Container','cTit','volumePkRow','pk1Label','pk1LabelText','pk1','pk2','pk2Label','pkLockNote','indicator','indicatorPreview','indicatorPreviewTitle','indicatorModel','indicatorGradient','indicatorRangeText','indicatorCurrentDot','indicatorCurrentText','indicatorEvaluation','dropSize','dropVal','speed',
     'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable'
@@ -889,8 +926,21 @@ function setViewButtonState(){el.viewButtons.forEach(btn=>{btn.setAttribute('ari
 function updateAll(){updateVisualState();updateIndicatorPresentation();updateMetrics();updateAnalysisText();updateTable();updateTitrationChart();updateHaeggMarker();}
 function updateVisualState(){
   el.phDisplay.textContent=Number.isFinite(lastPH)?`pH ${decimalComma(lastPH,2)}`:'pH –';
-  if(currentParams)el.volDisplay.textContent=`V(${currentParams.titrant.formula}) = ${decimalComma(volAdded,3)} mL · ${currentParams.analyte.name}`;
-  if(currentParams)el.liquid.style.height=`${Math.min(34+volAdded/currentParams.v0*18,96)}%`;
+  if(currentParams){
+    const titrantFormula=currentParams.titrant.formula;
+    const progress=currentParams.maxVolume>0?Math.max(0,Math.min(1,volAdded/currentParams.maxVolume)):0;
+    const totalVolume=currentParams.v0+volAdded;
+    el.volDisplay.textContent=`V(${titrantFormula}) = ${decimalComma(volAdded,3)} mL · ${currentParams.analyte.name}`;
+    el.buretteDisplay.textContent=`Bürettenablesung: ${decimalComma(volAdded,3)} mL`;
+    el.totalVolumeDisplay.textContent=`V(Gesamt) = ${decimalComma(totalVolume,3)} mL`;
+    el.buretteLiquid.style.height=`${8+(1-progress)*82}%`;
+    el.liquid.style.height=`${29+progress*31}%`;
+  }else{
+    el.buretteDisplay.textContent='Bürettenablesung: 0,000 mL';
+    el.totalVolumeDisplay.textContent='V(Gesamt) = –';
+    el.buretteLiquid.style.height='90%';
+    el.liquid.style.height='29%';
+  }
   el.liquid.style.backgroundColor=indicatorColor(el.indicator.value,lastPH);
 }
 function indicatorColor(indicator,pH){
