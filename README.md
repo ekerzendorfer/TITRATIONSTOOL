@@ -1,59 +1,52 @@
-# TITRATIONSTOOL v15.6.0 – Aufgaben-Grundgerüst
+# TITRATIONSTOOL v15.6.1 – geführte Titrationsauswertung
 
 ## Inhalt dieser Version
 
-v15.6.0 ergänzt erstmals einen eigenen Bereich **Begleitende Aufgaben**. Das freie Labor bleibt vollständig erhalten. Zwischen beiden Arbeitsbereichen kann über einen gut sichtbaren Umschalter gewechselt werden.
+v15.6.1 erweitert den Aufgabenmodus um vier zufallsgenerierte Aufgaben zur quantitativen Titrationsauswertung. Die vier Pilotaufgaben aus v15.6.0 bleiben erhalten.
 
-Das Aufgaben-Grundgerüst enthält:
+Der Aufgabenpool umfasst nun acht Aufgaben:
 
-- Aufgabenkatalog mit Niveau, Zeitbedarf und Lernziel,
-- automatisches Laden fachlich passender Versuchseinstellungen,
-- Sperren der vorgegebenen Parameter,
-- Arbeitsauftrag und Ergebnisfelder,
-- abgestufte Hinweise,
-- automatische Prüfung mit Toleranzbereichen,
-- ausblendbare LehrerInnenlösung,
-- Unterdrückung automatischer Äquivalenzpunkt- und Indikatorlösungen während der Bearbeitung.
+1. starke Säure – Äquivalenzpunkt bei pH 7,
+2. Essigsäure – ÄP aus der zweiten Ableitung,
+3. Pyridin – geeigneten Indikator wählen,
+4. Oxalsäure – zwei Äquivalenzpunkte,
+5. unbekannte Salzsäure – Konzentration bestimmen,
+6. unbekannte Essigsäure – mol/L und g/L,
+7. unbekannte Ammoniaklösung – Konzentration bestimmen,
+8. Oxalsäure – geführte Auswertung über den zweiten ÄP.
 
-## Vier Pilotaufgaben
+## Zufallsvarianten
 
-1. **Starke Säure – Äquivalenzpunkt bei pH 7**  
-   Salzsäure mit Natronlauge; Äquivalenzvolumen und pH-Wert bestimmen.
+Bei jedem erneuten Laden einer geführten Auswertungsaufgabe wird eine neue Variante erzeugt. Eine direkte Wiederholung desselben Äquivalenzvolumens wird vermieden.
 
-2. **Essigsäure – ÄP aus der zweiten Ableitung**  
-   Nulldurchgang der zweiten Ableitung als Auswertungsmethode verwenden.
+Die Verbräuche bleiben bewusst moderat:
 
-3. **Pyridin – geeigneten Indikator wählen**  
-   Die Lage des sauren Äquivalenzbereichs mit den hinterlegten Umschlagsbereichen vergleichen.
+- einprotonige Systeme: Äquivalenzvolumen 8,0 bis 16,0 mL,
+- Oxalsäure: zweites Äquivalenzvolumen 12,0 bis 18,0 mL.
 
-4. **Oxalsäure – zwei Äquivalenzpunkte**  
-   Beide Äquivalenzvolumina einer zweiprotonigen Säure bestimmen.
+Die Probenkonzentration wird aus dem zufällig gewählten Zielvolumen berechnet und im SchülerInnenmodus verborgen.
 
-## Stabilisierte MESSWERT_LAB-Schnittstelle
+## Geführte Rechenschritte
 
-Die CSV-Schnittstelle trägt ab v15.6.0 die Kennungen:
+Die Aufgaben prüfen die Schritte einzeln:
 
-- `Schnittstelle = MESSWERT_LAB_CSV`
-- `Schnittstellen_Version = 1.0`
-- `Auswertungsstandard = TITR_AEP_V1`
+1. Äquivalenzvolumen,
+2. Stoffmenge der Maßlösung in mmol,
+3. Stoffmengenverhältnis,
+4. Stoffmenge des Analyten,
+5. Konzentration in mol/L,
+6. Massenkonzentration in g/L.
 
-Exportiert werden ausschließlich die beiden Rohdatenspalten
+Jeder Schritt erhält eine eigene Rückmeldung und einen kurzen methodischen Hinweis. Die LehrerInnenlösung zeigt den vollständigen Rechenweg mit den Werten der aktuellen Zufallsvariante.
 
-- `Volumen_Massloesung_mL`
-- `pH`
+## Schutz der Aufgabenlösung
 
-sowie ein Metadatenblock mit allen Versuchsparametern. Ableitungen und Äquivalenzpunkte werden nicht exportiert.
+Bei Aufgaben mit unbekannter Probenkonzentration:
 
-Für eine reproduzierbare Auswertung werden Volumen und pH mit zehn Dezimalstellen gespeichert. Die interne Ableitungsauswertung des TITRATIONSTOOL verwendet ab dieser Version exakt dieselbe Zahlenbasis wie der Export.
+- wird das Konzentrationsfeld als „unbekannt“ dargestellt,
+- bleiben automatische Äquivalenzpunktanzeigen verborgen,
+- ist der CSV-Export bis zum Einblenden der LehrerInnenlösung deaktiviert.
 
-Die verbindliche Beschreibung steht in `MESSWERT_LAB_SCHNITTSTELLE.md`.
+## Schnittstelle
 
-## Noch nicht enthalten
-
-- geführte Konzentrationsauswertung in mol/L und g/L,
-- Säureerkennung über Halbäquivalenzpunkt und pH = pKs,
-- größerer Aufgabenpool,
-- Speicherung individueller Arbeitsergebnisse,
-- automatisches Aufgabenprotokoll.
-
-Diese Funktionen folgen in getrennten, kleinen Entwicklungsschritten.
+Die Datei `MESSWERT_LAB_SCHNITTSTELLE.md` bleibt unverändert verbindlich. Die CSV-Rohdaten enthalten weiterhin nur Volumen und pH; alle Ableitungen und Äquivalenzpunkte werden im MESSWERT_LAB berechnet.

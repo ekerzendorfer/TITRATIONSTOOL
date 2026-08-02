@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.6.0</title>
+<title>Titrations-Labor – v15.6.1</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -235,6 +235,15 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
 .task-hint{background:#fff2d8;color:var(--warn)}
 .task-solution{background:#e8f0f7;color:var(--accent2);border:1px solid #c7d7e6}
 .task-lock-note{margin-top:9px;color:var(--muted);font-size:.78rem}
+.task-variant{margin-top:10px;padding:9px 11px;border-radius:10px;background:#edf4fa;color:var(--accent2);font-size:.84rem}
+.task-result-item{display:grid;gap:4px;padding:9px;border:1px solid #d8e2eb;border-radius:9px;background:#fbfdff}
+.task-result-item label{display:grid;gap:5px}
+.task-result-help{font-size:.76rem;color:var(--muted);line-height:1.35}
+.task-result-status{min-height:1.05em;font-size:.76rem;font-weight:750}
+.task-result-status.is-ok{color:var(--ok)}
+.task-result-status.is-error{color:var(--danger)}
+.task-secret-value input{display:none}
+.task-secret-value::after{content:'unbekannt';display:block;margin-top:5px;padding:10px 11px;border:1px dashed #7890a6;border-radius:9px;background:#f4f7fa;color:var(--accent2);font-weight:800;letter-spacing:.02em}
 @media(max-width:1050px){.task-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}.task-workspace-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.modebar{align-items:stretch}.modebar .seg{min-width:0;width:100%}.task-catalog{grid-template-columns:1fr}.task-actions{display:grid;grid-template-columns:1fr}.task-actions button{width:100%}}
 
@@ -248,7 +257,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.6.0</span><br>Aufgaben-Grundgerüst</div>
+    <div class="version"><span class="badge">v15.6.1</span><br>Geführte Titrationsauswertung</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -265,7 +274,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
   </div>
 
   <section id="taskArea" class="task-area card" hidden>
-    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Vier Pilotaufgaben bilden zunächst das Bedien- und Rückmeldungsgerüst.</p></div><span class="task-badge">v15.6.0 · Pilotpool</span></div>
+    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Acht Aufgaben verbinden Kurvenauswertung, Indikatorwahl und eine geführte quantitative Titrationsauswertung.</p></div><span class="task-badge">v15.6.1 · Pilotpool</span></div>
     <div class="panelbody">
       <div id="taskCatalog" class="task-catalog" aria-label="Aufgabenauswahl"></div>
       <article id="taskWorkspace" class="task-workspace" hidden>
@@ -275,6 +284,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
             <h3 id="taskTitle"></h3>
             <div id="taskGoal" class="task-goal"></div>
             <div id="taskOrder" class="task-order"></div>
+            <div id="taskVariant" class="task-variant" hidden></div>
             <div class="task-actions">
               <button id="taskHintBtn" class="secondary compact" type="button">Hinweis</button>
               <button id="taskCheckBtn" class="primary compact" type="button">Ergebnisse prüfen</button>
@@ -518,12 +528,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.6.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.6.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.6.0';
+const APP_VERSION = '15.6.1';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -675,13 +685,121 @@ const TASKS = [
     hints:['Bei einer zweiprotonigen Säure werden pro Stoffmenge Säure insgesamt zwei Stoffmengen OH⁻ umgesetzt.','Das zweite Äquivalenzvolumen ist bei gleichen Bedingungen ungefähr doppelt so groß wie das erste.'],
     solution:'Erster Äquivalenzpunkt: ungefähr 10,00 mL. Zweiter Äquivalenzpunkt: ungefähr 20,00 mL. Der erste Punkt ist wegen der Gleichgewichtslage weniger markant.'
   }
+,
+{
+  id:'TITR_A05', title:'Unbekannte Salzsäure – Konzentration bestimmen', level:'Geführte Auswertung', duration:'25–30 min', category:'Quantitative Analyse',
+  goal:'Aus dem experimentell bestimmten Äquivalenzvolumen die Stoffmengen- und Massenkonzentration einer Salzsäureprobe berechnen.',
+  order:'Die Konzentration der Salzsäureprobe ist unbekannt. Titriere die Probe mit 0,100 mol·L⁻¹ NaOH. Bestimme zuerst den Äquivalenzpunkt und führe anschließend die Auswertung Schritt für Schritt durch.',
+  setup:{analyteType:'strong_acid',substance:'hcl',c0:0.060,v0:20.0,cTit:0.100,indicator:'btb',dropSize:0.10,speed:420},
+  locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','indicator','dropSize'], hideAutomaticResults:true, hideSampleConcentration:true,
+  randomization:{epMin:8.0,epMax:16.0,epStep:0.5,stoichFactor:1,epKey:'veq'},
+  results:guidedResults('veq',1),
+  hints:['Bestimme den Äquivalenzpunkt möglichst genau mit der zweiten Ableitung.','Für die Stoffmenge in mmol gilt bei c in mol/L und V in mL direkt: n / mmol = c · V.','HCl und NaOH reagieren im Stoffmengenverhältnis 1 : 1.'],
+  generate:generateGuidedVariant
+},
+{
+  id:'TITR_A06', title:'Unbekannte Essigsäure – mol/L und g/L', level:'Geführte Auswertung', duration:'25–30 min', category:'Quantitative Analyse',
+  goal:'Die Konzentration einer schwachen einprotonigen Säure aus dem Äquivalenzvolumen in mol/L und g/L bestimmen.',
+  order:'Die Konzentration der Essigsäureprobe ist unbekannt. Titriere mit 0,100 mol·L⁻¹ NaOH, bestimme den Äquivalenzpunkt und berechne anschließend Stoffmenge, molare Konzentration und Massenkonzentration.',
+  setup:{analyteType:'weak_acid',substance:'acetic',c0:0.060,v0:20.0,cTit:0.100,indicator:'phph',dropSize:0.10,speed:420},
+  locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','indicator','dropSize'], hideAutomaticResults:true, hideSampleConcentration:true,
+  randomization:{epMin:8.0,epMax:16.0,epStep:0.5,stoichFactor:1,epKey:'veq'},
+  results:guidedResults('veq',1),
+  hints:['Nutze den Nulldurchgang der zweiten Ableitung für V(ÄP).','Essigsäure und NaOH reagieren bis zum Äquivalenzpunkt im Verhältnis 1 : 1.','Für die Massenkonzentration gilt β = c · M.'],
+  generate:generateGuidedVariant
+},
+{
+  id:'TITR_A07', title:'Unbekannte Ammoniaklösung – Konzentration bestimmen', level:'Geführte Auswertung', duration:'25–30 min', category:'Quantitative Analyse',
+  goal:'Eine unbekannte schwache Base mit HCl titrieren und ihre Konzentration in mol/L und g/L ermitteln.',
+  order:'Titriere die unbekannte Ammoniaklösung mit 0,100 mol·L⁻¹ HCl. Die pH-Kurve fällt; bestimme den Äquivalenzpunkt daher über das Minimum der ersten beziehungsweise den passenden Nulldurchgang der zweiten Ableitung. Werte anschließend quantitativ aus.',
+  setup:{analyteType:'weak_base',substance:'ammonia',c0:0.060,v0:20.0,cTit:0.100,indicator:'mo',dropSize:0.10,speed:420},
+  locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','indicator','dropSize'], hideAutomaticResults:true, hideSampleConcentration:true,
+  randomization:{epMin:8.0,epMax:16.0,epStep:0.5,stoichFactor:1,epKey:'veq'},
+  results:guidedResults('veq',1),
+  hints:['Bei einer Basentitration ist die erste Ableitung negativ; gesucht wird ihr Minimum.','NH₃ und HCl reagieren im Verhältnis 1 : 1.','Die molare Masse von NH₃ wird aus den Stoffstammdaten übernommen.'],
+  generate:generateGuidedVariant
+},
+{
+  id:'TITR_A08', title:'Oxalsäure – Auswertung über den zweiten ÄP', level:'SEK II · geführt', duration:'30–35 min', category:'Mehrprotonige Analyse',
+  goal:'Bei einer zweiprotonigen Säure den stöchiometrischen Faktor korrekt berücksichtigen und die Konzentration berechnen.',
+  order:'Die Konzentration der Oxalsäureprobe ist unbekannt. Bestimme den zweiten Äquivalenzpunkt und führe die quantitative Auswertung durch. Beachte, dass bis zum zweiten Äquivalenzpunkt zwei Stoffmengen OH⁻ pro Stoffmenge Oxalsäure umgesetzt werden.',
+  setup:{analyteType:'weak_acid',substance:'oxalic',c0:0.040,v0:20.0,cTit:0.100,indicator:'tb',dropSize:0.10,speed:420},
+  locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','indicator','dropSize'], hideAutomaticResults:true, hideSampleConcentration:true,
+  randomization:{epMin:12.0,epMax:18.0,epStep:0.5,stoichFactor:2,epKey:'veq2'},
+  results:guidedResults('veq2',2),
+  hints:['Verwende für diese Aufgabe ausdrücklich den zweiten Äquivalenzpunkt.','Am zweiten ÄP gilt n(OH⁻) = 2 · n(H₂C₂O₄).','Teile daher die Stoffmenge der Maßlösung durch 2, bevor du c(Analyt) berechnest.'],
+  generate:generateGuidedVariant
+}
 ];
 const TASK_LOCKABLE_IDS=['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','pk2','poly','indicator','dropSize','speed'];
+const LAST_RANDOM_EP = new Map();
+function guidedResults(epKey,stoichFactor){
+  const epLabel=epKey==='veq2'?'2. Äquivalenzvolumen / mL':'Äquivalenzvolumen / mL';
+  return[
+    {key:epKey,label:`1. ${epLabel}`,kind:'number',expected:0,tolerance:0.20,placeholder:'Messwert eintragen',help:'Aus Titrationskurve und Ableitung bestimmen.'},
+    {key:'ntit',label:'2. n(Maßlösung) / mmol',kind:'number',expected:0,tolerance:0.025,placeholder:'c · V',help:'Bei c in mol/L und V in mL ergibt c · V direkt mmol.'},
+    {key:'ratio',label:'3. Stoffmengenverhältnis Maßlösung : Analyt',kind:'select',expected:String(stoichFactor),options:[['','Bitte wählen'],['1','1 : 1'],['2','2 : 1']],help:'Aus der ausgeglichenen Reaktionsgleichung ableiten.'},
+    {key:'nanalyte',label:'4. n(Analyt) / mmol',kind:'number',expected:0,tolerance:0.025,placeholder:'Stoffmenge Analyt',help:stoichFactor===1?'Bei 1 : 1 ist n(Analyt) = n(Maßlösung).':'Am zweiten ÄP gilt n(Analyt) = n(Maßlösung) / 2.'},
+    {key:'canalyte',label:'5. c(Analyt) / mol·L⁻¹',kind:'number',expected:0,tolerance:0.0015,placeholder:'n / V(Probe)',help:'mmol / mL ist zahlenmäßig mol/L.'},
+    {key:'beta',label:'6. β(Analyt) / g·L⁻¹',kind:'number',expected:0,tolerance:0.10,placeholder:'c · M',help:'Molare Konzentration mit der molaren Masse multiplizieren.'}
+  ];
+}
+function randomStepValue(min,max,step,previous){
+  const count=Math.round((max-min)/step);
+  const values=Array.from({length:count+1},(_,index)=>Number((min+index*step).toFixed(6)));
+  const candidates=values.length>1?values.filter(value=>value!==previous):values;
+  return candidates[Math.floor(Math.random()*candidates.length)];
+}
+function generateGuidedVariant(template){
+  const rnd=template.randomization;
+  const previous=LAST_RANDOM_EP.get(template.id);
+  const veqSelected=randomStepValue(rnd.epMin,rnd.epMax,rnd.epStep,previous);
+  LAST_RANDOM_EP.set(template.id,veqSelected);
+  const setup={...template.setup};
+  setup.c0=setup.cTit*veqSelected/(rnd.stoichFactor*setup.v0);
+  const analyte=SUBSTANCE_PRESETS[setup.substance];
+  const nTit=setup.cTit*veqSelected;
+  const nAnalyte=nTit/rnd.stoichFactor;
+  const cAnalyte=nAnalyte/setup.v0;
+  const beta=cAnalyte*analyte.molarMass;
+  const results=template.results.map(result=>{
+    const expected={
+      [rnd.epKey]:veqSelected,
+      ntit:nTit,
+      ratio:String(rnd.stoichFactor),
+      nanalyte:nAnalyte,
+      canalyte:cAnalyte,
+      beta
+    }[result.key];
+    return {...result,expected};
+  });
+  const eqText=rnd.epKey==='veq2'?'2. Äquivalenzpunkt':'Äquivalenzpunkt';
+  const solution=[
+    `${eqText}: ${decimalComma(veqSelected,2)} mL.`,
+    `n(Maßlösung) = ${decimalComma(setup.cTit,3)} mol·L⁻¹ · ${decimalComma(veqSelected,2)} mL = ${decimalComma(nTit,3)} mmol.`,
+    `Stoffmengenverhältnis Maßlösung : Analyt = ${rnd.stoichFactor} : 1.`,
+    `n(Analyt) = ${decimalComma(nAnalyte,3)} mmol.`,
+    `c(Analyt) = ${decimalComma(cAnalyte,4)} mol·L⁻¹.`,
+    `β(Analyt) = ${decimalComma(beta,3)} g·L⁻¹.`
+  ].join(' ');
+  return {
+    setup,
+    results,
+    solution,
+    variantText:`Neue Zufallsvariante erzeugt. Die Probenkonzentration ist verborgen; der ${eqText} liegt absichtlich in einem moderaten Verbrauchsbereich.`
+  };
+}
+function materializeTask(template){
+  if(!template)return null;
+  const generated=typeof template.generate==='function'?template.generate(template):{};
+  return {...template,...generated,setup:{...template.setup,...(generated.setup||{})},results:generated.results||template.results};
+}
+function activeTask(){return activeTaskRuntime||taskById(activeTaskId);}
 
 let tChart=null, hChart=null, autoTimer=null, holdDelay=null, holdInterval=null;
 let volAdded=0, lastPH=NaN, titrationData=[], derivativeData={d1:[],d2:[],candidates:[]};
 let selectedView='curve', challengeActive=false, challengeResolved=false, secretV0=20, currentParams=null;
-let labMode='free', activeTaskId=null, taskHintIndex=0, taskSolutionVisible=false;
+let labMode='free', activeTaskId=null, activeTaskRuntime=null, taskHintIndex=0, taskSolutionVisible=false;
 const el={};
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -700,7 +818,7 @@ function cacheElements(){
     'simStatus','statusDot','typeStatus','phDisplay','volDisplay','buretteDisplay','totalVolumeDisplay','buretteLiquid','liquid','fallingDrop','mixPlume','errorBox','warningBox','settingsFieldset','simMode',
     'analyteType','substanceSelect','substanceSelectText','substanceNameDisplay','substanceTypeBadge','substanceGrid','substanceFormulaDisplay','substanceMassDisplay','substancePkItem','substancePkLabel','substancePkDisplay','substanceNote',
     'customSubstanceFields','customName','customFormula','customMolarMass','customNote','polyLabel','poly','sampleConcTitle','titrantConcTitle','c0','v0','v0Container','cTit','volumePkRow','pk1Label','pk1LabelText','pk1','pk2','pk2Label','pkLockNote','indicator','indicatorPreview','indicatorPreviewTitle','indicatorModel','indicatorGradient','indicatorRangeText','indicatorCurrentDot','indicatorCurrentText','indicatorEvaluation','dropSize','dropVal','speed',
-    'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','simModeLabel','taskArea','taskCatalog','taskWorkspace','taskActiveBadges','taskTitle','taskGoal','taskOrder','taskResults','taskHintBtn','taskCheckBtn','taskSolutionBtn','taskReloadBtn','taskHint','taskFeedback','taskSolution','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable'
+    'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','simModeLabel','taskArea','taskCatalog','taskWorkspace','taskActiveBadges','taskTitle','taskGoal','taskOrder','taskVariant','taskResults','taskHintBtn','taskCheckBtn','taskSolutionBtn','taskReloadBtn','taskHint','taskFeedback','taskSolution','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable'
   ].forEach(id=>el[id]=document.getElementById(id));
   el.viewButtons=[...document.querySelectorAll('[data-view]')];
   el.labModeButtons=[...document.querySelectorAll('[data-lab-mode]')];
@@ -758,7 +876,7 @@ function initTaskMode(){
   setLabMode('free',{skipReset:true});
 }
 function renderTaskCatalog(){
-  el.taskCatalog.innerHTML=TASKS.map(task=>`<button class="task-card-button" type="button" data-task-id="${task.id}" aria-pressed="false"><span class="task-badges"><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span></span><strong>${escapeHTML(task.title)}</strong><span>${escapeHTML(task.goal)}</span></button>`).join('');
+  el.taskCatalog.innerHTML=TASKS.map(task=>`<button class="task-card-button" type="button" data-task-id="${task.id}" aria-pressed="false"><span class="task-badges"><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span>${task.category?`<span class="task-badge">${escapeHTML(task.category)}</span>`:''}</span><strong>${escapeHTML(task.title)}</strong><span>${escapeHTML(task.goal)}</span></button>`).join('');
   el.taskCatalog.querySelectorAll('[data-task-id]').forEach(btn=>btn.addEventListener('click',()=>loadTask(btn.dataset.taskId)));
 }
 function setLabMode(mode,options={}){
@@ -769,9 +887,9 @@ function setLabMode(mode,options={}){
   if(labMode==='tasks'){
     el.simMode.value='expert';
     challengeActive=false;
-    if(!activeTaskId)loadTask(TASKS[0].id);else applyTaskLocks(taskById(activeTaskId));
+    if(!activeTaskId)loadTask(TASKS[0].id);else applyTaskLocks(activeTask());
   }else{
-    activeTaskId=null;taskSolutionVisible=false;taskHintIndex=0;
+    activeTaskId=null;activeTaskRuntime=null;taskSolutionVisible=false;taskHintIndex=0;
     el.taskWorkspace.hidden=true;
     el.taskCatalog.querySelectorAll('[data-task-id]').forEach(btn=>btn.setAttribute('aria-pressed','false'));
     clearTaskLocks();
@@ -782,6 +900,8 @@ function taskById(id){return TASKS.find(task=>task.id===id)||null;}
 function clearTaskLocks(){
   TASK_LOCKABLE_IDS.forEach(id=>{if(el[id])el[id].disabled=false;});
   if(el.settingsFieldset)el.settingsFieldset.disabled=false;
+  el.c0.closest('label')?.classList.remove('task-secret-value');
+  el.exportBtn.disabled=!currentParams;
   syncAnalyteControls();
 }
 function applyTaskLocks(task){
@@ -789,17 +909,20 @@ function applyTaskLocks(task){
   clearTaskLocks();
   task.locks.forEach(id=>{if(el[id])el[id].disabled=true;});
   el.simMode.disabled=true;
+  el.c0.closest('label')?.classList.toggle('task-secret-value',Boolean(task.hideSampleConcentration&&!taskSolutionVisible));
+  if(task.hideSampleConcentration&&!taskSolutionVisible)el.exportBtn.disabled=true;
 }
 function loadTask(id){
-  const task=taskById(id);if(!task)return;
-  stopAllTimers();activeTaskId=id;taskHintIndex=0;taskSolutionVisible=false;
+  const template=taskById(id);if(!template)return;
+  const task=materializeTask(template);
+  stopAllTimers();activeTaskId=id;activeTaskRuntime=task;taskHintIndex=0;taskSolutionVisible=false;
   clearTaskLocks();
   el.simMode.value='expert';
   el.analyteType.value=task.setup.analyteType;
   populateSubstanceOptions(true);
   el.substanceSelect.value=task.setup.substance;
   syncAnalyteControls();
-  el.c0.value=Number(task.setup.c0).toFixed(3);
+  el.c0.value=Number(task.setup.c0).toFixed(task.randomization?5:3);
   el.v0.value=Number(task.setup.v0).toFixed(1);
   el.cTit.value=Number(task.setup.cTit).toFixed(3);
   el.indicator.value=task.setup.indicator;
@@ -814,42 +937,48 @@ function loadTask(id){
 }
 function renderActiveTask(task){
   el.taskWorkspace.hidden=false;
-  el.taskActiveBadges.innerHTML=`<span class="task-badge">${escapeHTML(task.id)}</span><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span>`;
+  el.taskActiveBadges.innerHTML=`<span class="task-badge">${escapeHTML(task.id)}</span><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span>${task.category?`<span class="task-badge">${escapeHTML(task.category)}</span>`:''}`;
   el.taskTitle.textContent=task.title;el.taskGoal.innerHTML=`<strong>Lernziel:</strong> ${escapeHTML(task.goal)}`;el.taskOrder.textContent=task.order;
-  el.taskResults.innerHTML='<h4>Ergebnisse eintragen</h4>'+task.results.map(renderTaskResult).join('');
+  el.taskVariant.hidden=!task.variantText;el.taskVariant.textContent=task.variantText||'';
+  el.taskResults.innerHTML='<h4>Ergebnisse schrittweise eintragen</h4>'+task.results.map(renderTaskResult).join('');
   el.taskHint.hidden=true;el.taskFeedback.hidden=true;el.taskSolution.hidden=true;el.taskSolution.textContent=task.solution;el.taskSolutionBtn.textContent='LehrerInnenlösung';
 }
 function renderTaskResult(result){
-  const id=`taskResult_${result.key}`;
-  if(result.kind==='select')return`<label>${escapeHTML(result.label)}<select id="${id}" data-task-result="${result.key}">${result.options.map(([value,label])=>`<option value="${escapeHTML(value)}">${escapeHTML(label)}</option>`).join('')}</select></label>`;
-  return`<label>${escapeHTML(result.label)}<input id="${id}" data-task-result="${result.key}" type="text" inputmode="decimal" autocomplete="off" placeholder="${escapeHTML(result.placeholder||'')}"></label>`;
+  const id=`taskResult_${result.key}`,help=result.help?`<span class="task-result-help">${escapeHTML(result.help)}</span>`:'';
+  const control=result.kind==='select'
+    ?`<select id="${id}" data-task-result="${result.key}">${result.options.map(([value,label])=>`<option value="${escapeHTML(value)}">${escapeHTML(label)}</option>`).join('')}</select>`
+    :`<input id="${id}" data-task-result="${result.key}" type="text" inputmode="decimal" autocomplete="off" placeholder="${escapeHTML(result.placeholder||'')}">`;
+  return`<div class="task-result-item"><label>${escapeHTML(result.label)}${control}${help}</label><span id="taskResultStatus_${result.key}" class="task-result-status"></span></div>`;
 }
 function showNextTaskHint(){
-  const task=taskById(activeTaskId);if(!task)return;
+  const task=activeTask();if(!task)return;
   const index=Math.min(taskHintIndex,task.hints.length-1);el.taskHint.innerHTML=`<strong>Hinweis ${index+1}:</strong> ${escapeHTML(task.hints[index])}`;el.taskHint.hidden=false;
   taskHintIndex=Math.min(taskHintIndex+1,task.hints.length-1);
 }
 function parseLocaleNumber(value){const normalized=String(value).trim().replace(/\s/g,'').replace(',','.');return normalized===''?NaN:Number(normalized);}
 function checkTaskAnswers(){
-  const task=taskById(activeTaskId);if(!task)return;
+  const task=activeTask();if(!task)return;
   let allCorrect=true;const messages=[];
   task.results.forEach(result=>{
     const field=document.getElementById(`taskResult_${result.key}`);if(!field)return;
     field.removeAttribute('aria-invalid');
-    if(result.kind==='select'){
-      const ok=field.value===result.expected;allCorrect=allCorrect&&ok;if(!ok)field.setAttribute('aria-invalid','true');messages.push(`${result.label}: ${ok?'richtig':'noch nicht richtig'}.`);
-    }else{
-      const value=parseLocaleNumber(field.value),ok=Number.isFinite(value)&&Math.abs(value-result.expected)<=result.tolerance;allCorrect=allCorrect&&ok;if(!ok)field.setAttribute('aria-invalid','true');messages.push(`${result.label}: ${ok?'im Toleranzbereich':'noch außerhalb des Toleranzbereichs'}.`);
-    }
+    const status=document.getElementById(`taskResultStatus_${result.key}`);
+    let ok=false;
+    if(result.kind==='select')ok=field.value===result.expected;
+    else{const value=parseLocaleNumber(field.value);ok=Number.isFinite(value)&&Math.abs(value-result.expected)<=result.tolerance;}
+    allCorrect=allCorrect&&ok;
+    if(!ok)field.setAttribute('aria-invalid','true');
+    if(status){status.className=`task-result-status ${ok?'is-ok':'is-error'}`;status.textContent=ok?'✓ richtig':'Bitte diesen Schritt nochmals prüfen.';}
+    messages.push(`${result.label}: ${ok?'richtig':'noch nicht richtig'}.`);
   });
   el.taskFeedback.className=`task-feedback ${allCorrect?'is-ok':'is-error'}`;el.taskFeedback.innerHTML=`<strong>${allCorrect?'Aufgabe korrekt bearbeitet.':'Bitte nochmals prüfen.'}</strong> ${messages.map(escapeHTML).join(' ')}`;el.taskFeedback.hidden=false;
 }
 function toggleTaskSolution(){
-  const task=taskById(activeTaskId);if(!task)return;
-  taskSolutionVisible=!taskSolutionVisible;el.taskSolution.hidden=!taskSolutionVisible;el.taskSolutionBtn.textContent=taskSolutionVisible?'Lösung ausblenden':'LehrerInnenlösung';updateAll();
+  const task=activeTask();if(!task)return;
+  taskSolutionVisible=!taskSolutionVisible;el.taskSolution.hidden=!taskSolutionVisible;el.taskSolutionBtn.textContent=taskSolutionVisible?'Lösung ausblenden':'LehrerInnenlösung';applyTaskLocks(task);updateAll();
 }
 function referenceRevealAllowed(){return(!challengeActive||challengeResolved)&&(labMode!=='tasks'||taskSolutionVisible);}
-function taskAnalysisHidden(){const task=taskById(activeTaskId);return labMode==='tasks'&&Boolean(task?.hideAutomaticResults)&&!taskSolutionVisible;}
+function taskAnalysisHidden(){const task=activeTask();return labMode==='tasks'&&Boolean(task?.hideAutomaticResults)&&!taskSolutionVisible;}
 
 function initCharts(){
   if(typeof Chart==='undefined'){
@@ -1059,7 +1188,7 @@ function resetSimulation(options={}){
       :challengeActive
         ?'<strong>Challenge:</strong> Das Probenvolumen ist verborgen. Nimm genügend Messpunkte auf und bestimme das letzte Äquivalenzvolumen.'
         :referenceInfoHTML();
-    if(labMode==='tasks'&&activeTaskId)applyTaskLocks(taskById(activeTaskId));
+    if(labMode==='tasks'&&activeTaskId)applyTaskLocks(activeTask());
   }catch(error){showError(`Die Startberechnung ist fehlgeschlagen: ${error.message}`);el.dropBtn.disabled=true;el.startBtn.disabled=true;}
 }
 
@@ -1361,7 +1490,7 @@ function exportCSV(){
     ['pKs1',p.strength==='weak'?decimalComma(p.pk1,8):''],['pKs2',p.type==='weak_acid'&&p.poly===2?decimalComma(p.pk2,8):''],['pKs_Bedeutung',p.type==='weak_base'?'Konjugierte_Saeure':p.strength==='weak'?'Analyt_Saeure':''],
     ['Indikator_ID',p.indicator],['Indikator_Name',indicatorName(p.indicator)],['Indikator_Umschlagsbereiche_pH',indicatorRangeLabel(p.indicator)],
     ['Schrittweite_Soll_mL',decimalComma(Number(el.dropSize.value),8)],['Messreihenfolge','Volumen_aufsteigend'],['Ableitungen_Exportiert','Nein'],
-    ['Arbeitsbereich',labMode==='tasks'?'Aufgabe':'Freies_Labor'],['Aufgabe_ID',labMode==='tasks'&&activeTaskId?activeTaskId:''],['Datenart','Simulation'],['Exportzeit_ISO8601',new Date().toISOString()]
+    ['Arbeitsbereich',labMode==='tasks'?'Aufgabe':'Freies_Labor'],['Aufgabe_ID',labMode==='tasks'&&activeTaskId?activeTaskId:''],['Aufgabe_Zufallsvariante',labMode==='tasks'&&Boolean(activeTask()?.randomization)?'ja':'nein'],['Datenart','Simulation'],['Exportzeit_ISO8601',new Date().toISOString()]
   ];
   metadata.forEach(([key,value])=>lines.push(`${csvCell(key)};${csvCell(value)}`));
   const csv='\uFEFF'+lines.join('\r\n'),blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');
