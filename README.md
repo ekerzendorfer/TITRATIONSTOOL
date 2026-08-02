@@ -1,25 +1,17 @@
-# TITRATIONSTOOL v15.5.6 – vereinfachte Bürette
+# TITRATIONSTOOL v15.5.7 – kleine Abschlusskorrektur
 
 ## Inhalt dieser Version
 
-v15.5.6 vereinfacht die Bürettendarstellung bewusst weiter. Ziel ist eine fachlich plausiblere, klar lesbare Apparatur anstelle dekorativer Details.
+Diese Fassung enthält nur drei sehr kleine Korrekturen an der Apparaturdarstellung:
 
-Umgesetzt wurden:
-
-- vereinfachte gerade Bürette ohne problematische Überlagerung mit dem Becherglas,
-- Hahn nur noch angedeutet und zentriert unter dem Rohr,
-- Bürettenspitze gerade und zentral unter dem Rohr,
-- Tropfenposition an Rohr, Hahn und Spitze ausgerichtet,
-- Becherglas unter die Bürette gerückt,
-- sichtbare blaue Maßlösung bis in Hahn und Spitze,
-- Elektrode wieder etwas länger,
-- Kabel beginnt nun direkt am oberen Ende der Elektrode als einfache L-Form,
-- sichtbare Lösung im Becherglas etwas höher.
+- Die Halteklammer der Bürette reicht jetzt bis zur senkrechten Stativstange.
+- Die Tropfenanimation endet deutlich höher und nicht mehr in der Nähe des Rührstäbchens.
+- Das Rührstäbchen dreht sich etwas schneller.
 
 ## Unverändert
 
+- Geometrie von Bürette und Elektrode,
 - Rechenlogik,
 - Ableitungen und Äquivalenzpunktbestimmung,
-- Stoffdaten,
-- Indikatorlogik einschließlich BTB-Mittelton,
+- Stoffdaten und Indikatorlogik,
 - CSV-Export.

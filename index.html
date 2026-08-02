@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.5.6</title>
+<title>Titrations-Labor – v15.5.7</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -81,7 +81,7 @@ legend{font-weight:850;margin-bottom:10px}
 .lab-bench{position:absolute;left:0;right:0;bottom:14px;height:8px;background:#9daab7;box-shadow:0 4px 0 rgba(32,63,91,.12)}
 .stand-base{position:absolute;left:8px;bottom:24px;width:43px;height:7px;border-radius:6px;background:#5d6f80}
 .stand-rod{position:absolute;left:25px;top:26px;bottom:29px;width:4px;border-radius:4px;background:#66798a}
-.burette-clamp{position:absolute;left:38px;top:74px;width:32px;height:5px;border-radius:5px;background:#66798a}
+.burette-clamp{position:absolute;left:25px;top:74px;width:45px;height:5px;border-radius:5px;background:#66798a}
 .burette{position:absolute;left:63px;top:10px;width:14px;height:112px;border:2px solid #788b9e;border-radius:5px 5px 4px 4px;background:rgba(255,255,255,.78);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
 .burette-scale{position:absolute;inset:5px 1px 5px auto;width:6px;z-index:3;background:repeating-linear-gradient(to bottom,transparent 0 6px,rgba(32,63,91,.58) 6px 7px)}
 .burette-liquid{position:absolute;left:0;right:0;bottom:0;height:90%;background:linear-gradient(90deg,rgba(75,137,185,.72),rgba(112,171,210,.48));transition:height .3s ease,background .3s ease}
@@ -104,9 +104,9 @@ legend{font-weight:850;margin-bottom:10px}
 .electrode:before{content:"";position:absolute;left:2px;right:2px;bottom:-9px;height:13px;border-radius:0 0 6px 6px;background:#394955}
 .electrode-cable{position:absolute;left:98px;top:112px;width:36px;height:14px;border-left:3px solid #4b5c6a;border-top:3px solid #4b5c6a;border-radius:10px 0 0 0;z-index:9}
 .stirrer{position:absolute;left:26px;bottom:20px;width:92px;height:14px;border-radius:6px 6px 3px 3px;background:linear-gradient(#c5d0da,#7d8c99);z-index:2}
-.stir-bar{position:absolute;left:60px;bottom:45px;width:29px;height:6px;border-radius:999px;background:#f4f6f8;box-shadow:0 0 0 1px rgba(89,105,121,.35),inset 0 1px 2px rgba(255,255,255,.9);z-index:10;transform-origin:center;animation:stirBar .9s linear infinite}
+.stir-bar{position:absolute;left:60px;bottom:45px;width:29px;height:6px;border-radius:999px;background:#f4f6f8;box-shadow:0 0 0 1px rgba(89,105,121,.35),inset 0 1px 2px rgba(255,255,255,.9);z-index:10;transform-origin:center;animation:stirBar .72s linear infinite}
 @keyframes stirBar{0%{transform:translateX(-2px) scaleX(.82)}50%{transform:translateX(2px) scaleX(1.08)}100%{transform:translateX(-2px) scaleX(.82)}}
-@keyframes dropFall{0%{opacity:0;transform:translate(-50%,-3px) scale(.45)}12%{opacity:1}74%{opacity:1}100%{opacity:0;transform:translate(-50%,62px) scale(1)}}
+@keyframes dropFall{0%{opacity:0;transform:translate(-50%,-3px) scale(.45)}12%{opacity:1}74%{opacity:1}100%{opacity:0;transform:translate(-50%,40px) scale(1)}}
 @keyframes plumeMix{0%{opacity:0;transform:translateY(-3px) scale(.7,.55)}20%{opacity:.88}68%{opacity:.42}100%{opacity:0;transform:translateY(8px) scale(1.05,1.18)}}
 .falling-drop.drop-active{animation:dropFall .62s ease-out}
 .mix-plume.plume-active{animation:plumeMix .92s ease-out}
@@ -214,7 +214,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.5.6</span><br>Kompakte Titrationsanimation</div>
+    <div class="version"><span class="badge">v15.5.7</span><br>Kompakte Titrationsanimation</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -448,12 +448,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.5.6 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.5.7 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.5.6';
+const APP_VERSION = '15.5.7';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
