@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.1</title>
+<title>Titrations-Labor – v15.1.1</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -49,7 +49,12 @@ h1{margin:0;font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.08}
 .panelhead h2,.panelhead h3{margin:0}
 .panelbody{padding:20px}
 .formgrid{display:grid;gap:14px}
+.settings-grid{gap:11px}
+.settings-grid input:not([type="range"]),.settings-grid select{padding:8px 10px}
 .formrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.parameter-row{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}
+.parameter-row.is-diprotic{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field-title{white-space:nowrap}
 label{display:grid;gap:6px;font-weight:750}
 .note{font-size:.84rem;color:var(--muted);font-weight:450}
 input,select{width:100%;padding:10px 11px;font-weight:400;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--text)}
@@ -112,21 +117,24 @@ tbody tr:last-child td{border-bottom:0}
 .overlay-option label{display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--accent2);font-weight:700;cursor:pointer}
 .overlay-option input{width:auto;margin:0;accent-color:var(--accent)}
 .overlay-option label:has(input:disabled){opacity:.55;cursor:not-allowed}
-.substance-card{padding:13px 14px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(135deg,#f8fbfd,#eef3f8)}
-.substance-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.substance-title strong{font-size:1.05rem;color:var(--accent2)}
-.substance-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#dce9f4;color:var(--accent2);font-size:.76rem;font-weight:800}
-.substance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:10px}
-.substance-item{padding:8px 9px;border-radius:9px;background:rgba(255,255,255,.84);min-width:0}
-.substance-item span{display:block;color:var(--muted);font-size:.75rem}
-.substance-item strong{display:block;margin-top:2px;overflow-wrap:anywhere}
+.substance-card{padding:10px 11px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(135deg,#f8fbfd,#eef3f8)}
+.substance-title{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.substance-title strong{font-size:1.02rem;color:var(--accent2)}
+.substance-badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#dce9f4;color:var(--accent2);font-size:.73rem;font-weight:800}
+.substance-grid{display:grid;grid-template-columns:minmax(112px,1.45fr) minmax(98px,1.15fr) minmax(46px,.65fr);gap:6px;margin-top:8px}
+.substance-item{padding:6px 7px;border-radius:9px;background:rgba(255,255,255,.84);min-width:0}
+.substance-item span{display:block;color:var(--muted);font-size:.72rem}
+.substance-item strong{display:block;margin-top:1px;font-size:.87rem;white-space:nowrap}
+#substanceFormulaDisplay{font-size:.84rem;letter-spacing:-.015em}
+#substanceMassDisplay{font-size:.82rem}
+.substance-card .lock-note{font-size:.74rem;line-height:1.35}
 .custom-fields{padding:12px;border:1px dashed var(--border);border-radius:11px;background:#fbfcfe}
 .lock-note{display:block;margin-top:4px;color:var(--muted);font-size:.79rem;font-weight:450}
 .stoff-table table{min-width:620px}
 .stoff-table td:nth-child(3),.stoff-table td:nth-child(4),.stoff-table th:nth-child(3),.stoff-table th:nth-child(4){white-space:nowrap}
 @media(max-width:940px){header{display:block}.version{text-align:left;margin-top:16px}.workspace{grid-template-columns:1fr}.chartwrap{min-height:400px}.chartwrap canvas{height:370px!important}}
-@media(max-width:650px){.substance-grid{grid-template-columns:1fr 1fr}.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:16px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.instrument{width:100%}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
-@media(max-width:420px){.substance-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.formrow{grid-template-columns:1fr}.statusbar{align-items:flex-start}.seg{display:grid;grid-template-columns:1fr}.buttons{display:grid;grid-template-columns:1fr}.buttons>*{width:100%}}
+@media(max-width:650px){.substance-grid{grid-template-columns:minmax(120px,1.4fr) minmax(110px,1fr) minmax(55px,.6fr)}.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:16px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.instrument{width:100%}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
+@media(max-width:420px){.substance-grid{grid-template-columns:1fr 1fr}.substance-item:first-child{grid-column:1/-1}.parameter-row,.parameter-row.is-diprotic{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.formrow{grid-template-columns:1fr}.statusbar{align-items:flex-start}.seg{display:grid;grid-template-columns:1fr}.buttons{display:grid;grid-template-columns:1fr}.buttons>*{width:100%}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 @media(forced-colors:active){.card,.chartwrap,.apparatus,.analysis-card{border:1px solid CanvasText}.primary,.dropbtn{forced-color-adjust:auto}}
 </style>
@@ -139,7 +147,7 @@ tbody tr:last-child td{border-bottom:0}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Ausgewählte schwache ein- oder zweiprotonige Säure mit Natronlauge titrieren, Titrationskurve aufnehmen und den Äquivalenzpunkt fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.1</span><br>Stoffstammdaten und freie Eingabe</div>
+    <div class="version"><span class="badge">v15.1.1</span><br>Kompakte Versuchseinstellungen</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -164,7 +172,7 @@ tbody tr:last-child td{border-bottom:0}
         <div id="warningBox" class="warning" hidden></div>
 
         <fieldset id="settingsFieldset">
-          <div class="formgrid" style="margin-top:16px">
+          <div class="formgrid settings-grid" style="margin-top:16px">
             <label>Arbeitsmodus
               <select id="simMode">
                 <option value="expert">LehrerInnenmodus – Referenzwerte sichtbar</option>
@@ -197,7 +205,7 @@ tbody tr:last-child td{border-bottom:0}
               <div class="substance-grid">
                 <div class="substance-item"><span>Formel</span><strong id="substanceFormulaDisplay">CH₃COOH</strong></div>
                 <div class="substance-item"><span>Molare Masse</span><strong id="substanceMassDisplay">60,052 g·mol⁻¹</strong></div>
-                <div class="substance-item"><span>pKₛ-Wert(e)</span><strong id="substancePkDisplay">4,76</strong></div>
+                <div class="substance-item"><span id="substancePkLabel">pKₛ-Wert</span><strong id="substancePkDisplay">4,76</strong></div>
               </div>
               <span class="lock-note">Hinterlegte pKₛ-Werte sind schulgeeignete Näherungswerte für wässrige Lösungen bei etwa 25 °C.</span>
             </div>
@@ -218,7 +226,7 @@ tbody tr:last-child td{border-bottom:0}
               <span class="note">Die App prüft bei eigenen Stoffen nicht, ob Löslichkeit, Gasgleichgewichte oder Nebenreaktionen eine ideale Titration verhindern.</span>
             </div>
 
-            <label id="polyLabel">Protonenstufen der Säure
+            <label id="polyLabel" hidden>Protonenstufen der Säure
               <select id="poly">
                 <option value="1">Einprotonige schwache Säure</option>
                 <option value="2">Zweiprotonige schwache Säure</option>
@@ -227,23 +235,22 @@ tbody tr:last-child td{border-bottom:0}
             </label>
 
             <div class="formrow">
-              <label>Konzentration der Probe / mol·L⁻¹
+              <label><span class="field-title">c(Probe) / mol·L⁻¹</span>
                 <input id="c0" type="number" min="0.001" max="2" step="0.001" value="0.100">
               </label>
-              <label id="v0Container">Probenvolumen / mL
-                <input id="v0" type="number" min="1" max="100" step="0.1" value="20.0">
+              <label><span class="field-title">c(NaOH) / mol·L⁻¹</span>
+                <input id="cTit" type="number" min="0.001" max="2" step="0.001" value="0.100">
               </label>
             </div>
 
-            <label>Konzentration der Maßlösung / mol·L⁻¹
-              <input id="cTit" type="number" min="0.001" max="2" step="0.001" value="0.100">
-            </label>
-
-            <div id="pkRow" class="formrow">
-              <label>pK<sub>S1</sub>
+            <div id="volumePkRow" class="formrow parameter-row">
+              <label id="v0Container"><span class="field-title">V(Probe) / mL</span>
+                <input id="v0" type="number" min="1" max="100" step="0.1" value="20.0">
+              </label>
+              <label id="pk1Label"><span id="pk1LabelText" class="field-title">pK<sub>S</sub></span>
                 <input id="pk1" type="number" min="0" max="14" step="0.01" value="4.75">
               </label>
-              <label id="pk2Label">pK<sub>S2</sub>
+              <label id="pk2Label"><span class="field-title">pK<sub>S2</sub></span>
                 <input id="pk2" type="number" min="0" max="14" step="0.01" value="9.20">
               </label>
             </div>
@@ -358,13 +365,13 @@ tbody tr:last-child td{border-bottom:0}
     </section>
   </main>
 
-  <div class="footer">TITRATIONSTOOL v15.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.1.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 
 <script>
 'use strict';
 
-const APP_VERSION = '15.1';
+const APP_VERSION = '15.1.1';
 const KW = 1e-14;
 const COLORS = {
   curve: '#345a7d', d1: '#2f7452', d2: '#9d3037', reference: '#8a5d14', muted: '#8a98a8'
@@ -429,7 +436,7 @@ window.addEventListener('DOMContentLoaded', () => {
 function cacheElements() {
   [
     'simStatus','statusDot','typeStatus','phDisplay','volDisplay','liquid','errorBox','warningBox','settingsFieldset',
-    'simMode','acidSelect','substanceNameDisplay','substanceTypeBadge','substanceFormulaDisplay','substanceMassDisplay','substancePkDisplay','customSubstanceFields','customName','customFormula','customMolarMass','polyLabel','poly','c0','v0','v0Container','cTit','pk1','pk2','pk2Label','indicator','dropSize','dropVal','speed',
+    'simMode','acidSelect','substanceNameDisplay','substanceTypeBadge','substanceFormulaDisplay','substanceMassDisplay','substancePkLabel','substancePkDisplay','customSubstanceFields','customName','customFormula','customMolarMass','polyLabel','poly','c0','v0','v0Container','cTit','volumePkRow','pk1Label','pk1LabelText','pk1','pk2','pk2Label','indicator','dropSize','dropVal','speed',
     'dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric',
     'stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart'
   ].forEach(id => el[id] = document.getElementById(id));
@@ -527,6 +534,7 @@ function syncAcidControls() {
   const preset = ACID_PRESETS[el.acidSelect.value];
   const isCustom = !preset;
   el.customSubstanceFields.hidden = !isCustom;
+  el.polyLabel.hidden = !isCustom;
   el.poly.disabled = !isCustom;
   el.pk1.disabled = !isCustom;
   el.pk2.disabled = !isCustom;
@@ -536,7 +544,11 @@ function syncAcidControls() {
     el.pk1.value = preset.pk1.toFixed(2);
     el.pk2.value = preset.pk2 == null ? '9.20' : preset.pk2.toFixed(2);
   }
-  el.pk2Label.hidden = el.poly.value !== '2';
+  const poly = Number(el.poly.value);
+  el.pk2Label.hidden = poly !== 2;
+  el.volumePkRow.classList.toggle('is-diprotic', poly === 2);
+  el.pk1LabelText.innerHTML = poly === 2 ? 'pK<sub>S1</sub>' : 'pK<sub>S</sub>';
+  el.substancePkLabel.textContent = poly === 2 ? 'pKₛ-Werte' : 'pKₛ-Wert';
   updateSubstanceCard();
 }
 
@@ -601,12 +613,12 @@ function readAndValidateParams() {
   validateNumber('c0', values.c0, 0.001, 2, 'Die Konzentration der Probe muss zwischen 0,001 und 2 mol·L⁻¹ liegen.', errors);
   if (!challengeActive) validateNumber('v0', values.v0, 1, 100, 'Das Probenvolumen muss zwischen 1 und 100 mL liegen.', errors);
   validateNumber('cTit', values.cTit, 0.001, 2, 'Die Konzentration der Maßlösung muss zwischen 0,001 und 2 mol·L⁻¹ liegen.', errors);
-  validateNumber('pk1', values.pk1, 0, 14, 'pKS1 muss zwischen 0 und 14 liegen.', errors);
+  validateNumber('pk1', values.pk1, 0, 14, values.poly === 2 ? 'pKs₁ muss zwischen 0 und 14 liegen.' : 'pKs muss zwischen 0 und 14 liegen.', errors);
   if (values.poly === 2) {
     validateNumber('pk2', values.pk2, 0, 14, 'pKS2 muss zwischen 0 und 14 liegen.', errors);
     if (Number.isFinite(values.pk1) && Number.isFinite(values.pk2) && values.pk2 <= values.pk1) {
       markInvalid('pk2');
-      errors.push('Für eine zweiprotonige Säure muss pKS2 größer als pKS1 sein.');
+      errors.push('Für eine zweiprotonige Säure muss pKs₂ größer als pKs₁ sein.');
     }
   }
   validateNumber('dropSize', values.step, 0.02, 0.5, 'Die Schrittweite muss zwischen 0,02 und 0,50 mL liegen.', errors);
