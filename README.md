@@ -1,39 +1,34 @@
-# TITRATIONSTOOL v15.4.0 – schematische Apparatur
+# TITRATIONSTOOL v15.5.0 – Becherglas-Animation und Tropfenzugabe
 
 ## Inhalt dieser Version
 
-v15.4.0 ist der erste bewusst abgegrenzte Schritt zur neuen Titrationsanimation. Die bisherige einfache Becherglasdarstellung wurde durch eine kompakte schematische Apparatur ersetzt.
+v15.5.0 ist der erste Animationsschritt mit echter Zugabesymbolik. Die Apparatur wurde auf ein didaktisch besser lesbares Becherglas-Layout umgestellt, damit die Lösung, die pH-Elektrode und die spätere lokale Farbwirkung deutlich sichtbar bleiben.
 
 Enthalten sind:
 
-- Bürette mit Skala, Hahn und Spitze,
-- dynamisch sinkender Flüssigkeitsstand in der Bürette,
-- Erlenmeyerkolben mit dynamisch steigendem Gesamtvolumen,
-- kontinuierliche Kolbenfarbe aus dem vorhandenen Indikatormodell,
-- pH-Elektrode,
-- Magnetrührer mit einfacher Rührfischbewegung,
-- Bürettenablesung und Gesamtvolumen im digitalen Anzeigefeld,
+- schlankere schematische Bürette,
+- Becherglas statt Erlenmeyerkolben,
+- größere sichtbare Farbfläche der Lösung,
+- pH-Elektrode rechts im Becherglas,
+- Kabel nach rechts zur pH-Meter-Anzeige,
+- dynamischer Bürettenstand,
+- dynamischer Flüssigkeitsstand im Becherglas,
+- fallender Tropfen bei jeder Zugabe,
+- kurz sichtbare lokale Schlieren-/Mischanimation im Becherglas,
+- Rührfischbewegung,
 - responsive Darstellung für Desktop und Tablet,
 - Berücksichtigung von `prefers-reduced-motion`.
 
-## Fachliches und technisches Prinzip
+## Didaktisches Prinzip
 
-Die Apparatur ist ausschließlich eine Visualisierung des bereits berechneten Simulationszustands. Sie führt selbst keine pH-, Gleichgewichts- oder Äquivalenzpunktberechnung durch.
+Die Lösung im Becherglas zeigt weiterhin den vollständig durchmischten Zustand, der auch als Messpunkt gespeichert wird. Zusätzlich wird bei jeder Zugabe eine kurzzeitige lokale Farbwirkung eingeblendet. Diese Schlieren sind bewusst nur eine Visualisierung des Mischvorgangs und verändern die gespeicherten Messdaten nicht.
 
-Der dynamische Bürettenstand wird relativ zum festgelegten Messbereich dargestellt. Die Anzeige ist daher schematisch und keine maßstäbliche 50-mL-Bürette. Die numerische Bürettenablesung zeigt weiterhin das tatsächlich zugegebene Volumen.
+Die lokale Mischfarbe wird aus dem aktuellen Indikatormodell abgeleitet und in Zugaberichtung verschoben:
 
-Der Flüssigkeitsstand im Kolben nimmt mit dem Gesamtvolumen zu. Die Farbe entspricht dem vollständig durchmischten Zustand, der auch als Messpunkt gespeichert wird.
+- NaOH-Zugabe: lokal etwas basischer als der gemessene Endzustand,
+- HCl-Zugabe: lokal etwas saurer als der gemessene Endzustand.
 
-## Bewusst noch nicht enthalten
-
-- fallender Tropfen,
-- Öffnungsbewegung des Bürettenhahns,
-- kurzzeitiger lokaler Farbfleck,
-- zeitlich verzögertes Durchmischen,
-- besondere Animation bei manueller Langdruckzugabe,
-- Geräusch oder fotorealistische Darstellung.
-
-Diese Punkte sollen erst in einem folgenden kleinen Entwicklungsschritt ergänzt werden. Dadurch bleiben Rechenlogik und Animation getrennt und leichter prüfbar.
+So wird qualitativ sichtbar, warum nahe am Äquivalenzpunkt kurzzeitige lokale Farbunterschiede auftreten können.
 
 ## Unverändert
 
@@ -41,13 +36,17 @@ Diese Punkte sollen erst in einem folgenden kleinen Entwicklungsschritt ergänzt
 - Stoffstammdaten und freie Stoffeingabe,
 - erste und zweite Ableitung,
 - Äquivalenzpunktbestimmung,
+- Überblendung von Kurve und einer Ableitung,
 - Indikator- und Farbmodelle,
 - Challenge-Modus,
 - MESSWERT_LAB-kompatibler CSV-Export.
 
-## Späterer Aufgabenmodus
+## Bewusst noch nicht enthalten
 
-Weiterhin vorgesehen sind:
+- frei schwebendes, verschiebbares Apparaturfenster,
+- animierte Hahnstellung,
+- realistisch verzögerte Mischkinetik,
+- akustische Effekte,
+- Aufgabenmodus mit geführter Auswertung.
 
-1. Säureerkennung bei einprotonigen schwachen Säuren über Äquivalenzpunkt, Halbäquivalenzpunkt und `pH = pKs`,
-2. geführte Konzentrationsauswertung in mol/L und g/L.
+Ein optionales verschiebbares Apparaturfenster ist grundsätzlich denkbar, würde aber zusätzliche Anforderungen an Drag-and-Drop, Z-Ordnung, Responsivität und Barrierefreiheit stellen. Das sollte – wenn überhaupt – als eigener späterer Ergonomieschritt behandelt werden.
