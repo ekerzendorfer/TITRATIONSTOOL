@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.5.4</title>
+<title>Titrations-Labor – v15.5.5</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -76,37 +76,37 @@ legend{font-weight:850;margin-bottom:10px}
 .seg button[aria-pressed="true"]{background:#fff;color:var(--accent2);box-shadow:0 2px 8px rgba(23,32,51,.1)}
 .seg button:disabled{opacity:.5;cursor:not-allowed}
 
-.apparatus{padding:8px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#f9fbfd,#eaf0f6);display:grid;grid-template-columns:138px minmax(0,1fr);gap:10px;align-items:stretch;overflow:hidden}
-.lab-scene{position:relative;width:138px;height:246px;margin:auto;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(225,234,242,.62));border:1px solid rgba(132,148,164,.28);overflow:hidden}
+.apparatus{padding:8px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#f9fbfd,#eaf0f6);display:grid;grid-template-columns:142px minmax(0,1fr);gap:10px;align-items:stretch;overflow:hidden}
+.lab-scene{position:relative;width:142px;height:258px;margin:auto;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(225,234,242,.62));border:1px solid rgba(132,148,164,.28);overflow:hidden}
 .lab-bench{position:absolute;left:0;right:0;bottom:14px;height:8px;background:#9daab7;box-shadow:0 4px 0 rgba(32,63,91,.12)}
 .stand-base{position:absolute;left:8px;bottom:24px;width:43px;height:7px;border-radius:6px;background:#5d6f80}
 .stand-rod{position:absolute;left:25px;top:26px;bottom:29px;width:4px;border-radius:4px;background:#66798a}
-.burette-clamp{position:absolute;left:34px;top:64px;width:34px;height:5px;border-radius:5px;background:#66798a}
-.burette{position:absolute;left:57px;top:12px;width:14px;height:129px;border:2px solid #788b9e;border-radius:5px 5px 4px 4px;background:rgba(255,255,255,.78);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+.burette-clamp{position:absolute;left:38px;top:70px;width:42px;height:5px;border-radius:5px;background:#66798a}
+.burette{position:absolute;left:69px;top:10px;width:14px;height:104px;border:2px solid #788b9e;border-radius:5px 5px 4px 4px;background:rgba(255,255,255,.78);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
 .burette-scale{position:absolute;inset:5px 1px 5px auto;width:6px;z-index:3;background:repeating-linear-gradient(to bottom,transparent 0 6px,rgba(32,63,91,.58) 6px 7px)}
 .burette-liquid{position:absolute;left:0;right:0;bottom:0;height:90%;background:linear-gradient(90deg,rgba(75,137,185,.72),rgba(112,171,210,.48));transition:height .3s ease,background .3s ease}
 .burette-liquid:before{content:"";position:absolute;left:1px;right:1px;top:-3px;height:6px;border-radius:50%;background:rgba(75,137,185,.8);border-top:1px solid rgba(32,63,91,.28)}
 .stopcock{position:absolute;left:31px;top:136px;width:28px;height:8px;border-radius:4px;background:#566879;z-index:5}
 .stopcock:after{content:"";position:absolute;left:11px;top:7px;width:5px;height:9px;background:#718394;border-radius:0 0 3px 3px}
-.burette-tip{position:absolute;left:62px;top:162px;width:4px;height:16px;background:#718394;clip-path:polygon(18% 0,82% 0,100% 84%,50% 100%,0 84%);z-index:5}
+.burette-tip{position:absolute;left:74px;top:132px;width:4px;height:18px;background:linear-gradient(180deg,#6f8498 0 12%, rgba(73,151,215,.92) 12% 88%, #6f8498 88% 100%);clip-path:polygon(18% 0,82% 0,100% 84%,50% 100%,0 84%);z-index:5}
 .falling-drop{position:absolute;left:45px;top:164px;width:8px;height:12px;border-radius:55% 55% 60% 60%;opacity:0;transform:translate(-50%,0) scale(.4);z-index:12;pointer-events:none;box-shadow:0 0 0 1px rgba(255,255,255,.28)}
-.beaker{position:absolute;left:41px;bottom:32px;width:82px;height:88px;border:3px solid #788b9e;border-top-width:4px;border-radius:0 0 14px 14px;background:rgba(255,255,255,.86);z-index:3;overflow:hidden}
+.beaker{position:absolute;left:42px;bottom:30px;width:84px;height:98px;border:3px solid #788b9e;border-top-width:4px;border-radius:0 0 14px 14px;background:rgba(255,255,255,.86);z-index:3;overflow:hidden}
 .beaker:before{content:"";position:absolute;left:-4px;right:-4px;top:-3px;height:7px;border:2px solid rgba(120,139,158,.62);border-bottom:0;border-radius:11px 11px 0 0}
 .beaker-inner{position:relative;width:100%;height:100%;overflow:hidden}
-.beaker-liquid{position:absolute;left:5px;right:5px;bottom:5px;height:62%;background:#e2e8f0;border-radius:0 0 10px 10px;transition:height .3s ease,background-color .38s ease;overflow:hidden}
+.beaker-liquid{position:absolute;left:5px;right:5px;bottom:5px;height:68%;background:#e2e8f0;border-radius:0 0 10px 10px;transition:height .3s ease,background-color .38s ease;overflow:hidden}
 .beaker-surface{position:absolute;left:7px;right:7px;top:2px;height:6px;border-radius:50%;background:rgba(255,255,255,.45)}
 .mix-plume{display:none}
 .mix-plume:before,.mix-plume:after,.mix-plume .plume-core{display:none}
 .mix-plume:before{display:none}
 .mix-plume .plume-core{display:none}
 .mix-plume:after{display:none}
-.electrode{position:absolute;left:102px;top:118px;width:9px;height:42px;border-radius:5px 5px 4px 4px;background:linear-gradient(90deg,#475866,#8da0ad);z-index:10}
+.electrode{position:absolute;left:106px;top:126px;width:9px;height:56px;border-radius:5px 5px 4px 4px;background:linear-gradient(90deg,#475866,#8da0ad);z-index:10}
 .electrode:before{content:"";position:absolute;left:2px;right:2px;bottom:-9px;height:13px;border-radius:0 0 6px 6px;background:#394955}
-.electrode-cable{position:absolute;left:106px;top:118px;width:28px;height:18px;border-top:3px solid #4b5c6a;border-right:3px solid #4b5c6a;border-radius:0 18px 0 0;z-index:9}
+.electrode-cable{position:absolute;left:110px;top:112px;width:30px;height:16px;border-top:3px solid #4b5c6a;border-right:3px solid #4b5c6a;border-radius:0 18px 0 0;z-index:9}
 .stirrer{position:absolute;left:32px;bottom:20px;width:96px;height:14px;border-radius:6px 6px 3px 3px;background:linear-gradient(#c5d0da,#7d8c99);z-index:2}
 .stir-bar{position:absolute;left:66px;bottom:43px;width:29px;height:6px;border-radius:999px;background:#f4f6f8;box-shadow:0 0 0 1px rgba(89,105,121,.35),inset 0 1px 2px rgba(255,255,255,.9);z-index:10;transform-origin:center;animation:stirBar .9s linear infinite}
 @keyframes stirBar{0%{transform:translateX(-2px) scaleX(.82)}50%{transform:translateX(2px) scaleX(1.08)}100%{transform:translateX(-2px) scaleX(.82)}}
-@keyframes dropFall{0%{opacity:0;transform:translate(-50%,-3px) scale(.45)}12%{opacity:1}74%{opacity:1}100%{opacity:0;transform:translate(-50%,36px) scale(1)}}
+@keyframes dropFall{0%{opacity:0;transform:translate(-50%,-3px) scale(.45)}12%{opacity:1}74%{opacity:1}100%{opacity:0;transform:translate(-50%,52px) scale(1)}}
 @keyframes plumeMix{0%{opacity:0;transform:translateY(-3px) scale(.7,.55)}20%{opacity:.88}68%{opacity:.42}100%{opacity:0;transform:translateY(8px) scale(1.05,1.18)}}
 .falling-drop.drop-active{animation:dropFall .62s ease-out}
 .mix-plume.plume-active{animation:plumeMix .92s ease-out}
@@ -181,9 +181,9 @@ tbody tr:last-child td{border-bottom:0}
 .stoff-table table{min-width:620px}
 .stoff-table td:nth-child(3),.stoff-table td:nth-child(4),.stoff-table th:nth-child(3),.stoff-table th:nth-child(4){white-space:nowrap}
 @media(max-width:1150px){.workspace{grid-template-columns:1fr}}
-@media(max-width:940px) and (min-width:651px){.apparatus{grid-template-columns:148px minmax(0,1fr);gap:10px}.lab-scene{width:148px;max-width:148px;height:250px}}
+@media(max-width:940px) and (min-width:651px){.apparatus{grid-template-columns:154px minmax(0,1fr);gap:10px}.lab-scene{width:154px;max-width:154px;height:262px}}
 @media(max-width:940px){header{display:block}.version{text-align:left;margin-top:16px}.workspace{grid-template-columns:1fr}.chartwrap{min-height:400px}.chartwrap canvas{height:370px!important}}
-@media(max-width:650px){.substance-grid{grid-template-columns:minmax(120px,1.4fr) minmax(110px,1fr) minmax(55px,.6fr)}.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:14px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.lab-scene{width:178px;max-width:178px}.instrument{width:100%;min-height:210px}.display-value{font-size:clamp(2.2rem,12vw,3rem)}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
+@media(max-width:650px){.substance-grid{grid-template-columns:minmax(120px,1.4fr) minmax(110px,1fr) minmax(55px,.6fr)}.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:14px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.lab-scene{width:184px;max-width:184px;height:266px}.instrument{width:100%;min-height:210px}.display-value{font-size:clamp(2.2rem,12vw,3rem)}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
 @media(max-width:420px){.substance-grid{grid-template-columns:1fr 1fr}.substance-item:first-child{grid-column:1/-1}.parameter-row,.parameter-row.is-diprotic{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.formrow{grid-template-columns:1fr}.statusbar{align-items:flex-start}.seg{display:grid;grid-template-columns:1fr}.buttons{display:grid;grid-template-columns:1fr}.buttons>*{width:100%}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.stir-bar,.falling-drop.drop-active{animation:none!important;opacity:0!important}}
 @media(forced-colors:active){.card,.chartwrap,.apparatus,.analysis-card{border:1px solid CanvasText}.primary,.dropbtn{forced-color-adjust:auto}}
@@ -214,7 +214,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.5.4</span><br>Kompakte Titrationsanimation</div>
+    <div class="version"><span class="badge">v15.5.5</span><br>Kompakte Titrationsanimation</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -448,19 +448,19 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.5.4 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.5.5 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.4.0';
+const APP_VERSION = '15.5.5';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
 const INDICATORS = {
   btb: {
     name:'Bromthymolblau', model:'Einzelindikator', description:'gelb → blau',
-    ranges:[{low:6.0,high:7.6,label:'6,0–7,6',acid:'#f2cd35',base:'#315ca8'}]
+    ranges:[{low:6.0,high:7.6,label:'6,0–7,6',acid:'#f2cd35',mid:'#1fb857',midPoint:6.8,base:'#315ca8'}]
   },
   phph: {
     name:'Phenolphthalein', model:'Einzelindikator', description:'farblos → pink',
@@ -987,7 +987,14 @@ function indicatorColor(indicator,pH){
     return weightedColor(cfg.speciesColors,[h*h/d,h*k1/d,k1*k2/d]);
   }
   if(indicator==='universal')return colorFromStops(cfg.stops,pH);
-  const range=cfg.ranges[0],fraction=smoothTransition(pH,range.low,range.high);
+  const range=cfg.ranges[0];
+  if(indicator==='btb'&&range.mid){
+    if(pH<=range.low)return range.acid;
+    if(pH>=range.high)return range.base;
+    if(pH<=range.midPoint)return mixHex(range.acid,range.mid,smoothTransition(pH,range.low,range.midPoint));
+    return mixHex(range.mid,range.base,smoothTransition(pH,range.midPoint,range.high));
+  }
+  const fraction=smoothTransition(pH,range.low,range.high);
   return mixHex(range.acid,range.base,fraction);
 }
 function smoothTransition(value,low,high){const t=Math.max(0,Math.min(1,(value-low)/(high-low)));return t*t*(3-2*t);}
@@ -1005,6 +1012,7 @@ function indicatorGradientCSS(indicator){
   if(indicator==='universal')return`linear-gradient(90deg,${cfg.stops.map(([pH,color])=>`${color} ${pH/14*100}%`).join(',')})`;
   if(indicator==='tb')return'linear-gradient(90deg,#d43a35 0%,#d43a35 8.6%,#f0c938 20%,#f0c938 57.1%,#315ca8 68.6%,#315ca8 100%)';
   const range=cfg.ranges[0],low=range.low/14*100,high=range.high/14*100;
+  if(indicator==='btb'&&range.mid){const mid=range.midPoint/14*100;return`linear-gradient(90deg,${range.acid} 0%,${range.acid} ${low}%,${range.mid} ${mid}%,${range.base} ${high}%,${range.base} 100%)`;}
   return`linear-gradient(90deg,${range.acid} 0%,${range.acid} ${low}%,${range.base} ${high}%,${range.base} 100%)`;
 }
 function indicatorRangeLabel(indicator){

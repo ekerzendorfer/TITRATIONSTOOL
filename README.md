@@ -1,27 +1,26 @@
-# TITRATIONSTOOL v15.5.4 – vorsichtige Reparatur 2
+# TITRATIONSTOOL v15.5.5 – Geometrie und BTB-Farbe
 
 ## Inhalt dieser Version
 
-v15.5.4 setzt die Rückmeldungen zur Apparatur erneut sehr gezielt um. Geändert wurden nur die Geometrie der Apparatur, die sichtbare Füllhöhe der Lösung und die Animation der Zugabe.
+v15.5.5 setzt die letzte Rückmeldung erneut sehr gezielt um. Der Schwerpunkt liegt auf einer fachlich plausibleren Apparaturgeometrie und auf einer besser erkennbaren Bromthymolblau-Farbe im Umschlagsbereich.
 
 Umgesetzt wurden:
 
-- Bürette weiter zur Mitte gerückt,
-- Tropfen fällt nun zentraler in Richtung Becherglas,
-- Bürettenspitze klar über der Flüssigkeitsoberfläche,
-- Kabel startet am oberen Ende der Elektrode,
-- Elektrode weniger tief eingetaucht,
+- Bürette weiter in die Mitte gerückt,
+- Bürettenspitze klar über dem oberen Becherglasrand und über der Flüssigkeitsoberfläche,
+- Tropfen fällt zentraler in das Becherglas,
+- unterer Teil von Hahn und Spitze mit blauer Maßlösung sichtbar,
+- Elektrode wieder länger und etwas tiefer eingetaucht, aber nicht bis zum Rührstab,
+- Kabel startet sichtbar am oberen Ende der Elektrode,
 - Becherglas und sichtbare Lösung höher,
-- Überschrift „Versuch einstellen“ platzsparender,
-- Schlierenanimation entfernt,
-- nur der fallende Tropfen bleibt als Zugabeanimation,
-- Auto-Titrationsgeschwindigkeit deutlich verlangsamt.
+- Schlierenanimation bleibt entfernt; nur der fallende Tropfen bleibt,
+- Bromthymolblau erhält einen kräftigeren grünen Mittelbereich im Umschlag.
 
 ## Unverändert
 
-- fachliche Berechnungen,
+- Titrationsmodelle,
+- Stoffstammdaten,
 - Ableitungen und Äquivalenzpunktbestimmung,
-- Stoffstammdaten und freie Eingabe,
-- Indikator- und Farbmodelle,
+- weitere Indikatorlogik,
 - Challenge-Modus,
 - CSV-Export.
