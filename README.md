@@ -1,26 +1,25 @@
-# TITRATIONSTOOL v15.5.5 – Geometrie und BTB-Farbe
+# TITRATIONSTOOL v15.5.6 – vereinfachte Bürette
 
 ## Inhalt dieser Version
 
-v15.5.5 setzt die letzte Rückmeldung erneut sehr gezielt um. Der Schwerpunkt liegt auf einer fachlich plausibleren Apparaturgeometrie und auf einer besser erkennbaren Bromthymolblau-Farbe im Umschlagsbereich.
+v15.5.6 vereinfacht die Bürettendarstellung bewusst weiter. Ziel ist eine fachlich plausiblere, klar lesbare Apparatur anstelle dekorativer Details.
 
 Umgesetzt wurden:
 
-- Bürette weiter in die Mitte gerückt,
-- Bürettenspitze klar über dem oberen Becherglasrand und über der Flüssigkeitsoberfläche,
-- Tropfen fällt zentraler in das Becherglas,
-- unterer Teil von Hahn und Spitze mit blauer Maßlösung sichtbar,
-- Elektrode wieder länger und etwas tiefer eingetaucht, aber nicht bis zum Rührstab,
-- Kabel startet sichtbar am oberen Ende der Elektrode,
-- Becherglas und sichtbare Lösung höher,
-- Schlierenanimation bleibt entfernt; nur der fallende Tropfen bleibt,
-- Bromthymolblau erhält einen kräftigeren grünen Mittelbereich im Umschlag.
+- vereinfachte gerade Bürette ohne problematische Überlagerung mit dem Becherglas,
+- Hahn nur noch angedeutet und zentriert unter dem Rohr,
+- Bürettenspitze gerade und zentral unter dem Rohr,
+- Tropfenposition an Rohr, Hahn und Spitze ausgerichtet,
+- Becherglas unter die Bürette gerückt,
+- sichtbare blaue Maßlösung bis in Hahn und Spitze,
+- Elektrode wieder etwas länger,
+- Kabel beginnt nun direkt am oberen Ende der Elektrode als einfache L-Form,
+- sichtbare Lösung im Becherglas etwas höher.
 
 ## Unverändert
 
-- Titrationsmodelle,
-- Stoffstammdaten,
+- Rechenlogik,
 - Ableitungen und Äquivalenzpunktbestimmung,
-- weitere Indikatorlogik,
-- Challenge-Modus,
+- Stoffdaten,
+- Indikatorlogik einschließlich BTB-Mittelton,
 - CSV-Export.
