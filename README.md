@@ -2,110 +2,121 @@
 
 Browserbasiertes Titrationslabor für den Chemieunterricht. Die App läuft als einzelne `index.html` und kann direkt über GitHub Pages bereitgestellt werden.
 
-## Version 15.2.0
+## Version 15.3.0
 
-v15.2.0 erweitert das bisherige Modell „schwache Säure mit Natronlauge“ zu einem allgemeinen, bewusst begrenzten Säure-Base-Modell.
+v15.3.0 ergänzt das allgemeine Säure-Base-Modell um ein fachlich differenziertes Indikator- und Farbmodell. Die Titrationsberechnung, Stoffauswahl, Ableitungen und Äquivalenzpunktbestimmung aus v15.2.0 bleiben unverändert.
 
-### Unterstützte Titrationsarten
+## Unterstützte Indikatoren
+
+### Bromthymolblau
+
+- Umschlagsbereich: pH 6,0–7,6
+- Farbverlauf: gelb → blau
+- kontinuierliche Farbmischung innerhalb des Umschlagsbereichs
+
+### Phenolphthalein
+
+- Umschlagsbereich: pH 8,2–10,0
+- Farbverlauf: farblos → pink
+- kontinuierliche Farbmischung innerhalb des Umschlagsbereichs
+
+### Methylorange
+
+- Umschlagsbereich: pH 3,1–4,4
+- Farbverlauf: rot → gelb
+- kontinuierliche Farbmischung innerhalb des Umschlagsbereichs
+
+### Thymolblau
+
+Thymolblau wird als zweistufiger Indikator modelliert:
+
+- erster Umschlagsbereich: pH 1,2–2,8, rot → gelb
+- zweiter Umschlagsbereich: pH 8,0–9,6, gelb → blau
+- verwendete pK-Werte: pK₁ = 1,65 und pK₂ = 8,90
+
+Die sichtbare Farbe wird aus den berechneten Anteilen der drei Indikatorformen gemischt. Dadurch entstehen beide Farbübergänge kontinuierlich und ohne getrennte Sprunglogik.
+
+### Universalindikator
+
+Der Universalindikator wird ausdrücklich als schematisches Indikatorgemisch behandelt:
+
+- kontinuierliche empirische Farbskala von pH 0 bis 14
+- kein einzelner pK-Wert
+- kein einzelner enger Umschlagsbereich
+- zur anschaulichen pH-Abschätzung, nicht zur präzisen Endpunkterkennung
+
+Die genaue Farbskala realer Universalindikatorgemische kann je nach Zusammensetzung und Hersteller abweichen.
+
+## Neue Darstellung
+
+Unter der Indikatorauswahl erscheint eine kompakte Vorschau mit:
+
+- Name und Modelltyp
+- vollständiger Farbskala
+- Umschlagsbereich beziehungsweise Hinweis auf die Universalindikatorskala
+- aktuell berechneter Farbe und aktuellem pH-Wert
+
+In der Titrationskurve werden die Umschlagsbereiche eines Einzelindikators beziehungsweise von Thymolblau als dezente horizontale pH-Bänder dargestellt. Bei der Überblendung einer Ableitung erscheinen sie auf der zusätzlichen pH-Achse. Beim Universalindikator werden keine künstlichen schmalen Bänder angezeigt.
+
+## Vergleich mit dem Äquivalenzpunkt
+
+Für jeden stöchiometrischen Äquivalenzpunkt wird der zugehörige pH-Wert berechnet und mit den Umschlagsbereichen des gewählten Indikators verglichen.
+
+Die Anzeige unterscheidet zwischen:
+
+- Äquivalenzpunkt liegt innerhalb eines Umschlagsbereichs
+- Äquivalenzpunkt liegt außerhalb der Umschlagsbereiche
+
+Bei zweiprotonigen Säuren werden beide Äquivalenzpunkte getrennt beurteilt. Im ungelösten Challenge-Modus bleibt diese Bewertung verborgen.
+
+Diese Prüfung ist eine didaktische Eignungsanzeige. Sie ersetzt keine experimentelle Diskussion von Sprungbreite, Indikatorkonzentration, Eigenfarbe der Probe oder visueller Endpunkterkennung.
+
+## CSV-Export
+
+Der MESSWERT_LAB-kompatible Metadatenblock enthält zusätzlich:
+
+- `Indikator`
+- `Indikator_Modell`
+- `Indikator_Umschlagsbereiche_pH`
+
+Die Volumen- und pH-Rohdaten sowie die Berechnung der Ableitungen wurden nicht verändert.
+
+## Unterstützte Titrationsarten
 
 - starke Säure mit starker Base
 - schwache ein- oder zweiprotonige Säure mit starker Base
 - starke Base mit starker Säure
 - schwache einprotonige Base mit starker Säure
 
-Die Maßlösung wird automatisch festgelegt:
-
-- Säuren werden mit Natronlauge (`NaOH`) titriert.
-- Basen werden mit Salzsäure (`HCl`) titriert.
-
-Schwach-schwach-Paarungen, mehrprotonige Basen sowie Redox-, Fällungs- und komplexometrische Titrationen sind bewusst nicht vorgesehen.
-
-## Hinterlegte Stoffe
-
-### Starke Säuren
-
-- Salzsäure, HCl
-- Salpetersäure, HNO₃
-
-### Schwache einprotonige Säuren
-
-- Ameisensäure
-- Essigsäure
-- Propionsäure
-- Milchsäure
-- Benzoesäure
-
-### Schwache zweiprotonige Säuren
-
-- Oxalsäure
-- Malonsäure
-
-### Starke Base
-
-- Natriumhydroxid, NaOH
-
-### Schwache Basen
-
-- Ammoniak
-- Methylamin
-- Pyridin
-
-Bei schwachen Basen wird einheitlich der pKₛ-Wert der konjugierten Säure verwendet, zum Beispiel `pKₛ(NH₄⁺)` bei Ammoniak.
-
-Alle Stoffklassen besitzen zusätzlich eine freie Eingabe. Mehrprotonige freie Eingaben sind nur bei schwachen Säuren möglich.
-
-## Änderungen gegenüber v15.1.1
-
-- neue Auswahl „Art der analysierten Lösung“
-- dynamische Stofflisten abhängig von Säure/Base und stark/schwach
-- automatische Zuordnung von NaOH oder HCl als Maßlösung
-- pH-Berechnung für starke Säuren und starke Basen
-- pH-Berechnung für schwache einprotonige Basen über die Ladungsbilanz
-- fallende Titrationskurven bei Basentitrationen
-- gespiegelte Ableitungsauswertung:
-  - Säuretitration: Maximum der ersten Ableitung und positiv-negativer Nulldurchgang
-  - Basentitration: Minimum der ersten Ableitung und negativ-positiver Nulldurchgang
-- Hägg-Diagramm für schwache Basen mit konjugierter Säure und freier Base
-- verständlicher Hinweis statt Speziesdiagramm bei vollständig dissoziierten starken Systemen
-- dynamische Achsen-, Tabellen- und Konzentrationsbeschriftungen für NaOH beziehungsweise HCl
-- erweiterte MESSWERT_LAB-Metadaten für Titrationsart, Analytklasse und Maßlösung
-- Stofftabelle als modales Fenster; sie wird nicht mehr vom rechten Arbeitsbereich überdeckt
-- `README.md` und `TESTPLAN.md` weiterhin ohne Versionsnummer im Dateinamen
+Schwach-schwach-Paarungen, mehrprotonige Basen sowie andere Titrationsprinzipien bleiben bewusst ausgeschlossen.
 
 ## Fachliche Modellgrenzen
 
 Die Simulation verwendet idealisierte wässrige Gleichgewichte. Nicht berücksichtigt werden unter anderem:
 
 - Aktivitätskoeffizienten und Ionenstärke
-- Temperaturabhängigkeit der Gleichgewichtskonstanten
-- Löslichkeitsgrenzen
-- Gasgleichgewichte
-- Nebenreaktionen
-- Volumenkontraktion
+- Temperaturabhängigkeit
+- Indikatorkonzentration und deren geringer Eigenverbrauch
+- Eigenfarbe oder Trübung der Probe
+- Lichtweg, Beleuchtung und subjektive Farbwahrnehmung
+- Löslichkeitsgrenzen, Gasgleichgewichte und Nebenreaktionen
 
-Sonderfälle wie Schwefelsäure, Kohlensäure, Carbonat, schwefelige Säure, Calciumhydroxid und Citronensäure sind daher nicht als Stammdaten hinterlegt.
-
-## Export
-
-Der CSV-Export enthält unveränderte Volumen- und pH-Rohdaten sowie einen Metadatenblock für MESSWERT_LAB:
-
-- UTF-8 mit BOM
-- Semikolon als Trennzeichen
-- Dezimalkomma
-- Zeitstempel im Dateinamen
-- Analytname, Formel, Stoffklasse und molare Masse
-- Maßlösung mit Name und Formel
-- Konzentrationen und Probenvolumen
-- pKₛ-Werte und ihre Bedeutung
-- Indikator und Soll-Schrittweite
-
-Ableitungen werden nicht exportiert; MESSWERT_LAB soll sie aus den Rohdaten neu berechnen.
+Die dargestellten Farben sind daher didaktische Bildschirmfarben und keine verbindliche farbmetrische Kalibrierung.
 
 ## Für spätere Versionen vorgemerkt
 
-### Aufgabenmodus
+### Apparatur und Animation
 
-Ein schulischer Aufgabenmodus soll nach der weiteren fachlichen und visuellen Stabilisierung ergänzt werden.
+- Bürette mit sichtbarem Flüssigkeitsstand
+- Hahn und fallender Tropfen
+- Erlenmeyerkolben
+- Rührfisch und pH-Elektrode
+- zunehmendes Flüssigkeitsvolumen
+- lokaler kurzzeitiger Farbfleck vor vollständiger Durchmischung
+
+Die Apparatur soll ausschließlich den von der Rechenlogik gelieferten Zustand visualisieren.
+
+### Aufgabenmodus
 
 Geplant ist insbesondere eine Säure-Erkennungsaufgabe nur für einprotonige schwache Säuren:
 
@@ -122,7 +133,14 @@ Nach der Äquivalenzpunktbestimmung soll der Schülermodus schrittweise zur Bere
 - Stoffmengenkonzentration in mol/L
 - Massenkonzentration in g/L unter Verwendung der molaren Masse
 
-Diese Funktionen sind in v15.2.0 noch nicht enthalten.
+## Fachliche Referenzen
+
+- IUPAC Gold Book: Definition des Universalindikators als Gemisch mehrerer pH-Indikatoren
+  - https://goldbook.iupac.org/terms/view/09054
+- University of Wisconsin: Umschlagsbereiche und pK-Werte gebräuchlicher Säure-Base-Indikatoren
+  - https://www2.chem.wisc.edu/deptfiles/genchem/tables/IndicatorTable.htm
+- Thermo Fisher Scientific: Umschlagsbereiche von Thymolblau
+  - https://www.thermofisher.com/order/catalog/product/016272.09
 
 ## Projektdateien
 

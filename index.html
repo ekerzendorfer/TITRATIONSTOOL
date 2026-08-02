@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.2.0</title>
+<title>Titrations-Labor – v15.3.0</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -117,6 +117,20 @@ tbody tr:last-child td{border-bottom:0}
 .overlay-option label{display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--accent2);font-weight:700;cursor:pointer}
 .overlay-option input{width:auto;margin:0;accent-color:var(--accent)}
 .overlay-option label:has(input:disabled){opacity:.55;cursor:not-allowed}
+.indicator-preview{padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:#fbfcfe;display:grid;gap:6px}
+.indicator-preview-head{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+.indicator-preview-head strong{color:var(--accent2);font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.indicator-model{font-size:.7rem;font-weight:800;color:var(--accent2);background:#dce9f4;border-radius:999px;padding:2px 6px;white-space:nowrap}
+.indicator-gradient{height:10px;border:1px solid rgba(23,32,51,.15);border-radius:999px;background:#e2e8f0}
+.indicator-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:.68rem;line-height:1}
+.indicator-preview-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);font-size:.76rem;line-height:1.25}
+.indicator-preview-meta>span:first-child{min-width:0}
+.indicator-current{display:flex;align-items:center;gap:5px;white-space:nowrap;color:var(--accent2);font-weight:700}
+.indicator-dot{width:14px;height:14px;border-radius:50%;border:1px solid rgba(23,32,51,.25);background:#e2e8f0;display:inline-block;flex:0 0 auto}
+.indicator-evaluation{margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fbfcfe;color:var(--muted);font-size:.84rem}
+.indicator-evaluation strong{color:var(--accent2)}
+.indicator-evaluation .fit{color:var(--ok);font-weight:750}
+.indicator-evaluation .miss{color:var(--warn);font-weight:750}
 .substance-card{padding:10px 11px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(135deg,#f8fbfd,#eef3f8)}
 .substance-title{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
 .substance-title strong{font-size:1.02rem;color:var(--accent2)}
@@ -164,7 +178,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.2.0</span><br>Allgemeines Säure-Base-Modell</div>
+    <div class="version"><span class="badge">v15.3.0</span><br>Allgemeines Säure-Base-Modell</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -273,8 +287,16 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
                 <option value="btb">Bromthymolblau (pH 6,0–7,6)</option>
                 <option value="phph">Phenolphthalein (pH 8,2–10,0)</option>
                 <option value="mo">Methylorange (pH 3,1–4,4)</option>
+                <option value="tb">Thymolblau (pH 1,2–2,8 und 8,0–9,6)</option>
+                <option value="universal">Universalindikator (schematisch, pH 0–14)</option>
               </select>
             </label>
+            <div id="indicatorPreview" class="indicator-preview" aria-live="polite">
+              <div class="indicator-preview-head"><strong id="indicatorPreviewTitle">Bromthymolblau</strong><span id="indicatorModel" class="indicator-model">Einzelindikator</span></div>
+              <div id="indicatorGradient" class="indicator-gradient" aria-hidden="true"></div>
+              <div class="indicator-scale"><span>pH 0</span><span>pH 7</span><span>pH 14</span></div>
+              <div class="indicator-preview-meta"><span id="indicatorRangeText">Umschlag pH 6,0–7,6 · gelb → blau</span><span class="indicator-current"><span id="indicatorCurrentDot" class="indicator-dot"></span><span id="indicatorCurrentText">aktuell</span></span></div>
+            </div>
 
             <details>
               <summary>Dosierung und Geschwindigkeit</summary>
@@ -333,6 +355,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
 
         <div class="chartwrap" style="margin-top:14px"><canvas id="titrateChart" role="img" aria-label="Diagramm zur Titrationsauswertung"></canvas></div>
         <p id="chartCaption" class="chart-caption">pH-Wert gegen das tatsächlich zugegebene Volumen der Maßlösung.</p>
+        <div id="indicatorEvaluation" class="indicator-evaluation" aria-live="polite"></div>
 
         <div class="metrics">
           <div class="metric"><div class="mlabel">Messpunkte</div><div class="mvalue" id="pointMetric">1</div></div>
@@ -377,14 +400,57 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.2.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.3.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.2.0';
+const APP_VERSION = '15.3.0';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
+
+const INDICATORS = {
+  btb: {
+    name:'Bromthymolblau', model:'Einzelindikator', description:'gelb → blau',
+    ranges:[{low:6.0,high:7.6,label:'6,0–7,6',acid:'#f2cd35',base:'#315ca8'}]
+  },
+  phph: {
+    name:'Phenolphthalein', model:'Einzelindikator', description:'farblos → pink',
+    ranges:[{low:8.2,high:10.0,label:'8,2–10,0',acid:'#f8fafc',base:'#d42f80'}]
+  },
+  mo: {
+    name:'Methylorange', model:'Einzelindikator', description:'rot → gelb',
+    ranges:[{low:3.1,high:4.4,label:'3,1–4,4',acid:'#d94343',base:'#f0c938'}]
+  },
+  tb: {
+    name:'Thymolblau', model:'zweistufiger Indikator', description:'rot → gelb · gelb → blau',
+    pKas:[1.65,8.90], speciesColors:['#d43a35','#f0c938','#315ca8'],
+    ranges:[
+      {low:1.2,high:2.8,label:'1,2–2,8',acid:'#d43a35',base:'#f0c938'},
+      {low:8.0,high:9.6,label:'8,0–9,6',acid:'#f0c938',base:'#315ca8'}
+    ]
+  },
+  universal: {
+    name:'Universalindikator', model:'Indikatorgemisch', description:'schematische pH-Farbskala', ranges:[],
+    stops:[[0,'#b51f2e'],[2,'#d83a32'],[4,'#ef7d2d'],[6,'#efd23b'],[7,'#50a84d'],[8,'#2ba39a'],[10,'#3477b7'],[12,'#5548a4'],[14,'#702c87']]
+  }
+};
+
+const indicatorBandPlugin = {
+  id:'indicatorBands',
+  beforeDatasetsDraw(chart,args,options){
+    const ranges=options?.ranges||[],axisID=options?.axisID||'y',scale=chart.scales?.[axisID],area=chart.chartArea;
+    if(!ranges.length||!scale||!area)return;
+    const {ctx}=chart;ctx.save();
+    for(const range of ranges){
+      const top=scale.getPixelForValue(range.high),bottom=scale.getPixelForValue(range.low),y=Math.min(top,bottom),height=Math.abs(bottom-top);
+      const gradient=ctx.createLinearGradient(0,bottom,0,top);gradient.addColorStop(0,hexToRgba(range.acid,.12));gradient.addColorStop(1,hexToRgba(range.base,.12));
+      ctx.fillStyle=gradient;ctx.fillRect(area.left,y,area.right-area.left,height);
+      ctx.strokeStyle='rgba(52,90,125,.22)';ctx.setLineDash([4,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(area.left,top);ctx.lineTo(area.right,top);ctx.moveTo(area.left,bottom);ctx.lineTo(area.right,bottom);ctx.stroke();
+    }
+    ctx.restore();
+  }
+};
 
 const ANALYTE_TYPES = {
   strong_acid: {
@@ -454,7 +520,7 @@ function cacheElements(){
   [
     'simStatus','statusDot','typeStatus','phDisplay','volDisplay','liquid','errorBox','warningBox','settingsFieldset','simMode',
     'analyteType','substanceSelect','substanceSelectText','substanceNameDisplay','substanceTypeBadge','substanceGrid','substanceFormulaDisplay','substanceMassDisplay','substancePkItem','substancePkLabel','substancePkDisplay','substanceNote',
-    'customSubstanceFields','customName','customFormula','customMolarMass','customNote','polyLabel','poly','sampleConcTitle','titrantConcTitle','c0','v0','v0Container','cTit','volumePkRow','pk1Label','pk1LabelText','pk1','pk2','pk2Label','pkLockNote','indicator','dropSize','dropVal','speed',
+    'customSubstanceFields','customName','customFormula','customMolarMass','customNote','polyLabel','poly','sampleConcTitle','titrantConcTitle','c0','v0','v0Container','cTit','volumePkRow','pk1Label','pk1LabelText','pk1','pk2','pk2Label','pkLockNote','indicator','indicatorPreview','indicatorPreviewTitle','indicatorModel','indicatorGradient','indicatorRangeText','indicatorCurrentDot','indicatorCurrentText','indicatorEvaluation','dropSize','dropVal','speed',
     'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable'
   ].forEach(id=>el[id]=document.getElementById(id));
   el.viewButtons=[...document.querySelectorAll('[data-view]')];
@@ -480,7 +546,12 @@ function bindEvents(){
     challengeResolved=false;
     resetSimulation({regenerateSecret:challengeActive});
   });
-  el.indicator.addEventListener('change',updateVisualState);
+  el.indicator.addEventListener('change',()=>{
+    if(currentParams)currentParams.indicator=el.indicator.value;
+    updateIndicatorPresentation();
+    updateVisualState();
+    updateTitrationChart();
+  });
   el.dropSize.addEventListener('input',()=>{el.dropVal.textContent=decimalComma(Number(el.dropSize.value),2);updateWarnings();updateMetrics();});
   el.dropBtn.addEventListener('pointerdown',startDropHold);
   ['pointerup','pointercancel','pointerleave'].forEach(evt=>el.dropBtn.addEventListener(evt,stopDropHold));
@@ -501,7 +572,7 @@ function initCharts(){
     showError('Die Diagrammbibliothek konnte nicht geladen werden. Prüfen Sie die Internetverbindung und laden Sie die Seite neu.');
     return;
   }
-  tChart=new Chart(el.titrateChart,{type:'line',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,animation:false,parsing:false,normalized:true,interaction:{mode:'nearest',intersect:false},scales:{x:{type:'linear',min:0,title:{display:true,text:'V(Maßlösung) / mL'},grid:{color:'rgba(94,107,121,.13)'}},y:{title:{display:true,text:'pH'},grid:{color:'rgba(94,107,121,.13)'}}},plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:16}},tooltip:{callbacks:{label:tooltipLabel}}}}});
+  tChart=new Chart(el.titrateChart,{type:'line',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,animation:false,parsing:false,normalized:true,interaction:{mode:'nearest',intersect:false},scales:{x:{type:'linear',min:0,title:{display:true,text:'V(Maßlösung) / mL'},grid:{color:'rgba(94,107,121,.13)'}},y:{title:{display:true,text:'pH'},grid:{color:'rgba(94,107,121,.13)'}}},plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:16}},tooltip:{callbacks:{label:tooltipLabel}},indicatorBands:{ranges:[],axisID:'y'}}},plugins:[indicatorBandPlugin]});
   hChart=new Chart(el.haeggChart,{type:'line',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,animation:false,parsing:false,normalized:true,elements:{point:{radius:0}},scales:{x:{type:'linear',min:0,max:14,title:{display:true,text:'pH-Wert'},grid:{color:'rgba(94,107,121,.13)'}},y:{min:-14,max:0,title:{display:true,text:'log(c / mol·L⁻¹)'},grid:{color:'rgba(94,107,121,.13)'}}},plugins:{legend:{position:'bottom',labels:{boxWidth:14}}}}});
 }
 
@@ -815,15 +886,58 @@ function median(values){if(!values.length)return NaN;const sorted=[...values].so
 
 function setChartView(view){if(challengeActive&&!challengeResolved&&view!=='curve'){el.infoBox.innerHTML='<strong>Challenge:</strong> Die Ableitungsansichten werden nach dem Prüfen des Tipps freigeschaltet.';return;}selectedView=view;setViewButtonState();updateTitrationChart();}
 function setViewButtonState(){el.viewButtons.forEach(btn=>{btn.setAttribute('aria-pressed',btn.dataset.view===selectedView?'true':'false');btn.disabled=challengeActive&&!challengeResolved&&btn.dataset.view!=='curve';});const derivativeSelected=selectedView==='d1'||selectedView==='d2';el.overlayOption.hidden=!derivativeSelected;el.overlayCurve.disabled=!derivativeSelected||(challengeActive&&!challengeResolved);}
-function updateAll(){updateVisualState();updateMetrics();updateAnalysisText();updateTable();updateTitrationChart();updateHaeggMarker();}
+function updateAll(){updateVisualState();updateIndicatorPresentation();updateMetrics();updateAnalysisText();updateTable();updateTitrationChart();updateHaeggMarker();}
 function updateVisualState(){
   el.phDisplay.textContent=Number.isFinite(lastPH)?`pH ${decimalComma(lastPH,2)}`:'pH –';
   if(currentParams)el.volDisplay.textContent=`V(${currentParams.titrant.formula}) = ${decimalComma(volAdded,3)} mL · ${currentParams.analyte.name}`;
   if(currentParams)el.liquid.style.height=`${Math.min(34+volAdded/currentParams.v0*18,96)}%`;
   el.liquid.style.backgroundColor=indicatorColor(el.indicator.value,lastPH);
 }
-function indicatorColor(indicator,pH){if(!Number.isFinite(pH))return'#e2e8f0';if(indicator==='btb')return pH<6?'#f2cd35':pH>7.6?'#315ca8':'#55a55f';if(indicator==='phph'){if(pH<=8.2)return'#f7f9fb';return mixHex('#f7f9fb','#d42f80',Math.min((pH-8.2)/1.8,1));}return pH<3.1?'#df4c4c':pH>4.4?'#f0c938':'#e78332';}
-function mixHex(a,b,t){const pa=a.match(/\w\w/g).map(v=>parseInt(v,16)),pb=b.match(/\w\w/g).map(v=>parseInt(v,16)),rgb=pa.map((v,i)=>Math.round(v+(pb[i]-v)*t));return`rgb(${rgb.join(',')})`;}
+function indicatorColor(indicator,pH){
+  if(!Number.isFinite(pH))return'#e2e8f0';
+  const cfg=INDICATORS[indicator]||INDICATORS.btb;
+  if(indicator==='tb'){
+    const h=10**(-pH),k1=10**(-cfg.pKas[0]),k2=10**(-cfg.pKas[1]),d=h*h+h*k1+k1*k2;
+    return weightedColor(cfg.speciesColors,[h*h/d,h*k1/d,k1*k2/d]);
+  }
+  if(indicator==='universal')return colorFromStops(cfg.stops,pH);
+  const range=cfg.ranges[0],fraction=smoothTransition(pH,range.low,range.high);
+  return mixHex(range.acid,range.base,fraction);
+}
+function smoothTransition(value,low,high){const t=Math.max(0,Math.min(1,(value-low)/(high-low)));return t*t*(3-2*t);}
+function hexToRgb(hex){const clean=hex.replace('#','');return[parseInt(clean.slice(0,2),16),parseInt(clean.slice(2,4),16),parseInt(clean.slice(4,6),16)];}
+function mixHex(a,b,t){const pa=hexToRgb(a),pb=hexToRgb(b),rgb=pa.map((v,i)=>Math.round(v+(pb[i]-v)*t));return`rgb(${rgb.join(',')})`;}
+function weightedColor(colors,weights){const rgb=[0,0,0];colors.forEach((color,index)=>hexToRgb(color).forEach((value,channel)=>rgb[channel]+=value*weights[index]));return`rgb(${rgb.map(value=>Math.round(value)).join(',')})`;}
+function colorFromStops(stops,pH){
+  if(pH<=stops[0][0])return stops[0][1];if(pH>=stops.at(-1)[0])return stops.at(-1)[1];
+  for(let i=0;i<stops.length-1;i++){const [aV,aC]=stops[i],[bV,bC]=stops[i+1];if(pH>=aV&&pH<=bV)return mixHex(aC,bC,(pH-aV)/(bV-aV));}
+  return stops.at(-1)[1];
+}
+function hexToRgba(hex,alpha){const [r,g,b]=hexToRgb(hex);return`rgba(${r},${g},${b},${alpha})`;}
+function indicatorGradientCSS(indicator){
+  const cfg=INDICATORS[indicator]||INDICATORS.btb;
+  if(indicator==='universal')return`linear-gradient(90deg,${cfg.stops.map(([pH,color])=>`${color} ${pH/14*100}%`).join(',')})`;
+  if(indicator==='tb')return'linear-gradient(90deg,#d43a35 0%,#d43a35 8.6%,#f0c938 20%,#f0c938 57.1%,#315ca8 68.6%,#315ca8 100%)';
+  const range=cfg.ranges[0],low=range.low/14*100,high=range.high/14*100;
+  return`linear-gradient(90deg,${range.acid} 0%,${range.acid} ${low}%,${range.base} ${high}%,${range.base} 100%)`;
+}
+function indicatorRangeLabel(indicator){
+  const cfg=INDICATORS[indicator]||INDICATORS.btb;
+  if(indicator==='universal')return'Farbskala pH 0–14 · kein einzelner Umschlagsbereich';
+  return`Umschlag pH ${cfg.ranges.map(range=>range.label).join(' und ')} · ${cfg.description}`;
+}
+function updateIndicatorPresentation(){
+  const key=el.indicator.value,cfg=INDICATORS[key]||INDICATORS.btb,currentColor=indicatorColor(key,lastPH);
+  el.indicatorPreviewTitle.textContent=cfg.name;el.indicatorModel.textContent=cfg.model;el.indicatorGradient.style.background=indicatorGradientCSS(key);el.indicatorRangeText.textContent=indicatorRangeLabel(key);el.indicatorCurrentDot.style.backgroundColor=currentColor;el.indicatorCurrentText.textContent=Number.isFinite(lastPH)?`pH ${decimalComma(lastPH,2)}`:'aktuell';
+  if(!currentParams){el.indicatorEvaluation.innerHTML='<strong>Indikatorwahl:</strong> Nach gültiger Stoffauswahl wird die Lage des Äquivalenzpunkts mit dem Indikatorbereich verglichen.';return;}
+  if(challengeActive&&!challengeResolved){el.indicatorEvaluation.innerHTML='<strong>Indikatorwahl:</strong> Die Bewertung wird in der ungelösten Challenge nicht angezeigt.';return;}
+  if(key==='universal'){el.indicatorEvaluation.innerHTML='<strong>Universalindikator:</strong> Die Farbe dient nur zur schematischen pH-Abschätzung. Ein Indikatorgemisch besitzt keinen einzelnen engen Umschlagsbereich und ist daher nicht für eine präzise Endpunkterkennung gedacht.';return;}
+  const results=currentParams.referenceEPs.map((volume,index)=>{
+    const ph=calculatePH(volume,currentParams),matches=cfg.ranges.filter(range=>ph>=range.low&&ph<=range.high),fit=matches.length>0;
+    return`<span class="${fit?'fit':'miss'}">${index+1}. ÄP: pH ${decimalComma(ph,2)} – ${fit?`im Umschlagsbereich ${matches.map(range=>range.label).join(' / ')}`:'außerhalb der Umschlagsbereiche'}</span>`;
+  });
+  el.indicatorEvaluation.innerHTML=`<strong>${escapeHTML(cfg.name)}:</strong> ${results.join(' · ')}`;
+}
 
 function updateMetrics(){el.pointMetric.textContent=String(titrationData.length);el.stepMetric.textContent=`${decimalComma(Number(el.dropSize.value),2)} mL`;const canReveal=!challengeActive||challengeResolved;el.epMetric.textContent=canReveal&&derivativeData.candidates.length?derivativeData.candidates.map(c=>`${decimalComma(c.x,3)} mL`).join(' · '):'–';el.referenceMetric.textContent=canReveal&&currentParams?currentParams.referenceEPs.map(v=>`${decimalComma(v,3)} mL`).join(' · '):'verborgen';}
 function updateAnalysisText(){
@@ -845,7 +959,12 @@ function updateTitrationChart(){
   let yTitle='pH',ySuggestedMin,ySuggestedMax;
   const extremum=currentParams.direction>0?'Maximum':'Minimum';
   const crossing=currentParams.direction>0?'positiv-negativen':'negativ-positiven';
-  if(selectedView==='curve'){datasets.push(lineDataset('Titrationskurve',titrationData,COLORS.curve,3));ySuggestedMin=0;ySuggestedMax=14;el.chartCaption.textContent=`pH-Wert gegen das tatsächlich zugegebene Volumen der Maßlösung ${currentParams.titrant.formula}.`;}
+  if(selectedView==='curve'){
+    datasets.push(lineDataset('Titrationskurve',titrationData,COLORS.curve,3));ySuggestedMin=0;ySuggestedMax=14;
+    el.chartCaption.textContent=el.indicator.value==='universal'
+      ?`pH-Wert gegen das tatsächlich zugegebene Volumen der Maßlösung ${currentParams.titrant.formula}. Der Universalindikator wird als kontinuierliche schematische Farbskala dargestellt.`
+      :`pH-Wert gegen das tatsächlich zugegebene Volumen der Maßlösung ${currentParams.titrant.formula}. Die Umschlagsbereiche des gewählten Indikators sind als dezente pH-Bänder markiert.`;
+  }
   else if(selectedView==='d1'){datasets.push(lineDataset('1. Ableitung',derivativeData.d1,COLORS.d1,2.5));yTitle='ΔpH/ΔV / pH·mL⁻¹';el.chartCaption.textContent=showOverlay?`Die Titrationskurve ist zur ersten Ableitung überblendet. Das ${extremum} der Ableitung liegt im steilsten Bereich der pH-Kurve; beide Größen besitzen getrennte y-Achsen.`:'Die erste Ableitung wird zwischen je zwei benachbarten Messpunkten berechnet und am Volumenmittelpunkt eingetragen.';}
   else{datasets.push(lineDataset('2. Ableitung',derivativeData.d2,COLORS.d2,2.5));datasets.push(lineDataset('Nulllinie',[{x:0,y:0},{x:currentParams.maxVolume,y:0}],COLORS.muted,1.5,[6,5]));yTitle='Δ²pH/ΔV² / pH·mL⁻²';el.chartCaption.textContent=showOverlay?'Die Titrationskurve ist zur zweiten Ableitung überblendet. Der interpolierte Nulldurchgang fällt mit dem Wendebereich der pH-Kurve zusammen; beide Größen besitzen getrennte y-Achsen.':`Der Äquivalenzpunkt wird durch lineare Interpolation eines ${crossing} Nulldurchgangs nahe einem ${extremum} der ersten Ableitung bestimmt.`;}
   if(showOverlay)datasets.push(lineDataset('Titrationskurve',titrationData,COLORS.curve,2.2,[],'yPH'));
@@ -856,6 +975,8 @@ function updateTitrationChart(){
   }
   tChart.data.datasets=datasets;tChart.options.scales.x.max=currentParams.maxVolume;tChart.options.scales.x.title.text=`V(${currentParams.titrant.formula}) / mL`;tChart.options.scales.y.title.text=yTitle;tChart.options.scales.y.position='left';delete tChart.options.scales.y.min;delete tChart.options.scales.y.max;tChart.options.scales.y.suggestedMin=ySuggestedMin;tChart.options.scales.y.suggestedMax=ySuggestedMax;
   if(showOverlay)tChart.options.scales.yPH={position:'right',min:0,max:14,title:{display:true,text:'pH'},grid:{drawOnChartArea:false},ticks:{color:COLORS.curve}};else delete tChart.options.scales.yPH;
+  const cfg=INDICATORS[el.indicator.value]||INDICATORS.btb,bandAxis=selectedView==='curve'?'y':showOverlay?'yPH':null;
+  tChart.options.plugins.indicatorBands={ranges:bandAxis?cfg.ranges:[],axisID:bandAxis||'y'};
   tChart.update('none');
 }
 function lineDataset(label,data,color,width,dash=[],yAxisID='y'){return{label,data,yAxisID,borderColor:color,backgroundColor:color,borderWidth:width,pointRadius:0,pointHitRadius:8,tension:0,borderDash:dash,fill:false};}
@@ -902,7 +1023,7 @@ function exportCSV(){
     ['Protonenstufen',String(p.poly)],['c_Probe_mol_L',decimalComma(p.c0,4)],['V_Probe_mL',decimalComma(p.v0,3)],
     ['Massloesung_Name',p.titrant.name],['Massloesung_Formel',p.titrant.formula],['c_Massloesung_mol_L',decimalComma(p.cTit,4)],
     ['pKs1',p.strength==='weak'?decimalComma(p.pk1,3):''],['pKs2',p.type==='weak_acid'&&p.poly===2?decimalComma(p.pk2,3):''],['pKs_Bedeutung',p.type==='weak_base'?'Konjugierte_Saeure':p.strength==='weak'?'Analyt_Saeure':''],['pKs_Hinweis',p.strength==='weak'?'Naeherungswerte_waessrig_ca_25_C':''],
-    ['Indikator',indicatorName(p.indicator)],['Schrittweite_Soll_mL',decimalComma(Number(el.dropSize.value),3)],['Datenart','Simulation'],['Auswertungsmethode','Ableitungen_aus_Rohdaten_berechnen'],['Exportzeit',new Date().toISOString()]
+    ['Indikator',indicatorName(p.indicator)],['Indikator_Modell',(INDICATORS[p.indicator]||INDICATORS.btb).model],['Indikator_Umschlagsbereiche_pH',indicatorRangeLabel(p.indicator)],['Schrittweite_Soll_mL',decimalComma(Number(el.dropSize.value),3)],['Datenart','Simulation'],['Auswertungsmethode','Ableitungen_aus_Rohdaten_berechnen'],['Exportzeit',new Date().toISOString()]
   ];
   metadata.forEach(([key,value])=>lines.push(`${csvCell(key)};${csvCell(value)}`));
   const csv='\uFEFF'+lines.join('\r\n'),blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');
@@ -922,7 +1043,7 @@ function populateSubstanceTable(){
   }).join('');
 }
 
-function indicatorName(value){return{btb:'Bromthymolblau',phph:'Phenolphthalein',mo:'Methylorange'}[value]||value;}
+function indicatorName(value){return(INDICATORS[value]||{}).name||value;}
 function csvCell(value){const text=String(value??'');return/[;"\r\n]/.test(text)?`"${text.replace(/"/g,'""')}"`:text;}
 function substanceFilenameToken(analyte){if(!analyte.custom&&analyte.id)return analyte.id.toUpperCase();return analyte.name.replace(/Ä/g,'AE').replace(/Ö/g,'OE').replace(/Ü/g,'UE').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'').toUpperCase()||'EIGENER_STOFF';}
 function escapeHTML(value){return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));}
