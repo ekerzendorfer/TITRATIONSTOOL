@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.5.7</title>
+<title>Titrations-Labor – v15.6.0</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -204,6 +204,40 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
 .empty-haegg{padding:18px;border:1px dashed var(--border);border-radius:12px;background:#fbfcfe;color:var(--muted)}
 @media(max-width:650px){dialog{width:calc(100% - 12px)}.dialog-head,.dialog-body{padding:14px}.substance-tools{justify-content:stretch}}
 
+
+.modebar{margin-top:14px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.modebar-copy{display:grid;gap:2px}.modebar-copy strong{color:var(--accent2)}.modebar-copy span{color:var(--muted);font-size:.84rem}
+.modebar .seg{min-width:min(420px,100%)}
+.task-area{margin-top:16px}
+.task-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.task-head p{margin:4px 0 0;color:var(--muted);font-size:.88rem}
+.task-catalog{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.task-card-button{display:grid;gap:5px;text-align:left;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text);cursor:pointer;min-width:0}
+.task-card-button:hover{background:var(--soft)}
+.task-card-button[aria-pressed="true"]{border-color:var(--accent);background:#e5eef6;box-shadow:0 0 0 2px rgba(52,90,125,.11)}
+.task-card-button strong{color:var(--accent2);line-height:1.25}
+.task-card-button span{color:var(--muted);font-size:.78rem}
+.task-badges{display:flex;gap:6px;flex-wrap:wrap}
+.task-badge{display:inline-block;padding:2px 7px;border-radius:999px;background:#dce9f4;color:var(--accent2);font-size:.7rem;font-weight:800}
+.task-workspace{margin-top:12px;padding:14px;border:1px solid var(--border);border-radius:13px;background:linear-gradient(135deg,#fbfdff,#f2f6fa)}
+.task-workspace-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(250px,.65fr);gap:16px;align-items:start}
+.task-content h3{margin:0;color:var(--accent2)}
+.task-goal{margin:7px 0 0;padding:8px 10px;border-left:4px solid var(--accent);background:#e8f0f7;border-radius:0 9px 9px 0;color:var(--accent2)}
+.task-order{margin:10px 0 0;white-space:pre-line}
+.task-results{display:grid;gap:9px;padding:12px;border:1px solid var(--border);border-radius:11px;background:#fff}
+.task-results h4{margin:0;color:var(--accent2)}
+.task-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.task-actions button{flex:1;min-width:130px}
+.task-feedback,.task-hint,.task-solution{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:.86rem}
+.task-feedback{background:#eef3f8;color:var(--accent2)}
+.task-feedback.is-ok{background:#e3f2e9;color:var(--ok)}
+.task-feedback.is-error{background:#fde7e8;color:var(--danger)}
+.task-hint{background:#fff2d8;color:var(--warn)}
+.task-solution{background:#e8f0f7;color:var(--accent2);border:1px solid #c7d7e6}
+.task-lock-note{margin-top:9px;color:var(--muted);font-size:.78rem}
+@media(max-width:1050px){.task-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}.task-workspace-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.modebar{align-items:stretch}.modebar .seg{min-width:0;width:100%}.task-catalog{grid-template-columns:1fr}.task-actions{display:grid;grid-template-columns:1fr}.task-actions button{width:100%}}
+
 </style>
 </head>
 <body>
@@ -214,13 +248,49 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.5.7</span><br>Kompakte Titrationsanimation</div>
+    <div class="version"><span class="badge">v15.6.0</span><br>Aufgaben-Grundgerüst</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
     <div class="status-left"><span class="dot" id="statusDot"></span><span id="simStatus">Bereit für eine neue Titration.</span></div>
     <div id="typeStatus">Versuchstyp: Schwache Säure mit starker Base</div>
   </div>
+
+  <div class="modebar card">
+    <div class="modebar-copy"><strong>Arbeitsbereich</strong><span>Freies Experimentieren oder eine vorbereitete Unterrichtsaufgabe.</span></div>
+    <div class="seg" aria-label="Arbeitsbereich wählen">
+      <button type="button" data-lab-mode="free" aria-pressed="true">Freies Labor</button>
+      <button type="button" data-lab-mode="tasks" aria-pressed="false">Begleitende Aufgaben</button>
+    </div>
+  </div>
+
+  <section id="taskArea" class="task-area card" hidden>
+    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Vier Pilotaufgaben bilden zunächst das Bedien- und Rückmeldungsgerüst.</p></div><span class="task-badge">v15.6.0 · Pilotpool</span></div>
+    <div class="panelbody">
+      <div id="taskCatalog" class="task-catalog" aria-label="Aufgabenauswahl"></div>
+      <article id="taskWorkspace" class="task-workspace" hidden>
+        <div class="task-workspace-grid">
+          <div class="task-content">
+            <div id="taskActiveBadges" class="task-badges"></div>
+            <h3 id="taskTitle"></h3>
+            <div id="taskGoal" class="task-goal"></div>
+            <div id="taskOrder" class="task-order"></div>
+            <div class="task-actions">
+              <button id="taskHintBtn" class="secondary compact" type="button">Hinweis</button>
+              <button id="taskCheckBtn" class="primary compact" type="button">Ergebnisse prüfen</button>
+              <button id="taskSolutionBtn" class="secondary compact" type="button">LehrerInnenlösung</button>
+              <button id="taskReloadBtn" class="secondary compact" type="button">Aufgabe neu laden</button>
+            </div>
+            <div id="taskHint" class="task-hint" hidden></div>
+            <div id="taskFeedback" class="task-feedback" hidden aria-live="polite"></div>
+            <div id="taskSolution" class="task-solution" hidden></div>
+            <div class="task-lock-note">Die fachlich relevanten Ausgangsparameter werden von der Aufgabe gesetzt. Nicht benötigte Einstellungen sind gesperrt.</div>
+          </div>
+          <div id="taskResults" class="task-results"><h4>Ergebnisse eintragen</h4></div>
+        </div>
+      </article>
+    </div>
+  </section>
 
   <main class="workspace">
     <aside class="card">
@@ -252,7 +322,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
 
         <fieldset id="settingsFieldset">
           <div class="formgrid settings-grid" style="margin-top:16px">
-            <label>Arbeitsmodus
+            <label id="simModeLabel">Arbeitsmodus
               <select id="simMode">
                 <option value="expert">LehrerInnenmodus – Referenzwerte sichtbar</option>
                 <option value="challenge">SchülerInnen-Challenge – Probenvolumen geheim</option>
@@ -448,12 +518,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.5.7 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.6.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.5.7';
+const APP_VERSION = '15.6.0';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -549,9 +619,69 @@ const TYPE_OPTIONS = {
   weak_base:['ammonia','methylamine','pyridine']
 };
 
+const EXPORT_SCHEMA_VERSION = '1.0';
+const ANALYSIS_STANDARD = 'TITR_AEP_V1';
+const ANALYSIS_DECIMALS = 10;
+
+const TASKS = [
+  {
+    id:'TITR_A01', title:'Starke Säure – Äquivalenzpunkt bei pH 7', level:'Grundlagen', duration:'15–20 min',
+    goal:'Eine Titrationskurve aufnehmen und Äquivalenzvolumen sowie pH-Wert am Äquivalenzpunkt bestimmen.',
+    order:'Titriere 20,0 mL Salzsäure mit Natronlauge. Nimm genügend Messpunkte auf und bestimme den Äquivalenzpunkt möglichst genau. Trage anschließend Äquivalenzvolumen und pH-Wert ein.',
+    setup:{analyteType:'strong_acid',substance:'hcl',c0:0.100,v0:20.0,cTit:0.100,indicator:'btb',dropSize:0.20,speed:420},
+    locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','indicator','dropSize'], hideAutomaticResults:true,
+    results:[
+      {key:'veq',label:'Äquivalenzvolumen / mL',kind:'number',expected:20.0,tolerance:0.25,placeholder:'z. B. 20,00'},
+      {key:'pheq',label:'pH am Äquivalenzpunkt',kind:'number',expected:7.0,tolerance:0.10,placeholder:'z. B. 7,00'}
+    ],
+    hints:['Nutze zunächst die Titrationskurve und kontrolliere danach mit einer Ableitung.','Bei einer starken Säure mit einer starken Base liegt der Äquivalenzpunkt im idealisierten Modell bei pH 7.'],
+    solution:'Äquivalenzvolumen: 20,00 mL. Am Äquivalenzpunkt gilt im idealisierten Modell pH = 7,00.'
+  },
+  {
+    id:'TITR_A02', title:'Essigsäure – ÄP aus der zweiten Ableitung', level:'SEK II', duration:'20–25 min',
+    goal:'Den Äquivalenzpunkt einer schwachen Säure mithilfe des Nulldurchgangs der zweiten Ableitung bestimmen.',
+    order:'Titriere die voreingestellte Essigsäureprobe. Wechsle nach der Messung zur zweiten Ableitung und bestimme den Äquivalenzpunkt durch den Nulldurchgang. Begründe, warum die Kurve nicht bei pH 7 äquivalent ist.',
+    setup:{analyteType:'weak_acid',substance:'acetic',c0:0.080,v0:20.0,cTit:0.100,indicator:'phph',dropSize:0.10,speed:420},
+    locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','indicator','dropSize'], hideAutomaticResults:true,
+    results:[
+      {key:'veq',label:'ÄP aus 2. Ableitung / mL',kind:'number',expected:16.0,tolerance:0.18,placeholder:'z. B. 16,00'},
+      {key:'method',label:'Kennzeichen des ÄP',kind:'select',expected:'zero',options:[['','Bitte wählen'],['max','Maximum der 2. Ableitung'],['zero','Nulldurchgang der 2. Ableitung'],['min','Minimum der pH-Kurve']]}
+    ],
+    hints:['Der Äquivalenzpunkt liegt nahe dem Wendebereich der Titrationskurve.','In der zweiten Ableitung wird der Wendebereich als Vorzeichenwechsel beziehungsweise Nulldurchgang sichtbar.'],
+    solution:'Äquivalenzvolumen: ungefähr 16,00 mL. Maßgeblich ist der positiv-negative Nulldurchgang der zweiten Ableitung nahe dem Maximum der ersten Ableitung.'
+  },
+  {
+    id:'TITR_A03', title:'Pyridin – geeigneten Indikator wählen', level:'Vertiefung', duration:'15–20 min',
+    goal:'Die Lage des pH-Sprungs einer schwachen Base beurteilen und einen passenden Indikator auswählen.',
+    order:'Titriere Pyridin mit Salzsäure. Probiere die verfügbaren Indikatoren aus und wähle jenen Einzelindikator, dessen Umschlagsbereich am besten im Äquivalenzbereich liegt.',
+    setup:{analyteType:'weak_base',substance:'pyridine',c0:0.100,v0:20.0,cTit:0.100,indicator:'universal',dropSize:0.20,speed:420},
+    locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','dropSize'], hideAutomaticResults:true,
+    results:[
+      {key:'indicator',label:'Geeigneter Indikator',kind:'select',expected:'mo',options:[['','Bitte wählen'],['btb','Bromthymolblau'],['phph','Phenolphthalein'],['mo','Methylorange'],['tb','Thymolblau'],['universal','Universalindikator']]}
+    ],
+    hints:['Bestimme zuerst, ob der Äquivalenzpunkt im sauren, neutralen oder basischen Bereich liegt.','Der Äquivalenzpunkt liegt ungefähr bei pH 3,3. Vergleiche diesen Wert mit den Umschlagsbereichen.'],
+    solution:'Methylorange ist von den hinterlegten Einzelindikatoren am besten geeignet. Der Äquivalenzpunkt liegt bei ungefähr pH 3,3 und damit im Umschlagsbereich 3,1–4,4.'
+  },
+  {
+    id:'TITR_A04', title:'Oxalsäure – zwei Äquivalenzpunkte', level:'SEK II · Vertiefung', duration:'25–30 min',
+    goal:'Bei einer zweiprotonigen Säure zwei Äquivalenzpunkte erkennen und getrennt angeben.',
+    order:'Titriere die Oxalsäureprobe vollständig. Untersuche Titrationskurve, erste und zweite Ableitung. Bestimme beide Äquivalenzvolumina und vergleiche ihre Lage.',
+    setup:{analyteType:'weak_acid',substance:'oxalic',c0:0.050,v0:20.0,cTit:0.100,indicator:'tb',dropSize:0.10,speed:420},
+    locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','indicator','dropSize'], hideAutomaticResults:true,
+    results:[
+      {key:'veq1',label:'1. Äquivalenzvolumen / mL',kind:'number',expected:10.0,tolerance:0.25,placeholder:'z. B. 10,00'},
+      {key:'veq2',label:'2. Äquivalenzvolumen / mL',kind:'number',expected:20.0,tolerance:0.25,placeholder:'z. B. 20,00'}
+    ],
+    hints:['Bei einer zweiprotonigen Säure werden pro Stoffmenge Säure insgesamt zwei Stoffmengen OH⁻ umgesetzt.','Das zweite Äquivalenzvolumen ist bei gleichen Bedingungen ungefähr doppelt so groß wie das erste.'],
+    solution:'Erster Äquivalenzpunkt: ungefähr 10,00 mL. Zweiter Äquivalenzpunkt: ungefähr 20,00 mL. Der erste Punkt ist wegen der Gleichgewichtslage weniger markant.'
+  }
+];
+const TASK_LOCKABLE_IDS=['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','pk2','poly','indicator','dropSize','speed'];
+
 let tChart=null, hChart=null, autoTimer=null, holdDelay=null, holdInterval=null;
 let volAdded=0, lastPH=NaN, titrationData=[], derivativeData={d1:[],d2:[],candidates:[]};
 let selectedView='curve', challengeActive=false, challengeResolved=false, secretV0=20, currentParams=null;
+let labMode='free', activeTaskId=null, taskHintIndex=0, taskSolutionVisible=false;
 const el={};
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -560,6 +690,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initCharts();
   populateSubstanceOptions(true);
   populateSubstanceTable();
+  initTaskMode();
   syncAnalyteControls();
   resetSimulation({regenerateSecret:true});
 });
@@ -569,9 +700,10 @@ function cacheElements(){
     'simStatus','statusDot','typeStatus','phDisplay','volDisplay','buretteDisplay','totalVolumeDisplay','buretteLiquid','liquid','fallingDrop','mixPlume','errorBox','warningBox','settingsFieldset','simMode',
     'analyteType','substanceSelect','substanceSelectText','substanceNameDisplay','substanceTypeBadge','substanceGrid','substanceFormulaDisplay','substanceMassDisplay','substancePkItem','substancePkLabel','substancePkDisplay','substanceNote',
     'customSubstanceFields','customName','customFormula','customMolarMass','customNote','polyLabel','poly','sampleConcTitle','titrantConcTitle','c0','v0','v0Container','cTit','volumePkRow','pk1Label','pk1LabelText','pk1','pk2','pk2Label','pkLockNote','indicator','indicatorPreview','indicatorPreviewTitle','indicatorModel','indicatorGradient','indicatorRangeText','indicatorCurrentDot','indicatorCurrentText','indicatorEvaluation','dropSize','dropVal','speed',
-    'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable'
+    'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','simModeLabel','taskArea','taskCatalog','taskWorkspace','taskActiveBadges','taskTitle','taskGoal','taskOrder','taskResults','taskHintBtn','taskCheckBtn','taskSolutionBtn','taskReloadBtn','taskHint','taskFeedback','taskSolution','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable'
   ].forEach(id=>el[id]=document.getElementById(id));
   el.viewButtons=[...document.querySelectorAll('[data-view]')];
+  el.labModeButtons=[...document.querySelectorAll('[data-lab-mode]')];
 }
 
 function bindEvents(){
@@ -612,8 +744,112 @@ function bindEvents(){
   el.showSubstanceDialog.addEventListener('click',openSubstanceDialog);
   el.closeSubstanceDialog.addEventListener('click',()=>el.substanceDialog.close());
   el.substanceDialog.addEventListener('click',event=>{if(event.target===el.substanceDialog) el.substanceDialog.close();});
+  el.labModeButtons.forEach(btn=>btn.addEventListener('click',()=>setLabMode(btn.dataset.labMode)));
+  el.taskHintBtn.addEventListener('click',showNextTaskHint);
+  el.taskCheckBtn.addEventListener('click',checkTaskAnswers);
+  el.taskSolutionBtn.addEventListener('click',toggleTaskSolution);
+  el.taskReloadBtn.addEventListener('click',()=>{if(activeTaskId)loadTask(activeTaskId);});
   window.addEventListener('beforeunload',stopAllTimers);
 }
+
+
+function initTaskMode(){
+  renderTaskCatalog();
+  setLabMode('free',{skipReset:true});
+}
+function renderTaskCatalog(){
+  el.taskCatalog.innerHTML=TASKS.map(task=>`<button class="task-card-button" type="button" data-task-id="${task.id}" aria-pressed="false"><span class="task-badges"><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span></span><strong>${escapeHTML(task.title)}</strong><span>${escapeHTML(task.goal)}</span></button>`).join('');
+  el.taskCatalog.querySelectorAll('[data-task-id]').forEach(btn=>btn.addEventListener('click',()=>loadTask(btn.dataset.taskId)));
+}
+function setLabMode(mode,options={}){
+  labMode=mode==='tasks'?'tasks':'free';
+  el.labModeButtons.forEach(btn=>btn.setAttribute('aria-pressed',btn.dataset.labMode===labMode?'true':'false'));
+  el.taskArea.hidden=labMode!=='tasks';
+  el.simModeLabel.hidden=labMode==='tasks';
+  if(labMode==='tasks'){
+    el.simMode.value='expert';
+    challengeActive=false;
+    if(!activeTaskId)loadTask(TASKS[0].id);else applyTaskLocks(taskById(activeTaskId));
+  }else{
+    activeTaskId=null;taskSolutionVisible=false;taskHintIndex=0;
+    el.taskWorkspace.hidden=true;
+    el.taskCatalog.querySelectorAll('[data-task-id]').forEach(btn=>btn.setAttribute('aria-pressed','false'));
+    clearTaskLocks();
+    if(!options.skipReset)resetSimulation({regenerateSecret:el.simMode.value==='challenge'});
+  }
+}
+function taskById(id){return TASKS.find(task=>task.id===id)||null;}
+function clearTaskLocks(){
+  TASK_LOCKABLE_IDS.forEach(id=>{if(el[id])el[id].disabled=false;});
+  if(el.settingsFieldset)el.settingsFieldset.disabled=false;
+  syncAnalyteControls();
+}
+function applyTaskLocks(task){
+  if(!task)return;
+  clearTaskLocks();
+  task.locks.forEach(id=>{if(el[id])el[id].disabled=true;});
+  el.simMode.disabled=true;
+}
+function loadTask(id){
+  const task=taskById(id);if(!task)return;
+  stopAllTimers();activeTaskId=id;taskHintIndex=0;taskSolutionVisible=false;
+  clearTaskLocks();
+  el.simMode.value='expert';
+  el.analyteType.value=task.setup.analyteType;
+  populateSubstanceOptions(true);
+  el.substanceSelect.value=task.setup.substance;
+  syncAnalyteControls();
+  el.c0.value=Number(task.setup.c0).toFixed(3);
+  el.v0.value=Number(task.setup.v0).toFixed(1);
+  el.cTit.value=Number(task.setup.cTit).toFixed(3);
+  el.indicator.value=task.setup.indicator;
+  el.dropSize.value=Number(task.setup.dropSize).toFixed(2);
+  el.speed.value=String(task.setup.speed||420);
+  updateSubstanceCard();
+  resetSimulation();
+  applyTaskLocks(task);
+  renderActiveTask(task);
+  el.taskCatalog.querySelectorAll('[data-task-id]').forEach(btn=>btn.setAttribute('aria-pressed',btn.dataset.taskId===id?'true':'false'));
+  setStatus(`Aufgabe ${task.id} geladen.`,'ok');
+}
+function renderActiveTask(task){
+  el.taskWorkspace.hidden=false;
+  el.taskActiveBadges.innerHTML=`<span class="task-badge">${escapeHTML(task.id)}</span><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span>`;
+  el.taskTitle.textContent=task.title;el.taskGoal.innerHTML=`<strong>Lernziel:</strong> ${escapeHTML(task.goal)}`;el.taskOrder.textContent=task.order;
+  el.taskResults.innerHTML='<h4>Ergebnisse eintragen</h4>'+task.results.map(renderTaskResult).join('');
+  el.taskHint.hidden=true;el.taskFeedback.hidden=true;el.taskSolution.hidden=true;el.taskSolution.textContent=task.solution;el.taskSolutionBtn.textContent='LehrerInnenlösung';
+}
+function renderTaskResult(result){
+  const id=`taskResult_${result.key}`;
+  if(result.kind==='select')return`<label>${escapeHTML(result.label)}<select id="${id}" data-task-result="${result.key}">${result.options.map(([value,label])=>`<option value="${escapeHTML(value)}">${escapeHTML(label)}</option>`).join('')}</select></label>`;
+  return`<label>${escapeHTML(result.label)}<input id="${id}" data-task-result="${result.key}" type="text" inputmode="decimal" autocomplete="off" placeholder="${escapeHTML(result.placeholder||'')}"></label>`;
+}
+function showNextTaskHint(){
+  const task=taskById(activeTaskId);if(!task)return;
+  const index=Math.min(taskHintIndex,task.hints.length-1);el.taskHint.innerHTML=`<strong>Hinweis ${index+1}:</strong> ${escapeHTML(task.hints[index])}`;el.taskHint.hidden=false;
+  taskHintIndex=Math.min(taskHintIndex+1,task.hints.length-1);
+}
+function parseLocaleNumber(value){const normalized=String(value).trim().replace(/\s/g,'').replace(',','.');return normalized===''?NaN:Number(normalized);}
+function checkTaskAnswers(){
+  const task=taskById(activeTaskId);if(!task)return;
+  let allCorrect=true;const messages=[];
+  task.results.forEach(result=>{
+    const field=document.getElementById(`taskResult_${result.key}`);if(!field)return;
+    field.removeAttribute('aria-invalid');
+    if(result.kind==='select'){
+      const ok=field.value===result.expected;allCorrect=allCorrect&&ok;if(!ok)field.setAttribute('aria-invalid','true');messages.push(`${result.label}: ${ok?'richtig':'noch nicht richtig'}.`);
+    }else{
+      const value=parseLocaleNumber(field.value),ok=Number.isFinite(value)&&Math.abs(value-result.expected)<=result.tolerance;allCorrect=allCorrect&&ok;if(!ok)field.setAttribute('aria-invalid','true');messages.push(`${result.label}: ${ok?'im Toleranzbereich':'noch außerhalb des Toleranzbereichs'}.`);
+    }
+  });
+  el.taskFeedback.className=`task-feedback ${allCorrect?'is-ok':'is-error'}`;el.taskFeedback.innerHTML=`<strong>${allCorrect?'Aufgabe korrekt bearbeitet.':'Bitte nochmals prüfen.'}</strong> ${messages.map(escapeHTML).join(' ')}`;el.taskFeedback.hidden=false;
+}
+function toggleTaskSolution(){
+  const task=taskById(activeTaskId);if(!task)return;
+  taskSolutionVisible=!taskSolutionVisible;el.taskSolution.hidden=!taskSolutionVisible;el.taskSolutionBtn.textContent=taskSolutionVisible?'Lösung ausblenden':'LehrerInnenlösung';updateAll();
+}
+function referenceRevealAllowed(){return(!challengeActive||challengeResolved)&&(labMode!=='tasks'||taskSolutionVisible);}
+function taskAnalysisHidden(){const task=taskById(activeTaskId);return labMode==='tasks'&&Boolean(task?.hideAutomaticResults)&&!taskSolutionVisible;}
 
 function initCharts(){
   if(typeof Chart==='undefined'){
@@ -818,9 +1054,12 @@ function resetSimulation(options={}){
     lastPH=calculatePH(0,currentParams);
     titrationData.push({x:0,y:lastPH});
     recalculateAnalysis();drawHaegg();updateAll();updateWarnings();setStatus('Bereit für eine neue Titration.','ok');
-    el.infoBox.innerHTML=challengeActive
-      ?'<strong>Challenge:</strong> Das Probenvolumen ist verborgen. Nimm genügend Messpunkte auf und bestimme das letzte Äquivalenzvolumen.'
-      :referenceInfoHTML();
+    el.infoBox.innerHTML=labMode==='tasks'&&activeTaskId
+      ?`<strong>Aufgabe ${escapeHTML(activeTaskId)} aktiv:</strong> Nimm die Messreihe auf und trage deine Ergebnisse im Aufgabenbereich ein.`
+      :challengeActive
+        ?'<strong>Challenge:</strong> Das Probenvolumen ist verborgen. Nimm genügend Messpunkte auf und bestimme das letzte Äquivalenzvolumen.'
+        :referenceInfoHTML();
+    if(labMode==='tasks'&&activeTaskId)applyTaskLocks(taskById(activeTaskId));
   }catch(error){showError(`Die Startberechnung ist fehlgeschlagen: ${error.message}`);el.dropBtn.disabled=true;el.startBtn.disabled=true;}
 }
 
@@ -894,9 +1133,10 @@ function stopAutoTimer(){if(autoTimer)clearTimeout(autoTimer);autoTimer=null;}
 function stopAllTimers(){stopAutoTimer();stopDropHold();}
 
 function recalculateAnalysis(){
-  const d1=[];for(let i=0;i<titrationData.length-1;i++){const a=titrationData[i],b=titrationData[i+1],dv=b.x-a.x;if(dv>0)d1.push({x:(a.x+b.x)/2,y:(b.y-a.y)/dv});}
+  const analysisData=titrationData.map(point=>({x:roundInternal(point.x,ANALYSIS_DECIMALS),y:roundInternal(point.y,ANALYSIS_DECIMALS)}));
+  const d1=[];for(let i=0;i<analysisData.length-1;i++){const a=analysisData[i],b=analysisData[i+1],dv=b.x-a.x;if(dv>0)d1.push({x:(a.x+b.x)/2,y:(b.y-a.y)/dv});}
   const d2=[];for(let i=0;i<d1.length-1;i++){const a=d1[i],b=d1[i+1],dv=b.x-a.x;if(dv>0)d2.push({x:(a.x+b.x)/2,y:(b.y-a.y)/dv});}
-  derivativeData={d1,d2,candidates:detectEquivalencePoints(d1,d2,titrationData,currentParams?.maxCount||1,currentParams?.direction||1)};
+  derivativeData={d1,d2,candidates:detectEquivalencePoints(d1,d2,analysisData,currentParams?.maxCount||1,currentParams?.direction||1)};
 }
 
 function detectEquivalencePoints(d1,d2,raw,maxCount,direction){
@@ -1024,6 +1264,7 @@ function updateIndicatorPresentation(){
   const key=el.indicator.value,cfg=INDICATORS[key]||INDICATORS.btb,currentColor=indicatorColor(key,lastPH);
   el.indicatorPreviewTitle.textContent=cfg.name;el.indicatorModel.textContent=cfg.model;el.indicatorGradient.style.background=indicatorGradientCSS(key);el.indicatorRangeText.textContent=indicatorRangeLabel(key);el.indicatorCurrentDot.style.backgroundColor=currentColor;el.indicatorCurrentText.textContent=Number.isFinite(lastPH)?`pH ${decimalComma(lastPH,2)}`:'aktuell';
   if(!currentParams){el.indicatorEvaluation.innerHTML='<strong>Indikatorwahl:</strong> Nach gültiger Stoffauswahl wird die Lage des Äquivalenzpunkts mit dem Indikatorbereich verglichen.';return;}
+  if(taskAnalysisHidden()){el.indicatorEvaluation.innerHTML='<strong>Aufgabenmodus:</strong> Die automatische Indikatorbewertung wird erst mit der LehrerInnenlösung eingeblendet.';return;}
   if(challengeActive&&!challengeResolved){el.indicatorEvaluation.innerHTML='<strong>Indikatorwahl:</strong> Die Bewertung wird in der ungelösten Challenge nicht angezeigt.';return;}
   if(key==='universal'){el.indicatorEvaluation.innerHTML='<strong>Universalindikator:</strong> Die Farbe dient nur zur schematischen pH-Abschätzung. Ein Indikatorgemisch besitzt keinen einzelnen engen Umschlagsbereich und ist daher nicht für eine präzise Endpunkterkennung gedacht.';return;}
   const results=currentParams.referenceEPs.map((volume,index)=>{
@@ -1033,12 +1274,12 @@ function updateIndicatorPresentation(){
   el.indicatorEvaluation.innerHTML=`<strong>${escapeHTML(cfg.name)}:</strong> ${results.join(' · ')}`;
 }
 
-function updateMetrics(){el.pointMetric.textContent=String(titrationData.length);el.stepMetric.textContent=`${decimalComma(Number(el.dropSize.value),2)} mL`;const canReveal=!challengeActive||challengeResolved;el.epMetric.textContent=canReveal&&derivativeData.candidates.length?derivativeData.candidates.map(c=>`${decimalComma(c.x,3)} mL`).join(' · '):'–';el.referenceMetric.textContent=canReveal&&currentParams?currentParams.referenceEPs.map(v=>`${decimalComma(v,3)} mL`).join(' · '):'verborgen';}
+function updateMetrics(){el.pointMetric.textContent=String(titrationData.length);el.stepMetric.textContent=`${decimalComma(Number(el.dropSize.value),2)} mL`;const canReveal=referenceRevealAllowed();el.epMetric.textContent=canReveal&&derivativeData.candidates.length?derivativeData.candidates.map(c=>`${decimalComma(c.x,3)} mL`).join(' · '):'–';el.referenceMetric.textContent=canReveal&&currentParams?currentParams.referenceEPs.map(v=>`${decimalComma(v,3)} mL`).join(' · '):'verborgen';}
 function updateAnalysisText(){
-  const canReveal=!challengeActive||challengeResolved;
+  const canReveal=referenceRevealAllowed();
   el.d1Info.textContent=derivativeData.d1.length?`${derivativeData.d1.length} Mittelpunkt-Differenzen; Einheit pH·mL⁻¹.`:'Noch nicht genügend Messpunkte.';
   if(!derivativeData.d2.length)el.d2Info.textContent='Noch nicht genügend Messpunkte.';
-  else if(!canReveal)el.d2Info.textContent=`${derivativeData.d2.length} Werte berechnet; Auswertung in der Challenge verborgen.`;
+  else if(!canReveal)el.d2Info.textContent=`${derivativeData.d2.length} Werte berechnet; automatische Ergebnisangabe verborgen.`;
   else if(derivativeData.candidates.length){
     const crossing=currentParams.direction>0?'positiv-negativer':'negativ-positiver';
     const extremum=currentParams.direction>0?'Maximum':'Minimum';
@@ -1049,7 +1290,7 @@ function updateTable(){el.dataTable.innerHTML=titrationData.map(p=>`<tr><td>${de
 
 function updateTitrationChart(){
   if(!tChart||!currentParams)return;
-  const canReveal=!challengeActive||challengeResolved,showOverlay=(selectedView==='d1'||selectedView==='d2')&&el.overlayCurve.checked,datasets=[];
+  const canReveal=referenceRevealAllowed(),showOverlay=(selectedView==='d1'||selectedView==='d2')&&el.overlayCurve.checked,datasets=[];
   let yTitle='pH',ySuggestedMin,ySuggestedMax;
   const extremum=currentParams.direction>0?'Maximum':'Minimum';
   const crossing=currentParams.direction>0?'positiv-negativen':'negativ-positiven';
@@ -1109,20 +1350,23 @@ function checkChallenge(){if(!currentParams)return;const guess=Number(el.guess.v
 function exportCSV(){
   if(!currentParams||!titrationData.length)return;
   const p=currentParams,lines=['Volumen_Massloesung_mL;pH'];
-  titrationData.forEach(point=>lines.push(`${decimalComma(point.x,4)};${decimalComma(point.y,5)}`));
+  titrationData.forEach(point=>lines.push(`${decimalComma(point.x,ANALYSIS_DECIMALS)};${decimalComma(point.y,ANALYSIS_DECIMALS)}`));
   lines.push('','Metadaten');
   const metadata=[
-    ['App','TITRATIONSTOOL'],['App_Version',APP_VERSION],['Versuchstyp','Titration'],['Titrationsart',p.exportCode],
-    ['Analyt_ID',p.analyte.id],['Analyt_Name',p.analyte.name],['Analyt_Formel',p.analyte.formula],['Analyt_Klasse',typeDescription(p.analyte)],['Molare_Masse_g_mol',decimalComma(p.analyte.molarMass,3)],['Stoffdaten',p.analyte.custom?'Benutzerdefiniert':'Stammdaten'],
-    ['Protonenstufen',String(p.poly)],['c_Probe_mol_L',decimalComma(p.c0,4)],['V_Probe_mL',decimalComma(p.v0,3)],
-    ['Massloesung_Name',p.titrant.name],['Massloesung_Formel',p.titrant.formula],['c_Massloesung_mol_L',decimalComma(p.cTit,4)],
-    ['pKs1',p.strength==='weak'?decimalComma(p.pk1,3):''],['pKs2',p.type==='weak_acid'&&p.poly===2?decimalComma(p.pk2,3):''],['pKs_Bedeutung',p.type==='weak_base'?'Konjugierte_Saeure':p.strength==='weak'?'Analyt_Saeure':''],['pKs_Hinweis',p.strength==='weak'?'Naeherungswerte_waessrig_ca_25_C':''],
-    ['Indikator',indicatorName(p.indicator)],['Indikator_Modell',(INDICATORS[p.indicator]||INDICATORS.btb).model],['Indikator_Umschlagsbereiche_pH',indicatorRangeLabel(p.indicator)],['Schrittweite_Soll_mL',decimalComma(Number(el.dropSize.value),3)],['Datenart','Simulation'],['Auswertungsmethode','Ableitungen_aus_Rohdaten_berechnen'],['Exportzeit',new Date().toISOString()]
+    ['Schnittstelle','MESSWERT_LAB_CSV'],['Schnittstellen_Version',EXPORT_SCHEMA_VERSION],['Auswertungsstandard',ANALYSIS_STANDARD],
+    ['App','TITRATIONSTOOL'],['App_Version',APP_VERSION],['Versuchstyp','Titration'],['Titrationsart',p.exportCode],['Auswertungsrichtung',String(p.direction)],
+    ['Analyt_ID',p.analyte.id],['Analyt_Name',p.analyte.name],['Analyt_Formel',p.analyte.formula],['Analyt_Rolle',p.role==='acid'?'Saeure':'Base'],['Analyt_Staerke',p.strength==='strong'?'stark':'schwach'],['Analyt_Klasse',typeDescription(p.analyte)],['Analyt_Molare_Masse_g_mol',decimalComma(p.analyte.molarMass,6)],['Stoffdaten_Quelle',p.analyte.custom?'Benutzerdefiniert':'Stammdaten'],
+    ['Protonenstufen',String(p.poly)],['c_Probe_mol_L',decimalComma(p.c0,8)],['V_Probe_mL',decimalComma(p.v0,8)],
+    ['Massloesung_ID',p.titrant.id],['Massloesung_Name',p.titrant.name],['Massloesung_Formel',p.titrant.formula],['c_Massloesung_mol_L',decimalComma(p.cTit,8)],
+    ['pKs1',p.strength==='weak'?decimalComma(p.pk1,8):''],['pKs2',p.type==='weak_acid'&&p.poly===2?decimalComma(p.pk2,8):''],['pKs_Bedeutung',p.type==='weak_base'?'Konjugierte_Saeure':p.strength==='weak'?'Analyt_Saeure':''],
+    ['Indikator_ID',p.indicator],['Indikator_Name',indicatorName(p.indicator)],['Indikator_Umschlagsbereiche_pH',indicatorRangeLabel(p.indicator)],
+    ['Schrittweite_Soll_mL',decimalComma(Number(el.dropSize.value),8)],['Messreihenfolge','Volumen_aufsteigend'],['Ableitungen_Exportiert','Nein'],
+    ['Arbeitsbereich',labMode==='tasks'?'Aufgabe':'Freies_Labor'],['Aufgabe_ID',labMode==='tasks'&&activeTaskId?activeTaskId:''],['Datenart','Simulation'],['Exportzeit_ISO8601',new Date().toISOString()]
   ];
   metadata.forEach(([key,value])=>lines.push(`${csvCell(key)};${csvCell(value)}`));
   const csv='\uFEFF'+lines.join('\r\n'),blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');
   anchor.href=url;anchor.download=`TITR_${substanceFilenameToken(p.analyte)}_${p.titrant.formula}_${timestampForFilename(new Date())}.csv`;document.body.appendChild(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-  el.infoBox.innerHTML='<strong>Export erstellt:</strong> Rohdaten und Metadaten wurden MESSWERT_LAB-kompatibel gespeichert. Ableitungen sind bewusst nicht enthalten.';
+  el.infoBox.innerHTML='<strong>Export erstellt:</strong> Unveränderte Volumen- und pH-Rohdaten sowie die verbindlichen MESSWERT_LAB-Metadaten wurden gespeichert. Ableitungen und Äquivalenzpunkte sind bewusst nicht enthalten.';
 }
 
 function openSubstanceDialog(){if(typeof el.substanceDialog.showModal==='function')el.substanceDialog.showModal();else el.substanceDialog.setAttribute('open','');}
