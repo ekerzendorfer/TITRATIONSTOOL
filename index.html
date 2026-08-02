@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.0</title>
+<title>Titrations-Labor – v15.0.1</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -108,6 +108,10 @@ tbody tr:last-child td{border-bottom:0}
 .footer{text-align:center;color:var(--muted);font-size:.86rem;margin-top:18px}
 .range-line{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:.82rem}
 .compact{padding:8px 11px}
+.overlay-option{margin-top:10px;display:flex;justify-content:flex-end}
+.overlay-option label{display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--accent2);font-weight:700;cursor:pointer}
+.overlay-option input{width:auto;margin:0;accent-color:var(--accent)}
+.overlay-option label:has(input:disabled){opacity:.55;cursor:not-allowed}
 @media(max-width:940px){header{display:block}.version{text-align:left;margin-top:16px}.workspace{grid-template-columns:1fr}.chartwrap{min-height:400px}.chartwrap canvas{height:370px!important}}
 @media(max-width:650px){.shell{width:calc(100% - 16px);margin-top:8px}header,.panelbody{padding:16px}.formrow,.analysis-box,.apparatus{grid-template-columns:1fr}.apparatus{justify-items:center}.instrument{width:100%}.metrics{grid-template-columns:repeat(2,1fr)}.buttons>*{flex:1}.seg button{padding:9px 10px}.chartwrap{padding:8px;min-height:350px}.chartwrap canvas{height:330px!important}}
 @media(max-width:420px){.metrics{grid-template-columns:1fr}.formrow{grid-template-columns:1fr}.statusbar{align-items:flex-start}.seg{display:grid;grid-template-columns:1fr}.buttons{display:grid;grid-template-columns:1fr}.buttons>*{width:100%}}
@@ -123,7 +127,7 @@ tbody tr:last-child td{border-bottom:0}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Schwache ein- oder zweiprotonige Säure mit starker Base: Titrationskurve aufnehmen, Ableitungen fachlich korrekt auswerten und den Äquivalenzpunkt aus den Messdaten bestimmen.</p>
     </div>
-    <div class="version"><span class="badge">v15.0</span><br>Fachlich stabilisierte Erstfassung</div>
+    <div class="version"><span class="badge">v15.0.1</span><br>Zwischenschritt: Diagrammüberblendung</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -240,6 +244,9 @@ tbody tr:last-child td{border-bottom:0}
           <button type="button" data-view="d1" aria-pressed="false">1. Ableitung</button>
           <button type="button" data-view="d2" aria-pressed="false">2. Ableitung</button>
         </div>
+        <div id="overlayOption" class="overlay-option" hidden>
+          <label><input id="overlayCurve" type="checkbox"> Titrationskurve überblenden</label>
+        </div>
 
         <div class="chartwrap" style="margin-top:14px"><canvas id="titrateChart" role="img" aria-label="Diagramm zur Titrationsauswertung"></canvas></div>
         <p id="chartCaption" class="chart-caption">pH-Wert gegen das tatsächlich zugegebene Volumen der Maßlösung.</p>
@@ -272,13 +279,13 @@ tbody tr:last-child td{border-bottom:0}
     </section>
   </main>
 
-  <div class="footer">TITRATIONSTOOL v15.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.0.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 
 <script>
 'use strict';
 
-const APP_VERSION = '15.0';
+const APP_VERSION = '15.0.1';
 const KW = 1e-14;
 const COLORS = {
   curve: '#345a7d', d1: '#2f7452', d2: '#9d3037', reference: '#8a5d14', muted: '#8a98a8'
@@ -313,7 +320,7 @@ function cacheElements() {
     'simStatus','statusDot','typeStatus','phDisplay','volDisplay','liquid','errorBox','warningBox','settingsFieldset',
     'simMode','poly','c0','v0','v0Container','cTit','pk1','pk2','pk2Label','indicator','dropSize','dropVal','speed',
     'dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric',
-    'stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','chartCaption','titrateChart','haeggChart'
+    'stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart'
   ].forEach(id => el[id] = document.getElementById(id));
   el.viewButtons = [...document.querySelectorAll('[data-view]')];
 }
@@ -338,6 +345,7 @@ function bindEvents() {
   el.exportBtn.addEventListener('click', exportCSV);
   el.checkChallengeBtn.addEventListener('click', checkChallenge);
   el.viewButtons.forEach(btn => btn.addEventListener('click', () => setChartView(btn.dataset.view)));
+  el.overlayCurve.addEventListener('change', updateTitrationChart);
   window.addEventListener('beforeunload', stopAllTimers);
 }
 
@@ -385,7 +393,7 @@ function initCharts() {
 
 function tooltipLabel(context) {
   const label = context.dataset.label ? context.dataset.label + ': ' : '';
-  const digits = selectedView === 'curve' ? 4 : 5;
+  const digits = selectedView === 'curve' || context.dataset.yAxisID === 'yPH' ? 4 : 5;
   return `${label}${decimalComma(context.parsed.y, digits)}`;
 }
 
@@ -719,6 +727,9 @@ function setViewButtonState() {
     btn.setAttribute('aria-pressed', btn.dataset.view === selectedView ? 'true' : 'false');
     btn.disabled = challengeActive && !challengeResolved && btn.dataset.view !== 'curve';
   });
+  const derivativeSelected = selectedView === 'd1' || selectedView === 'd2';
+  el.overlayOption.hidden = !derivativeSelected;
+  el.overlayCurve.disabled = !derivativeSelected || (challengeActive && !challengeResolved);
 }
 
 function updateAll() {
@@ -793,6 +804,7 @@ function updateTable() {
 function updateTitrationChart() {
   if (!tChart || !currentParams) return;
   const canReveal = !challengeActive || challengeResolved;
+  const showOverlay = (selectedView === 'd1' || selectedView === 'd2') && el.overlayCurve.checked;
   const datasets = [];
   let yTitle = 'pH';
   let ySuggestedMin;
@@ -805,12 +817,20 @@ function updateTitrationChart() {
   } else if (selectedView === 'd1') {
     datasets.push(lineDataset('1. Ableitung', derivativeData.d1, COLORS.d1, 2.5));
     yTitle = 'ΔpH/ΔV / pH·mL⁻¹';
-    el.chartCaption.textContent = 'Die erste Ableitung wird zwischen je zwei benachbarten Messpunkten berechnet und am Volumenmittelpunkt eingetragen.';
+    el.chartCaption.textContent = showOverlay
+      ? 'Die Titrationskurve ist zur ersten Ableitung überblendet. Das Maximum der Ableitung liegt im steilsten Bereich der pH-Kurve; beide Größen besitzen getrennte y-Achsen.'
+      : 'Die erste Ableitung wird zwischen je zwei benachbarten Messpunkten berechnet und am Volumenmittelpunkt eingetragen.';
   } else {
     datasets.push(lineDataset('2. Ableitung', derivativeData.d2, COLORS.d2, 2.5));
     datasets.push(lineDataset('Nulllinie', [{x:0,y:0},{x:currentParams.maxVolume,y:0}], COLORS.muted, 1.5, [6,5]));
     yTitle = 'Δ²pH/ΔV² / pH·mL⁻²';
-    el.chartCaption.textContent = 'Der Äquivalenzpunkt wird durch lineare Interpolation eines positiv-negativen Nulldurchgangs nahe einem Maximum der ersten Ableitung bestimmt.';
+    el.chartCaption.textContent = showOverlay
+      ? 'Die Titrationskurve ist zur zweiten Ableitung überblendet. Der interpolierte Nulldurchgang fällt mit dem Wendebereich der pH-Kurve zusammen; beide Größen besitzen getrennte y-Achsen.'
+      : 'Der Äquivalenzpunkt wird durch lineare Interpolation eines positiv-negativen Nulldurchgangs nahe einem Maximum der ersten Ableitung bestimmt.';
+  }
+
+  if (showOverlay) {
+    datasets.push(lineDataset('Titrationskurve', titrationData, COLORS.curve, 2.2, [], 'yPH'));
   }
 
   if (canReveal) {
@@ -819,27 +839,43 @@ function updateTitrationChart() {
       currentParams.referenceEPs.forEach((x, i) => datasets.push(verticalLineDataset(`Referenz ${i+1}`, x, 0, 14, COLORS.reference, 1.4, [5,5])));
     } else if (selectedView === 'd1') {
       derivativeData.candidates.forEach((c, i) => datasets.push(pointDataset(`ÄP ${i+1}`, c.peakX, c.peakY, COLORS.d2)));
+      if (showOverlay) derivativeData.candidates.forEach((c, i) => datasets.push(verticalLineDataset(`ÄP-Markierung ${i+1}`, c.x, 0, 14, COLORS.d2, 1.4, [4,4], 'yPH')));
     } else {
       derivativeData.candidates.forEach((c, i) => datasets.push(pointDataset(`ÄP ${i+1}`, c.x, 0, COLORS.d2)));
+      if (showOverlay) derivativeData.candidates.forEach((c, i) => datasets.push(verticalLineDataset(`ÄP-Markierung ${i+1}`, c.x, 0, 14, COLORS.d2, 1.4, [4,4], 'yPH')));
     }
   }
 
   tChart.data.datasets = datasets;
   tChart.options.scales.x.max = currentParams.maxVolume;
   tChart.options.scales.y.title.text = yTitle;
+  tChart.options.scales.y.position = 'left';
   delete tChart.options.scales.y.min;
   delete tChart.options.scales.y.max;
   tChart.options.scales.y.suggestedMin = ySuggestedMin;
   tChart.options.scales.y.suggestedMax = ySuggestedMax;
+
+  if (showOverlay) {
+    tChart.options.scales.yPH = {
+      position: 'right',
+      min: 0,
+      max: 14,
+      title: { display: true, text: 'pH' },
+      grid: { drawOnChartArea: false },
+      ticks: { color: COLORS.curve }
+    };
+  } else {
+    delete tChart.options.scales.yPH;
+  }
   tChart.update('none');
 }
 
-function lineDataset(label, data, color, width, dash = []) {
-  return { label, data, borderColor: color, backgroundColor: color, borderWidth: width, pointRadius: 0, pointHitRadius: 8, tension: 0, borderDash: dash, fill: false };
+function lineDataset(label, data, color, width, dash = [], yAxisID = 'y') {
+  return { label, data, yAxisID, borderColor: color, backgroundColor: color, borderWidth: width, pointRadius: 0, pointHitRadius: 8, tension: 0, borderDash: dash, fill: false };
 }
 
-function verticalLineDataset(label, x, yMin, yMax, color, width, dash = []) {
-  return { label, data: [{x,y:yMin},{x,y:yMax}], borderColor: color, backgroundColor: color, borderWidth: width, pointRadius: 0, borderDash: dash, fill: false };
+function verticalLineDataset(label, x, yMin, yMax, color, width, dash = [], yAxisID = 'y') {
+  return { label, data: [{x,y:yMin},{x,y:yMax}], yAxisID, borderColor: color, backgroundColor: color, borderWidth: width, pointRadius: 0, borderDash: dash, fill: false };
 }
 
 function pointDataset(label, x, y, color) {
