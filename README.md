@@ -1,52 +1,55 @@
-# TITRATIONSTOOL v15.6.1 – geführte Titrationsauswertung
+# TITRATIONSTOOL v15.6.2 – unbekannte Säure aus dem Halbäquivalenzpunkt
 
-## Inhalt dieser Version
+## Neuer Aufgabenbaustein
 
-v15.6.1 erweitert den Aufgabenmodus um vier zufallsgenerierte Aufgaben zur quantitativen Titrationsauswertung. Die vier Pilotaufgaben aus v15.6.0 bleiben erhalten.
+Der Aufgabenpool enthält nun neun Aufgaben. Neu hinzugekommen ist:
 
-Der Aufgabenpool umfasst nun acht Aufgaben:
+**TITR_A09 – Unbekannte schwache Säure: Identifikation aus dem HÄP**
 
-1. starke Säure – Äquivalenzpunkt bei pH 7,
-2. Essigsäure – ÄP aus der zweiten Ableitung,
-3. Pyridin – geeigneten Indikator wählen,
-4. Oxalsäure – zwei Äquivalenzpunkte,
-5. unbekannte Salzsäure – Konzentration bestimmen,
-6. unbekannte Essigsäure – mol/L und g/L,
-7. unbekannte Ammoniaklösung – Konzentration bestimmen,
-8. Oxalsäure – geführte Auswertung über den zweiten ÄP.
+Die Lernenden:
+
+1. nehmen eine Titrationskurve auf,
+2. bestimmen den Äquivalenzpunkt,
+3. berechnen den Halbäquivalenzpunkt,
+4. lesen dort den pH-Wert ab,
+5. nutzen die Beziehung `pH = pKₛ`,
+6. identifizieren die unbekannte Säure anhand einer Kandidatenliste.
 
 ## Zufallsvarianten
 
-Bei jedem erneuten Laden einer geführten Auswertungsaufgabe wird eine neue Variante erzeugt. Eine direkte Wiederholung desselben Äquivalenzvolumens wird vermieden.
+Bei jedem erneuten Laden werden zufällig gewählt:
 
-Die Verbräuche bleiben bewusst moderat:
+- eine der drei didaktisch gut unterscheidbaren Säuren,
+- eine neue Probenkonzentration,
+- ein moderates Äquivalenzvolumen zwischen 9 und 15 mL.
 
-- einprotonige Systeme: Äquivalenzvolumen 8,0 bis 16,0 mL,
-- Oxalsäure: zweites Äquivalenzvolumen 12,0 bis 18,0 mL.
+Verwendete Kandidaten:
 
-Die Probenkonzentration wird aus dem zufällig gewählten Zielvolumen berechnet und im SchülerInnenmodus verborgen.
+- Ameisensäure, pKₛ 3,75
+- Benzoesäure, pKₛ 4,20
+- Essigsäure, pKₛ 4,76
 
-## Geführte Rechenschritte
+Milchsäure und Propionsäure werden in dieser Aufgabe vorerst nicht verwendet, da ihre pKₛ-Werte zu nahe an Ameisen- beziehungsweise Essigsäure liegen und die Identifikation aus einer schulischen Messkurve unnötig mehrdeutig würde.
 
-Die Aufgaben prüfen die Schritte einzeln:
+## Schutz der unbekannten Probe
 
-1. Äquivalenzvolumen,
-2. Stoffmenge der Maßlösung in mmol,
-3. Stoffmengenverhältnis,
-4. Stoffmenge des Analyten,
-5. Konzentration in mol/L,
-6. Massenkonzentration in g/L.
+Während der Bearbeitung bleiben verborgen:
 
-Jeder Schritt erhält eine eigene Rückmeldung und einen kurzen methodischen Hinweis. Die LehrerInnenlösung zeigt den vollständigen Rechenweg mit den Werten der aktuellen Zufallsvariante.
+- Stoffname,
+- Formel,
+- molare Masse,
+- pKₛ-Wert,
+- Probenkonzentration,
+- Hägg-Diagramm,
+- automatische Referenzwerte,
+- Exportmetadaten.
 
-## Schutz der Aufgabenlösung
+Die bestehende LehrerInnenlösung kann während der Entwicklungs- und Testphase weiterhin ohne PIN eingeblendet werden. Der PIN-Schutz wird wie vereinbart erst am Projektende ergänzt.
 
-Bei Aufgaben mit unbekannter Probenkonzentration:
+## Unverändert
 
-- wird das Konzentrationsfeld als „unbekannt“ dargestellt,
-- bleiben automatische Äquivalenzpunktanzeigen verborgen,
-- ist der CSV-Export bis zum Einblenden der LehrerInnenlösung deaktiviert.
-
-## Schnittstelle
-
-Die Datei `MESSWERT_LAB_SCHNITTSTELLE.md` bleibt unverändert verbindlich. Die CSV-Rohdaten enthalten weiterhin nur Volumen und pH; alle Ableitungen und Äquivalenzpunkte werden im MESSWERT_LAB berechnet.
+- acht bestehende Aufgaben,
+- Titrationsmodelle,
+- Ableitungs- und Äquivalenzpunktlogik,
+- MESSWERT_LAB-Schnittstelle 1.0,
+- freies Labor und CSV-Export.

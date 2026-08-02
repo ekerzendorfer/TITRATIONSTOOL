@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.6.1</title>
+<title>Titrations-Labor – v15.6.2</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -244,6 +244,10 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
 .task-result-status.is-error{color:var(--danger)}
 .task-secret-value input{display:none}
 .task-secret-value::after{content:'unbekannt';display:block;margin-top:5px;padding:10px 11px;border:1px dashed #7890a6;border-radius:9px;background:#f4f7fa;color:var(--accent2);font-weight:800;letter-spacing:.02em}
+.task-secret-substance select,.task-secret-pk input{display:none}
+.task-secret-substance::after,.task-secret-pk::after{display:block;margin-top:5px;padding:10px 11px;border:1px dashed #7890a6;border-radius:9px;background:#f4f7fa;color:var(--accent2);font-weight:800;letter-spacing:.02em}
+.task-secret-substance::after{content:'unbekannte einprotonige schwache Säure'}
+.task-secret-pk::after{content:'aus dem Halbäquivalenzpunkt bestimmen'}
 @media(max-width:1050px){.task-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}.task-workspace-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.modebar{align-items:stretch}.modebar .seg{min-width:0;width:100%}.task-catalog{grid-template-columns:1fr}.task-actions{display:grid;grid-template-columns:1fr}.task-actions button{width:100%}}
 
@@ -257,7 +261,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.6.1</span><br>Geführte Titrationsauswertung</div>
+    <div class="version"><span class="badge">v15.6.2</span><br>Unbekannte Säure aus dem HÄP</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -274,7 +278,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
   </div>
 
   <section id="taskArea" class="task-area card" hidden>
-    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Acht Aufgaben verbinden Kurvenauswertung, Indikatorwahl und eine geführte quantitative Titrationsauswertung.</p></div><span class="task-badge">v15.6.1 · Pilotpool</span></div>
+    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Neun Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung und die Identifikation einer unbekannten schwachen Säure.</p></div><span class="task-badge">v15.6.2 · Aufgabenpool</span></div>
     <div class="panelbody">
       <div id="taskCatalog" class="task-catalog" aria-label="Aufgabenauswahl"></div>
       <article id="taskWorkspace" class="task-workspace" hidden>
@@ -528,12 +532,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.6.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.6.2 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.6.1';
+const APP_VERSION = '15.6.2';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -729,10 +733,37 @@ const TASKS = [
   results:guidedResults('veq2',2),
   hints:['Verwende für diese Aufgabe ausdrücklich den zweiten Äquivalenzpunkt.','Am zweiten ÄP gilt n(OH⁻) = 2 · n(H₂C₂O₄).','Teile daher die Stoffmenge der Maßlösung durch 2, bevor du c(Analyt) berechnest.'],
   generate:generateGuidedVariant
+},
+{
+  id:'TITR_A09', title:'Unbekannte schwache Säure – Identifikation aus dem HÄP', level:'SEK II · geführt', duration:'25–30 min', category:'Stoffidentifikation',
+  goal:'Den Halbäquivalenzpunkt bestimmen, dort pH = pKₛ nutzen und eine unbekannte einprotonige schwache Säure identifizieren.',
+  order:'Eine unbekannte einprotonige schwache Säure wird mit 0,100 mol·L⁻¹ NaOH titriert.\n\n1. Bestimme den Äquivalenzpunkt.\n2. Berechne daraus den Halbäquivalenzpunkt.\n3. Lies dort den pH-Wert ab und setze pH = pKₛ.\n4. Ordne die Säure anhand der Kandidaten zu.\n\nKandidaten: Ameisensäure (pKₛ 3,75) · Benzoesäure (pKₛ 4,20) · Essigsäure (pKₛ 4,76).',
+  setup:{analyteType:'weak_acid',substance:'acetic',c0:0.060,v0:20.0,cTit:0.100,indicator:'phph',dropSize:0.10,speed:420},
+  locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','indicator','dropSize'],
+  hideAutomaticResults:true, hideSampleConcentration:true, hideSubstanceIdentity:true,
+  randomization:{epMin:9.0,epMax:15.0,epStep:1.0,substances:['formic','benzoic','acetic']},
+  results:identificationResults(),
+  hints:[
+    'Bestimme V(ÄP) möglichst genau über den Nulldurchgang der zweiten Ableitung.',
+    'Für eine einprotonige schwache Säure gilt V(HÄP) = V(ÄP) / 2.',
+    'Am Halbäquivalenzpunkt liegen HA und A⁻ in gleicher Konzentration vor. Daher gilt pH = pKₛ.',
+    'Vergleiche den abgelesenen pKₛ-Wert mit den drei angegebenen Kandidaten.'
+  ],
+  generate:generateIdentificationVariant
 }
 ];
 const TASK_LOCKABLE_IDS=['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','pk2','poly','indicator','dropSize','speed'];
 const LAST_RANDOM_EP = new Map();
+const LAST_RANDOM_SUBSTANCE = new Map();
+function identificationResults(){
+  return[
+    {key:'veq',label:'1. Äquivalenzvolumen / mL',kind:'number',expected:0,tolerance:0.20,placeholder:'V(ÄP)',help:'Aus Kurve und zweiter Ableitung bestimmen.'},
+    {key:'vhep',label:'2. Halbäquivalenzvolumen / mL',kind:'number',expected:0,tolerance:0.10,placeholder:'V(ÄP) / 2',help:'Für eine einprotonige Säure gilt V(HÄP) = V(ÄP) / 2.'},
+    {key:'phhep',label:'3. pH am Halbäquivalenzpunkt',kind:'number',expected:0,tolerance:0.10,placeholder:'pH bei V(HÄP)',help:'Die Titration gezielt bis V(HÄP) führen oder den Wert aus der Messreihe ablesen.'},
+    {key:'pks',label:'4. daraus bestimmter pKₛ-Wert',kind:'number',expected:0,tolerance:0.10,placeholder:'pKₛ',help:'Am HÄP gilt pH = pKₛ.'},
+    {key:'acid',label:'5. unbekannte Säure',kind:'select',expected:'',options:[['','Bitte wählen'],['formic','Ameisensäure'],['benzoic','Benzoesäure'],['acetic','Essigsäure']],help:'Mit der Kandidatenliste vergleichen.'}
+  ];
+}
 function guidedResults(epKey,stoichFactor){
   const epLabel=epKey==='veq2'?'2. Äquivalenzvolumen / mL':'Äquivalenzvolumen / mL';
   return[
@@ -787,6 +818,36 @@ function generateGuidedVariant(template){
     results,
     solution,
     variantText:`Neue Zufallsvariante erzeugt. Die Probenkonzentration ist verborgen; der ${eqText} liegt absichtlich in einem moderaten Verbrauchsbereich.`
+  };
+}
+function generateIdentificationVariant(template){
+  const rnd=template.randomization;
+  const previousSubstance=LAST_RANDOM_SUBSTANCE.get(template.id);
+  const substances=rnd.substances.filter(id=>id!==previousSubstance);
+  const substance=substances[Math.floor(Math.random()*substances.length)]||rnd.substances[0];
+  LAST_RANDOM_SUBSTANCE.set(template.id,substance);
+  const previousEP=LAST_RANDOM_EP.get(template.id);
+  const veq=randomStepValue(rnd.epMin,rnd.epMax,rnd.epStep,previousEP);
+  LAST_RANDOM_EP.set(template.id,veq);
+  const analyte=SUBSTANCE_PRESETS[substance];
+  const setup={...template.setup,substance,c0:template.setup.cTit*veq/template.setup.v0};
+  const vhep=veq/2;
+  const results=template.results.map(result=>{
+    const expected={veq,vhep,phhep:analyte.pk1,pks:analyte.pk1,acid:substance}[result.key];
+    return {...result,expected};
+  });
+  const solution=[
+    `Unbekannte Säure: ${analyte.name} (${analyte.formula}).`,
+    `V(ÄP) = ${decimalComma(veq,2)} mL.`,
+    `V(HÄP) = ${decimalComma(veq,2)} mL / 2 = ${decimalComma(vhep,2)} mL.`,
+    `Am HÄP gilt pH = pKₛ = ${decimalComma(analyte.pk1,2)}.`,
+    `Der Vergleich mit der Kandidatenliste führt zu ${analyte.name}.`
+  ].join(' ');
+  return{
+    setup,
+    results,
+    solution,
+    variantText:'Neue Zufallsvariante erzeugt. Stoffidentität, pKₛ-Wert und Probenkonzentration bleiben bis zur LehrerInnenlösung verborgen; der Äquivalenzpunkt liegt im moderaten Bereich von 9 bis 15 mL.'
   };
 }
 function materializeTask(template){
@@ -901,6 +962,8 @@ function clearTaskLocks(){
   TASK_LOCKABLE_IDS.forEach(id=>{if(el[id])el[id].disabled=false;});
   if(el.settingsFieldset)el.settingsFieldset.disabled=false;
   el.c0.closest('label')?.classList.remove('task-secret-value');
+  el.substanceSelect.closest('label')?.classList.remove('task-secret-substance');
+  el.pk1Label?.classList.remove('task-secret-pk');
   el.exportBtn.disabled=!currentParams;
   syncAnalyteControls();
 }
@@ -909,8 +972,13 @@ function applyTaskLocks(task){
   clearTaskLocks();
   task.locks.forEach(id=>{if(el[id])el[id].disabled=true;});
   el.simMode.disabled=true;
-  el.c0.closest('label')?.classList.toggle('task-secret-value',Boolean(task.hideSampleConcentration&&!taskSolutionVisible));
-  if(task.hideSampleConcentration&&!taskSolutionVisible)el.exportBtn.disabled=true;
+  const hideSample=Boolean(task.hideSampleConcentration&&!taskSolutionVisible);
+  const hideIdentity=Boolean(task.hideSubstanceIdentity&&!taskSolutionVisible);
+  el.c0.closest('label')?.classList.toggle('task-secret-value',hideSample);
+  el.substanceSelect.closest('label')?.classList.toggle('task-secret-substance',hideIdentity);
+  el.pk1Label?.classList.toggle('task-secret-pk',hideIdentity);
+  if(hideSample||hideIdentity)el.exportBtn.disabled=true;
+  updateSubstanceCard();
 }
 function loadTask(id){
   const template=taskById(id);if(!template)return;
@@ -975,8 +1043,10 @@ function checkTaskAnswers(){
 }
 function toggleTaskSolution(){
   const task=activeTask();if(!task)return;
-  taskSolutionVisible=!taskSolutionVisible;el.taskSolution.hidden=!taskSolutionVisible;el.taskSolutionBtn.textContent=taskSolutionVisible?'Lösung ausblenden':'LehrerInnenlösung';applyTaskLocks(task);updateAll();
+  taskSolutionVisible=!taskSolutionVisible;el.taskSolution.hidden=!taskSolutionVisible;el.taskSolutionBtn.textContent=taskSolutionVisible?'Lösung ausblenden':'LehrerInnenlösung';applyTaskLocks(task);updateDynamicLabels();drawHaegg();updateAll();
 }
+function taskIdentityHidden(){const task=activeTask();return labMode==='tasks'&&Boolean(task?.hideSubstanceIdentity)&&!taskSolutionVisible;}
+function analyteDisplayName(){return taskIdentityHidden()?'unbekannte einprotonige schwache Säure':currentParams?.analyte?.name||'Analyt';}
 function referenceRevealAllowed(){return(!challengeActive||challengeResolved)&&(labMode!=='tasks'||taskSolutionVisible);}
 function taskAnalysisHidden(){const task=activeTask();return labMode==='tasks'&&Boolean(task?.hideAutomaticResults)&&!taskSolutionVisible;}
 
@@ -1111,6 +1181,15 @@ function updateSubstanceCard(){
   const analyte=selectedAnalyteMetadata();
   const poly=analyte.poly||1;
   const pk1=Number(el.pk1.value), pk2=Number(el.pk2.value);
+  if(taskIdentityHidden()){
+    el.substanceNameDisplay.textContent='Unbekannte schwache Säure';
+    el.substanceTypeBadge.textContent='einprotonige schwache Säure';
+    el.substanceFormulaDisplay.textContent='HA';
+    el.substanceMassDisplay.textContent='–';
+    el.substancePkDisplay.textContent='unbekannt';
+    el.substanceNote.textContent='Stoffidentität und pKₛ-Wert werden aus dem Halbäquivalenzpunkt bestimmt.';
+    return;
+  }
   el.substanceNameDisplay.textContent=analyte.name;
   el.substanceTypeBadge.textContent=`${typeDescription(analyte)}${analyte.custom?' · freie Eingabe':''}`;
   el.substanceFormulaDisplay.textContent=analyte.formula;
@@ -1177,7 +1256,7 @@ function resetSimulation(options={}){
   volAdded=0;titrationData=[];derivativeData={d1:[],d2:[],candidates:[]};selectedView='curve';setViewButtonState();
   el.startBtn.disabled=!currentParams;el.dropBtn.disabled=!currentParams;el.exportBtn.disabled=!currentParams;el.startBtn.textContent='Auto-Titration starten';el.settingsFieldset.disabled=false;
   if(!currentParams){lastPH=NaN;updateAll();return;}
-  el.typeStatus.textContent=`Versuchstyp: ${currentParams.analyte.name} mit ${currentParams.titrant.name}`;
+  el.typeStatus.textContent=`Versuchstyp: ${analyteDisplayName()} mit ${currentParams.titrant.name}`;
   updateDynamicLabels();
   try{
     lastPH=calculatePH(0,currentParams);
@@ -1195,10 +1274,10 @@ function resetSimulation(options={}){
 function updateDynamicLabels(){
   if(!currentParams)return;
   const formula=currentParams.titrant.formula;
-  el.volDisplay.textContent=`V(${formula}) = ${decimalComma(volAdded,3)} mL · ${currentParams.analyte.name}`;
+  el.volDisplay.textContent=`V(${formula}) = ${decimalComma(volAdded,3)} mL · ${analyteDisplayName()}`;
   el.dataVolumeHeader.textContent=`V(${formula}) / mL`;
   if(tChart)tChart.options.scales.x.title.text=`V(${formula}) / mL`;
-  el.haeggDetails.hidden=false;
+  el.haeggDetails.hidden=taskIdentityHidden();
 }
 
 function calculatePH(vAdd,p){
@@ -1310,7 +1389,7 @@ function updateVisualState(){
     const titrantFormula=currentParams.titrant.formula;
     const progress=currentParams.maxVolume>0?Math.max(0,Math.min(1,volAdded/currentParams.maxVolume)):0;
     const totalVolume=currentParams.v0+volAdded;
-    el.volDisplay.textContent=`Zugabe ${titrantFormula} = ${decimalComma(volAdded,3)} mL · ${currentParams.analyte.name}`;
+    el.volDisplay.textContent=`Zugabe ${titrantFormula} = ${decimalComma(volAdded,3)} mL · ${analyteDisplayName()}`;
     el.buretteDisplay.textContent=`${decimalComma(volAdded,2)} mL`;
     el.totalVolumeDisplay.textContent=`${decimalComma(totalVolume,2)} mL`;
     el.buretteLiquid.style.height=`${12+(1-progress)*78}%`;
