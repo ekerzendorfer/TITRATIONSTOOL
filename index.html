@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.6.3</title>
+<title>Titrations-Labor – v15.7.0</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -261,7 +261,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.6.3</span><br>Unbekannte Säure aus dem HÄP</div>
+    <div class="version"><span class="badge">v15.7.0</span><br>SÄUREN_LAB-Brückenaufgabe</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -278,7 +278,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
   </div>
 
   <section id="taskArea" class="task-area card" hidden>
-    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Neun Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung und die Identifikation einer unbekannten schwachen Säure.</p></div><span class="task-badge">v15.6.3 · Aufgabenpool</span></div>
+    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Zehn Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung, Stoffidentifikation und eine direkte Brücke zum SÄUREN_LAB.</p></div><span class="task-badge">v15.7.0 · Aufgabenpool</span></div>
     <div class="panelbody">
       <div id="taskCatalog" class="task-catalog" aria-label="Aufgabenauswahl"></div>
       <article id="taskWorkspace" class="task-workspace" hidden>
@@ -532,12 +532,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.6.3 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.7.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.6.3';
+const APP_VERSION = '15.7.0';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -752,6 +752,23 @@ const TASKS = [
     'Vergleiche den abgelesenen pKₛ-Wert mit den fünf angegebenen Kandidaten.'
   ],
   generate:generateIdentificationVariant
+},
+{
+  id:'TITR_A10', title:'SÄUREN_LAB – Essigprobe: NaOH-Verbrauch bestimmen', level:'SEK I/II · Brücke', duration:'10–15 min', category:'SÄUREN_LAB',
+  goal:'Für die weitere Auswertung im SÄUREN_LAB nur das benötigte NaOH-Volumen am Äquivalenzpunkt einer verdünnten Essigprobe bestimmen.',
+  order:'Diese Aufgabe entspricht der virtuellen Variante des Realversuchs im SÄUREN_LAB.\n\nDie Probe besteht aus 10,0 mL einer 1:10 verdünnten Essigprobe. Titriere sie mit 0,100 mol·L⁻¹ NaOH. Phenolphthalein ist voreingestellt. Bestimme möglichst genau nur das Volumen der verbrauchten NaOH am Äquivalenzpunkt.\n\nWichtig: Keine Konzentration ausrechnen. Übertrage anschließend ausschließlich V(NaOH) zurück ins SÄUREN_LAB; dort erfolgt die schrittweise Auswertung.',
+  setup:{analyteType:'weak_acid',substance:'acetic',c0:0.090,v0:10.0,cTit:0.100,indicator:'phph',dropSize:0.10,speed:420},
+  locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','indicator'],
+  hideAutomaticResults:true, hideSampleConcentration:true,
+  randomization:{epMin:8.0,epMax:12.0,epStep:0.2},
+  resultHeading:'Nur den benötigten Messwert festhalten',
+  results:endpointOnlyResults(),
+  hints:[
+    'Beginne mit gröberen Zugabeschritten und werde rechtzeitig vor dem steilen Kurvenbereich feiner.',
+    'Der Äquivalenzpunkt liegt im Bereich des stärksten pH-Anstiegs. Du kannst zur Kontrolle die Ableitungsdarstellung verwenden.',
+    'Für diese Brückenaufgabe wird nur V(NaOH) benötigt. Die eigentliche Berechnung erfolgt anschließend im SÄUREN_LAB.'
+  ],
+  generate:generateEndpointOnlyVariant
 }
 ];
 const TASK_LOCKABLE_IDS=['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','pk2','poly','indicator','dropSize','speed'];
@@ -776,6 +793,26 @@ function guidedResults(epKey,stoichFactor){
     {key:'canalyte',label:'5. c(Analyt) / mol·L⁻¹',kind:'number',expected:0,tolerance:0.0015,placeholder:'n / V(Probe)',help:'mmol / mL ist zahlenmäßig mol/L.'},
     {key:'beta',label:'6. β(Analyt) / g·L⁻¹',kind:'number',expected:0,tolerance:0.10,placeholder:'c · M',help:'Molare Konzentration mit der molaren Masse multiplizieren.'}
   ];
+}
+
+function endpointOnlyResults(){
+  return[
+    {key:'veq',label:'V(NaOH) am Äquivalenzpunkt / mL',kind:'number',expected:0,tolerance:0.18,placeholder:'z. B. 8,40',help:'Nur diesen Messwert bestimmen und anschließend ins SÄUREN_LAB übertragen.'}
+  ];
+}
+function generateEndpointOnlyVariant(template){
+  const rnd=template.randomization;
+  const previous=LAST_RANDOM_EP.get(template.id);
+  const veq=randomStepValue(rnd.epMin,rnd.epMax,rnd.epStep,previous);
+  LAST_RANDOM_EP.set(template.id,veq);
+  const setup={...template.setup,c0:template.setup.cTit*veq/template.setup.v0};
+  const results=template.results.map(result=>({...result,expected:result.key==='veq'?veq:result.expected}));
+  return{
+    setup,
+    results,
+    solution:`V(NaOH) am Äquivalenzpunkt: ${decimalComma(veq,2)} mL. Die weitere Konzentrations- und Prozentrechnung erfolgt bewusst erst im SÄUREN_LAB.`,
+    variantText:'Neue Essigprobe erzeugt. Das Probenvolumen beträgt fest 10,0 mL; die Probenkonzentration bleibt verborgen. Gesucht ist ausschließlich das NaOH-Volumen am Äquivalenzpunkt.'
+  };
 }
 function randomStepValue(min,max,step,previous){
   const count=Math.round((max-min)/step);
@@ -876,6 +913,11 @@ window.addEventListener('DOMContentLoaded', () => {
   initTaskMode();
   syncAnalyteControls();
   resetSimulation({regenerateSecret:true});
+  const requestedTask=new URLSearchParams(window.location.search).get('task');
+  if(requestedTask&&taskById(requestedTask)){
+    setLabMode('tasks');
+    loadTask(requestedTask);
+  }
 });
 
 function cacheElements(){
@@ -1012,7 +1054,7 @@ function renderActiveTask(task){
   el.taskActiveBadges.innerHTML=`<span class="task-badge">${escapeHTML(task.id)}</span><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span>${task.category?`<span class="task-badge">${escapeHTML(task.category)}</span>`:''}`;
   el.taskTitle.textContent=task.title;el.taskGoal.innerHTML=`<strong>Lernziel:</strong> ${escapeHTML(task.goal)}`;el.taskOrder.textContent=task.order;
   el.taskVariant.hidden=!task.variantText;el.taskVariant.textContent=task.variantText||'';
-  el.taskResults.innerHTML='<h4>Ergebnisse schrittweise eintragen</h4>'+task.results.map(renderTaskResult).join('');
+  el.taskResults.innerHTML=`<h4>${escapeHTML(task.resultHeading||'Ergebnisse schrittweise eintragen')}</h4>`+task.results.map(renderTaskResult).join('');
   el.taskHint.hidden=true;el.taskFeedback.hidden=true;el.taskSolution.hidden=true;el.taskSolution.textContent=task.solution;el.taskSolutionBtn.textContent='LehrerInnenlösung';
 }
 function renderTaskResult(result){
