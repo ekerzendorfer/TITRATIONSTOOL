@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.7.0</title>
+<title>Titrations-Labor – v15.8.0</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -251,6 +251,11 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
 @media(max-width:1050px){.task-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}.task-workspace-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.modebar{align-items:stretch}.modebar .seg{min-width:0;width:100%}.task-catalog{grid-template-columns:1fr}.task-actions{display:grid;grid-template-columns:1fr}.task-actions button{width:100%}}
 
+
+.bridge-banner{display:flex;justify-content:space-between;align-items:center;gap:14px;border-color:#b9d7da;background:#edf8f8}
+.bridge-banner>div:first-child{display:grid;gap:3px}.bridge-banner strong{color:#1d5f65}.bridge-banner span{color:var(--muted);font-size:.84rem}
+.bridge-actions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:650px){.bridge-banner{align-items:stretch;flex-direction:column}.bridge-actions{display:grid;grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -261,12 +266,20 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.7.0</span><br>SÄUREN_LAB-Brückenaufgabe</div>
+    <div class="version"><span class="badge">v15.8.0</span><br>SÄUREN_LAB-Brückenaufgabe</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
     <div class="status-left"><span class="dot" id="statusDot"></span><span id="simStatus">Bereit für eine neue Titration.</span></div>
     <div id="typeStatus">Versuchstyp: Schwache Säure mit starker Base</div>
+  </div>
+
+  <div id="bridgeBanner" class="bridge-banner card" hidden>
+    <div><strong>Auftrag aus dem Analytik-Hub</strong><span id="bridgeMessage">Quantitative Bestimmung</span></div>
+    <div class="bridge-actions">
+      <button id="bridgeSubmitBtn" class="primary compact" type="button" disabled>Ergebnis an Hub übergeben</button>
+      <button id="bridgeReturnBtn" class="secondary compact" type="button">Ohne Ergebnis zurück</button>
+    </div>
   </div>
 
   <div class="modebar card">
@@ -278,7 +291,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
   </div>
 
   <section id="taskArea" class="task-area card" hidden>
-    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Zehn Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung, Stoffidentifikation und eine direkte Brücke zum SÄUREN_LAB.</p></div><span class="task-badge">v15.7.0 · Aufgabenpool</span></div>
+    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Elf Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung, Stoffidentifikation und eine direkte Brücke zum SÄUREN_LAB.</p></div><span class="task-badge">v15.8.0 · Aufgabenpool</span></div>
     <div class="panelbody">
       <div id="taskCatalog" class="task-catalog" aria-label="Aufgabenauswahl"></div>
       <article id="taskWorkspace" class="task-workspace" hidden>
@@ -532,12 +545,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.7.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.8.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.7.0';
+const APP_VERSION = '15.8.0';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -617,6 +630,7 @@ const SUBSTANCE_PRESETS = {
   propionic: { id:'propionic', type:'weak_acid', name:'Propionsäure', formula:'CH₃CH₂COOH', molarMass:74.079, poly:1, pk1:4.87, pk2:null, species:['CH₃CH₂COOH','CH₃CH₂COO⁻'] },
   lactic: { id:'lactic', type:'weak_acid', name:'Milchsäure', formula:'CH₃CH(OH)COOH', molarMass:90.078, poly:1, pk1:3.86, pk2:null, species:['CH₃CH(OH)COOH','CH₃CH(OH)COO⁻'] },
   benzoic: { id:'benzoic', type:'weak_acid', name:'Benzoesäure', formula:'C₆H₅COOH', molarMass:122.123, poly:1, pk1:4.20, pk2:null, species:['C₆H₅COOH','C₆H₅COO⁻'] },
+  salicylic: { id:'salicylic', type:'weak_acid', name:'Salicylsäure', formula:'C₇H₆O₃', molarMass:138.121, poly:2, pk1:2.97, pk2:13.60, species:['H₂Sal','HSal⁻','Sal²⁻'] },
   oxalic: { id:'oxalic', type:'weak_acid', name:'Oxalsäure', formula:'H₂C₂O₄', molarMass:90.034, poly:2, pk1:1.25, pk2:4.28, species:['H₂C₂O₄','HC₂O₄⁻','C₂O₄²⁻'] },
   malonic: { id:'malonic', type:'weak_acid', name:'Malonsäure', formula:'HOOC–CH₂–COOH', molarMass:104.061, poly:2, pk1:2.83, pk2:5.69, species:['H₂Mal','HMal⁻','Mal²⁻'] },
   pyridinium: { id:'pyridinium', type:'weak_acid', name:'Pyridiniumchlorid', formula:'C₅H₆NCl', molarMass:115.560, poly:1, pk1:5.23, pk2:null, species:['C₅H₅NH⁺','C₅H₅N'] },
@@ -630,7 +644,7 @@ const SUBSTANCE_PRESETS = {
 
 const TYPE_OPTIONS = {
   strong_acid:['hcl','nitric'],
-  weak_acid:['acetic','formic','chloroacetic','propionic','lactic','benzoic','pyridinium','oxalic','malonic'],
+  weak_acid:['acetic','formic','chloroacetic','propionic','lactic','benzoic','salicylic','pyridinium','oxalic','malonic'],
   strong_base:['naoh'],
   weak_base:['ammonia','methylamine','pyridine']
 };
@@ -769,6 +783,23 @@ const TASKS = [
     'Für diese Brückenaufgabe wird nur V(NaOH) benötigt. Die eigentliche Berechnung erfolgt anschließend im SÄUREN_LAB.'
   ],
   generate:generateEndpointOnlyVariant
+},
+{
+  id:'TITR_A11', title:'VCÖ-01 – Salicylsäure im Rückstand quantitativ bestimmen', level:'SEK II · Brücke', duration:'20–30 min', category:'ANALYTIK-HUB',
+  goal:'Aus dem ersten Äquivalenzpunkt einer Salicylsäure-Titration die Stoffmenge und Masse im ursprünglichen Rückstand bestimmen.',
+  order:'Der zuvor identifizierte Rückstand wird quantitativ in einen 100,0-mL-Messkolben überführt. Von dieser Lösung werden 20,00 mL pipettiert und mit 0,0200 mol·L⁻¹ NaOH titriert.\n\nBestimme den ersten Äquivalenzpunkt möglichst genau und rechne anschließend schrittweise auf die gesamte Salicylsäuremenge im ursprünglichen Rückstand zurück.\n\nFür die quantitative Auswertung wird am ersten Äquivalenzpunkt das Carboxylproton erfasst: n(NaOH) : n(Salicylsäure) = 1 : 1. Die wesentlich schwächer saure phenolische OH-Gruppe gehört nicht zu diesem quantitativen Endpunkt.',
+  setup:{analyteType:'weak_acid',substance:'salicylic',c0:0.01000,v0:20.0,cTit:0.0200,indicator:'phph',dropSize:0.10,speed:420},
+  locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','pk2','poly','indicator'],
+  hideAutomaticResults:true, hideSampleConcentration:true, firstEquivalenceOnly:true,
+  resultHeading:'Quantitative Auswertung des ursprünglichen Rückstands',
+  results:salicylicQuantResults(10.0),
+  hints:[
+    'Nutze für V(ÄP1) die Titrationskurve und zur Kontrolle die zweite Ableitung.',
+    'Am ersten Äquivalenzpunkt gilt für die Carboxylgruppe n(NaOH) = n(Salicylsäure) im Aliquot.',
+    '20,00 mL wurden aus insgesamt 100,0 mL entnommen. Der Rückrechnungsfaktor auf den gesamten Rückstand beträgt daher 5.',
+    'Für die Masse gilt m = n · M mit M(Salicylsäure) = 138,121 g·mol⁻¹.'
+  ],
+  generate:generateSalicylicQuantVariant
 }
 ];
 const TASK_LOCKABLE_IDS=['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','pk2','poly','indicator','dropSize','speed'];
@@ -799,6 +830,51 @@ function endpointOnlyResults(){
   return[
     {key:'veq',label:'V(NaOH) am Äquivalenzpunkt / mL',kind:'number',expected:0,tolerance:0.18,placeholder:'z. B. 8,40',help:'Nur diesen Messwert bestimmen und anschließend ins SÄUREN_LAB übertragen.'}
   ];
+}
+
+function salicylicQuantResults(veq){
+  const cTit=0.0200,aliquot=20.00,stock=100.0,molarMass=138.121;
+  const nAliquot=cTit*veq;
+  const cStock=nAliquot/aliquot;
+  const nTotal=cStock*stock;
+  const mass=nTotal*molarMass/1000;
+  return[
+    {key:'veq',label:'1. V(ÄP1) / mL',kind:'number',expected:veq,tolerance:0.18,placeholder:'V(ÄP1)',help:'Ersten Äquivalenzpunkt aus Kurve und Ableitung bestimmen.'},
+    {key:'ntit',label:'2. n(NaOH) im Aliquot / mmol',kind:'number',expected:nAliquot,tolerance:0.006,placeholder:'c · V',help:'Bei c in mol/L und V in mL ergibt c · V direkt mmol.'},
+    {key:'ratio',label:'3. Stoffmengenverhältnis NaOH : Salicylsäure',kind:'select',expected:'1',options:[['','Bitte wählen'],['1','1 : 1'],['2','2 : 1']],help:'Für den ersten Äquivalenzpunkt wird die Carboxylgruppe erfasst.'},
+    {key:'naliquot',label:'4. n(Salicylsäure) im 20,00-mL-Aliquot / mmol',kind:'number',expected:nAliquot,tolerance:0.006,placeholder:'mmol im Aliquot',help:'Am ersten ÄP gilt 1 : 1.'},
+    {key:'cstock',label:'5. c(Salicylsäure) in der 100,0-mL-Lösung / mol·L⁻¹',kind:'number',expected:cStock,tolerance:0.00035,placeholder:'n / V',help:'mmol / mL ist zahlenmäßig mol/L.'},
+    {key:'ntotal',label:'6. n(Salicylsäure) im gesamten Rückstand / mmol',kind:'number',expected:nTotal,tolerance:0.03,placeholder:'auf 100,0 mL zurückrechnen',help:'Aliquot 20,00 mL aus 100,0 mL → Faktor 5.'},
+    {key:'mass',label:'7. m(Salicylsäure) im ursprünglichen Rückstand / g',kind:'number',expected:mass,tolerance:0.004,placeholder:'n · M',help:'M(Salicylsäure) = 138,121 g·mol⁻¹.'}
+  ];
+}
+
+function generateSalicylicQuantVariant(template){
+  const input=bridgeMode&&bridgeInput?bridgeInput:{};
+  const molarMass=Number(input.molar_mass_g_mol||138.121);
+  const targetMass=Number(input.target_mass_g||0.138121);
+  const stock=Number(input.stock_volume_ml||100.0);
+  const aliquot=Number(input.aliquot_ml||20.00);
+  const cTit=Number(input.titrant_concentration_mol_l||0.0200);
+  const c0=(targetMass/molarMass)/(stock/1000);
+  const veq=c0*aliquot/cTit;
+  const results=salicylicQuantResults(veq).map(r=>({...r}));
+  const nAliquot=cTit*veq;
+  const cStock=nAliquot/aliquot;
+  const nTotal=cStock*stock;
+  const mass=nTotal*molarMass/1000;
+  results.find(r=>r.key==='ntit').expected=nAliquot;
+  results.find(r=>r.key==='naliquot').expected=nAliquot;
+  results.find(r=>r.key==='cstock').expected=cStock;
+  results.find(r=>r.key==='ntotal').expected=nTotal;
+  results.find(r=>r.key==='mass').expected=mass;
+  return{
+    setup:{...template.setup,c0,v0:aliquot,cTit},
+    results,
+    quantContext:{molarMass,targetMass,stock,aliquot,cTit,veq},
+    solution:`V(ÄP1) ≈ ${decimalComma(veq,2)} mL · n(NaOH) = ${decimalComma(nAliquot,3)} mmol · n(Salicylsäure, gesamt) = ${decimalComma(nTotal,3)} mmol · m = ${decimalComma(mass,4)} g.`,
+    variantText:`Quantitative Überführung auf ${decimalComma(stock,1)} mL; titriert wird ein Aliquot von ${decimalComma(aliquot,2)} mL mit ${decimalComma(cTit,4)} mol·L⁻¹ NaOH. Die gesuchte Salicylsäuremenge bleibt verborgen.`
+  };
 }
 function generateEndpointOnlyVariant(template){
   const rnd=template.randomization;
@@ -902,6 +978,7 @@ let tChart=null, hChart=null, autoTimer=null, holdDelay=null, holdInterval=null;
 let volAdded=0, lastPH=NaN, titrationData=[], derivativeData={d1:[],d2:[],candidates:[]};
 let selectedView='curve', challengeActive=false, challengeResolved=false, secretV0=20, currentParams=null;
 let labMode='free', activeTaskId=null, activeTaskRuntime=null, taskHintIndex=0, taskSolutionVisible=false;
+let bridgeMode=new URLSearchParams(window.location.search).get('bridge')==='1', bridgeRun=null, bridgeInput=null, bridgeTaskCorrect=false;
 const el={};
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -914,7 +991,9 @@ window.addEventListener('DOMContentLoaded', () => {
   syncAnalyteControls();
   resetSimulation({regenerateSecret:true});
   const requestedTask=new URLSearchParams(window.location.search).get('task');
-  if(requestedTask&&taskById(requestedTask)){
+  if(bridgeMode){
+    initAnalytikBridge();
+  }else if(requestedTask&&taskById(requestedTask)){
     setLabMode('tasks');
     loadTask(requestedTask);
   }
@@ -925,7 +1004,7 @@ function cacheElements(){
     'simStatus','statusDot','typeStatus','phDisplay','volDisplay','buretteDisplay','totalVolumeDisplay','buretteLiquid','liquid','fallingDrop','mixPlume','errorBox','warningBox','settingsFieldset','simMode',
     'analyteType','substanceSelect','substanceSelectText','substanceNameDisplay','substanceTypeBadge','substanceGrid','substanceFormulaDisplay','substanceMassDisplay','substancePkItem','substancePkLabel','substancePkDisplay','substanceNote',
     'customSubstanceFields','customName','customFormula','customMolarMass','customNote','polyLabel','poly','sampleConcTitle','titrantConcTitle','c0','v0','v0Container','cTit','volumePkRow','pk1Label','pk1LabelText','pk1','pk2','pk2Label','pkLockNote','indicator','indicatorPreview','indicatorPreviewTitle','indicatorModel','indicatorGradient','indicatorRangeText','indicatorCurrentDot','indicatorCurrentText','indicatorEvaluation','dropSize','dropVal','speed',
-    'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','simModeLabel','taskArea','taskCatalog','taskWorkspace','taskActiveBadges','taskTitle','taskGoal','taskOrder','taskVariant','taskResults','taskHintBtn','taskCheckBtn','taskSolutionBtn','taskReloadBtn','taskHint','taskFeedback','taskSolution','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable'
+    'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','simModeLabel','taskArea','taskCatalog','taskWorkspace','taskActiveBadges','taskTitle','taskGoal','taskOrder','taskVariant','taskResults','taskHintBtn','taskCheckBtn','taskSolutionBtn','taskReloadBtn','taskHint','taskFeedback','taskSolution','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable','bridgeBanner','bridgeMessage','bridgeSubmitBtn','bridgeReturnBtn'
   ].forEach(id=>el[id]=document.getElementById(id));
   el.viewButtons=[...document.querySelectorAll('[data-view]')];
   el.labModeButtons=[...document.querySelectorAll('[data-lab-mode]')];
@@ -973,7 +1052,9 @@ function bindEvents(){
   el.taskHintBtn.addEventListener('click',showNextTaskHint);
   el.taskCheckBtn.addEventListener('click',checkTaskAnswers);
   el.taskSolutionBtn.addEventListener('click',toggleTaskSolution);
-  el.taskReloadBtn.addEventListener('click',()=>{if(activeTaskId)loadTask(activeTaskId);});
+  el.taskReloadBtn.addEventListener('click',()=>{if(activeTaskId){bridgeTaskCorrect=false;if(el.bridgeSubmitBtn)el.bridgeSubmitBtn.disabled=true;loadTask(activeTaskId);}});
+  el.bridgeSubmitBtn.addEventListener('click',sendBridgeResult);
+  el.bridgeReturnBtn.addEventListener('click',()=>{if(window.AnalytikBridge&&bridgeRun)window.AnalytikBridge.returnToHub(bridgeRun);});
   window.addEventListener('beforeunload',stopAllTimers);
 }
 
@@ -1086,6 +1167,11 @@ function checkTaskAnswers(){
     messages.push(`${result.label}: ${ok?'richtig':'noch nicht richtig'}.`);
   });
   el.taskFeedback.className=`task-feedback ${allCorrect?'is-ok':'is-error'}`;el.taskFeedback.innerHTML=`<strong>${allCorrect?'Aufgabe korrekt bearbeitet.':'Bitte nochmals prüfen.'}</strong> ${messages.map(escapeHTML).join(' ')}`;el.taskFeedback.hidden=false;
+  if(bridgeMode&&activeTaskId==='TITR_A11'){
+    bridgeTaskCorrect=allCorrect;
+    el.bridgeSubmitBtn.disabled=!allCorrect;
+    if(allCorrect) el.bridgeMessage.textContent='Quantitative Auswertung vollständig. Das Ergebnis kann an den Hub zurückgegeben werden.';
+  }
 }
 function toggleTaskSolution(){
   const task=activeTask();if(!task)return;
@@ -1095,6 +1181,86 @@ function taskIdentityHidden(){const task=activeTask();return labMode==='tasks'&&
 function analyteDisplayName(){return taskIdentityHidden()?'unbekannte einprotonige schwache Säure':currentParams?.analyte?.name||'Analyt';}
 function referenceRevealAllowed(){return(!challengeActive||challengeResolved)&&(labMode!=='tasks'||taskSolutionVisible);}
 function taskAnalysisHidden(){const task=activeTask();return labMode==='tasks'&&Boolean(task?.hideAutomaticResults)&&!taskSolutionVisible;}
+
+async function loadAnalytikBridgeScript(){
+  if(window.AnalytikBridge)return window.AnalytikBridge;
+  await new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src=new URL('../CHEMIE_ANALYTIK_HUB/bridge/chemie-analytik-bridge.js',window.location.href).toString();
+    script.onload=resolve;script.onerror=()=>reject(new Error('CHEMIE_ANALYTIK_BRIDGE konnte nicht geladen werden.'));
+    document.head.appendChild(script);
+  });
+  if(!window.AnalytikBridge)throw new Error('Bridge-API fehlt.');
+  return window.AnalytikBridge;
+}
+
+async function initAnalytikBridge(){
+  try{
+    const runId=new URLSearchParams(window.location.search).get('run');
+    if(!runId)throw new Error('run-Parameter fehlt.');
+    await loadAnalytikBridgeScript();
+    const run=window.AnalytikBridge.getRun(runId);
+    if(!run)throw new Error('Analyse-Run nicht gefunden.');
+    if(run.app_id!=='TITRATIONSTOOL')throw new Error('Run ist nicht für TITRATIONSTOOL bestimmt.');
+    if(!run.input||run.input.mode!=='hub_quantitative_salicylic')throw new Error('Unbekannter Hub-Auftrag.');
+    bridgeRun=run;bridgeInput=run.input;bridgeTaskCorrect=false;
+    el.bridgeBanner.hidden=false;
+    el.bridgeMessage.textContent='Bestimme die Salicylsäuremenge aus dem ersten Äquivalenzpunkt und führe die vollständige Rückrechnung durch.';
+    el.bridgeSubmitBtn.disabled=true;
+    setLabMode('tasks');
+    loadTask('TITR_A11');
+  }catch(err){
+    el.bridgeBanner.hidden=false;
+    el.bridgeMessage.textContent='Hub-Verbindung fehlgeschlagen: '+err.message;
+    el.bridgeSubmitBtn.disabled=true;
+  }
+}
+
+function taskResultNumber(key){
+  return parseLocaleNumber(document.getElementById('taskResult_'+key)?.value);
+}
+
+function sendBridgeResult(){
+  if(!bridgeMode||!bridgeRun||!window.AnalytikBridge||!bridgeTaskCorrect)return;
+  const task=activeTask();
+  const qc=task?.quantContext||{};
+  const result={
+    result_id:'RES_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    run_id:bridgeRun.run_id,
+    case_id:bridgeRun.case_id,
+    sample_id:bridgeRun.sample_id,
+    app_id:'TITRATIONSTOOL',
+    app_version:APP_VERSION,
+    analysis_type:'ACID_BASE_TITRATION_QUANT',
+    status:'completed',
+    source:'app',
+    source_result_id:bridgeRun.source_result_id||bridgeInput.source_confirmation_result_id||null,
+    measurement:{
+      equivalence_volume_ml:taskResultNumber('veq'),
+      titrant_concentration_mol_l:qc.cTit,
+      aliquot_volume_ml:qc.aliquot,
+      stock_volume_ml:qc.stock,
+      raw_points:titrationData.map(p=>({volume_ml:p.x,pH:p.y}))
+    },
+    student_calculation:{
+      n_titrant_mmol:taskResultNumber('ntit'),
+      stoichiometric_ratio:'1:1',
+      n_analyte_aliquot_mmol:taskResultNumber('naliquot'),
+      analyte_concentration_mol_l:taskResultNumber('cstock'),
+      n_analyte_total_mmol:taskResultNumber('ntotal'),
+      analyte_mass_g:taskResultNumber('mass')
+    },
+    evaluation:{
+      quantification_status:'completed',
+      substance_id:'SALICYLIC_ACID',
+      substance_name_de:'Salicylsäure',
+      analyte_mass_g:taskResultNumber('mass')
+    },
+    created_at:new Date().toISOString()
+  };
+  const completed=window.AnalytikBridge.completeRun(bridgeRun.run_id,result);
+  window.AnalytikBridge.returnToHub(completed);
+}
 
 function initCharts(){
   if(typeof Chart==='undefined'){
@@ -1278,6 +1444,11 @@ function readAndValidateParams(){
   values.referenceEPs=type==='weak_acid'&&values.poly===2?[values.veq1,2*values.veq1]:[values.veq1];
   values.maxVolume=values.veq1*(type==='weak_acid'&&values.poly===2?2.4:1.6);
   values.maxCount=values.referenceEPs.length;
+  if(labMode==='tasks'&&activeTask()?.firstEquivalenceOnly){
+    values.referenceEPs=[values.veq1];
+    values.maxVolume=values.veq1*1.55;
+    values.maxCount=1;
+  }
   values.exportCode=cfg.exportCode;
   return values;
 }
@@ -1625,7 +1796,7 @@ function exportCSV(){
 
 function openSubstanceDialog(){if(typeof el.substanceDialog.showModal==='function')el.substanceDialog.showModal();else el.substanceDialog.setAttribute('open','');}
 function populateSubstanceTable(){
-  const order=['hcl','nitric','formic','acetic','propionic','lactic','benzoic','oxalic','malonic','naoh','ammonia','methylamine','pyridine'];
+  const order=['hcl','nitric','formic','acetic','propionic','lactic','benzoic','salicylic','oxalic','malonic','naoh','ammonia','methylamine','pyridine'];
   el.substanceTableBody.innerHTML=order.map(id=>{
     const p=SUBSTANCE_PRESETS[id],cfg=ANALYTE_TYPES[p.type];
     let pk='–';
