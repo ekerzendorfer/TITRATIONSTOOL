@@ -1,4 +1,4 @@
-# TITRATIONSTOOL v15.8.1
+# TITRATIONSTOOL v15.8.2
 
 ## Neu: TITR_A10 – Brückenaufgabe zum SÄUREN_LAB
 
@@ -74,3 +74,15 @@ Im Hub-Modus:
 - erst nach dem letzten korrekten Schritt wird die Rückgabe an den Analytik-Hub freigeschaltet
 
 Bekannte Versuchsdaten bleiben sichtbar: quantitative Überführung auf 100,0 mL, 20,00-mL-Aliquot und 0,0200 mol·L⁻¹ NaOH.
+
+
+## v15.8.2 – ausführlichere Rechenhilfen für die quantitative Brückenaufgabe
+
+Die bereits getestete manuelle VCÖ-01-Challenge bleibt funktional unverändert. Lediglich die Lernhilfen der schrittweisen Auswertung wurden erweitert:
+
+- Schritt 4 erklärt die Übertragung der 1:1-Stöchiometrie auf die Stoffmenge im Aliquot.
+- Schritt 5 erläutert die Rückrechnung von Stoffmenge und Aliquotvolumen auf die Konzentration.
+- Schritt 6 erklärt den Aliquotfaktor 20,00 mL → 100,0 mL sprachlich statt nur als Formelhinweis.
+- Schritt 7 erinnert an m = n · M und an die nötige Umrechnung mmol → mol.
+
+Die Hilfen nennen weiterhin keinen gesuchten Zahlenwert.
