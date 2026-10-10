@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.8.2</title>
+<title>Titrations-Labor – v15.8.3</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -252,12 +252,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
 @media(max-width:650px){.modebar{align-items:stretch}.modebar .seg{min-width:0;width:100%}.task-catalog{grid-template-columns:1fr}.task-actions{display:grid;grid-template-columns:1fr}.task-actions button{width:100%}}
 
 
-.bridge-banner{display:flex;justify-content:space-between;align-items:center;gap:14px;border-color:#b9d7da;background:#edf8f8}
+.bridge-banner{display:flex;justify-content:space-between;align-items:center;gap:14px;border-color:#b9d7da;background:#edf8f8;padding:16px 18px}
 .bridge-banner>div:first-child{display:grid;gap:3px}.bridge-banner strong{color:#1d5f65}.bridge-banner span{color:var(--muted);font-size:.84rem}
 .bridge-actions{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:650px){.bridge-banner{align-items:stretch;flex-direction:column}.bridge-actions{display:grid;grid-template-columns:1fr}}
 
-.hub-quant-panel{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-color:#b7d8ce;background:#f2faf6}
+.hub-quant-panel{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-color:#b7d8ce;background:#f2faf6;padding:18px 20px}
 .hub-quant-copy h2{margin:.15rem 0 .45rem}.hub-quant-copy p{margin:.35rem 0;max-width:850px}.hub-quant-note{color:var(--muted);font-size:.88rem}
 .hub-step-control{min-width:150px;font-weight:800}.hub-step-control select{margin-top:6px}
 body.hub-quant .modebar{display:none}
@@ -277,7 +277,7 @@ body.hub-quant .task-result-item.is-locked input,body.hub-quant .task-result-ite
 body.hub-quant .task-result-item.is-complete{border-color:#9fceb5;background:#f3fbf6}
 body.hub-quant .task-result-status.is-ok{color:#1f6b45;font-weight:800}
 body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
-@media(max-width:760px){.hub-quant-panel{flex-direction:column}.hub-step-control{width:100%}}
+@media(max-width:760px){.hub-quant-panel{flex-direction:column;padding:16px}.hub-step-control{width:100%;min-width:0}}
 </style>
 </head>
 <body>
@@ -288,7 +288,7 @@ body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.8.2</span><br>SÄUREN_LAB-Brückenaufgabe</div>
+    <div class="version"><span class="badge">v15.8.3</span><br>SÄUREN_LAB-Brückenaufgabe</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
