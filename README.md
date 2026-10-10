@@ -1,4 +1,4 @@
-# TITRATIONSTOOL v15.8.0
+# TITRATIONSTOOL v15.8.1
 
 ## Neu: TITR_A10 – Brückenaufgabe zum SÄUREN_LAB
 
@@ -55,3 +55,22 @@ Rückgabe:
 - Rohpunkte der Titrationskurve
 - studentische Rechenkette
 - finale Masse der Salicylsäure
+
+
+## v15.8.1 – kompakte quantitative Hub-Challenge
+
+Der VCÖ-01-Hub-Modus für Salicylsäure wurde didaktisch und ergonomisch gestrafft. Der Standalone-Betrieb bleibt unverändert.
+
+Im Hub-Modus:
+- Aufgabenkatalog und Arbeitsbereich-Umschaltung sind ausgeblendet
+- nur die VCÖ-01-Bestimmung wird angezeigt
+- freie Stoff-/Parameterwahl, Hägg-Diagramm, Export und Auto-Titration sind ausgeblendet
+- die Titration muss manuell mit wählbarer Volumenschrittweite durchgeführt werden
+- automatischer und stöchiometrischer Referenz-Äquivalenzpunkt bleiben verborgen
+- V(ÄP1) kann erst ausgewertet werden, wenn tatsächlich eine Messreihe bis über den Äquivalenzbereich aufgenommen wurde
+- die sieben Rechenschritte erscheinen nacheinander
+- jeder Schritt wird beim Verlassen des Feldes bzw. mit Enter sofort geprüft
+- bei Fehlern wird kein Lösungswert verraten; ein korrekter Schritt schaltet den nächsten frei
+- erst nach dem letzten korrekten Schritt wird die Rückgabe an den Analytik-Hub freigeschaltet
+
+Bekannte Versuchsdaten bleiben sichtbar: quantitative Überführung auf 100,0 mL, 20,00-mL-Aliquot und 0,0200 mol·L⁻¹ NaOH.
