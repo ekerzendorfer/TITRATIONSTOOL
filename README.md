@@ -1,4 +1,4 @@
-# TITRATIONSTOOL v15.8.2
+# TITRATIONSTOOL v15.8.3
 
 ## Neu: TITR_A10 – Brückenaufgabe zum SÄUREN_LAB
 
@@ -86,3 +86,10 @@ Die bereits getestete manuelle VCÖ-01-Challenge bleibt funktional unverändert.
 - Schritt 7 erinnert an m = n · M und an die nötige Umrechnung mmol → mol.
 
 Die Hilfen nennen weiterhin keinen gesuchten Zahlenwert.
+
+
+## v15.8.3 – Hub-Layout-Feinschliff
+
+- mehr Innenabstand in der Bridge-Karte und der quantitativen VCÖ-01-Hub-Karte
+- kompakteres responsives Verhalten der rechten Volumenschritt-Spalte auf schmalen Bildschirmen
+- keine funktionale Änderung an Titration, Challenge oder RESULT-Rückgabe
