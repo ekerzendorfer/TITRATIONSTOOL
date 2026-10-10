@@ -272,7 +272,7 @@ body.hub-quant #taskResults{padding:16px 18px}
 body.hub-quant #settingsFieldset{display:none}
 body.hub-quant #startBtn,body.hub-quant #exportBtn,body.hub-quant #challengeBox{display:none!important}
 body.hub-quant #referenceMetric{visibility:hidden}
-body.hub-quant .task-result-item.is-locked{opacity:.48}
+body.hub-quant .task-result-item.is-locked{display:none}
 body.hub-quant .task-result-item.is-locked input,body.hub-quant .task-result-item.is-locked select{cursor:not-allowed}
 body.hub-quant .task-result-item.is-complete{border-color:#9fceb5;background:#f3fbf6}
 body.hub-quant .task-result-status.is-ok{color:#1f6b45;font-weight:800}
@@ -1180,7 +1180,7 @@ function renderActiveTask(task){
   el.taskActiveBadges.innerHTML=`<span class="task-badge">${escapeHTML(task.id)}</span><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span>${task.category?`<span class="task-badge">${escapeHTML(task.category)}</span>`:''}`;
   el.taskTitle.textContent=task.title;el.taskGoal.innerHTML=`<strong>Lernziel:</strong> ${escapeHTML(task.goal)}`;el.taskOrder.textContent=task.order;
   el.taskVariant.hidden=!task.variantText;el.taskVariant.textContent=task.variantText||'';
-  el.taskResults.innerHTML=`<h4>${escapeHTML(task.resultHeading||'Ergebnisse schrittweise eintragen')}</h4>`+task.results.map(renderTaskResult).join('');
+  el.taskResults.innerHTML=`<h4>${escapeHTML(bridgeMode&&task.id==='TITR_A11'?'Schrittweise quantitative Auswertung':(task.resultHeading||'Ergebnisse schrittweise eintragen'))}</h4>`+task.results.map(renderTaskResult).join('');
   el.taskHint.hidden=true;el.taskFeedback.hidden=true;el.taskSolution.hidden=true;el.taskSolution.textContent=task.solution;el.taskSolutionBtn.textContent='LehrerInnenlösung';
   if(bridgeMode&&task.id==='TITR_A11')initSequentialQuantResults(task);
 }
@@ -1234,6 +1234,17 @@ function checkSequentialQuantStep(task,result,index){
   const status=document.getElementById(`taskResultStatus_${result.key}`);
   const item=field.closest('.task-result-item');
   field.removeAttribute('aria-invalid');
+
+  if(result.key==='veq'){
+    const target=Number(task.quantContext?.veq||result.expected||0);
+    const maxMeasured=titrationData.reduce((m,p)=>Math.max(m,Number(p.x)||0),0);
+    if(titrationData.length<12 || maxMeasured<target+0.4){
+      field.setAttribute('aria-invalid','true');
+      if(status){status.className='task-result-status is-error';status.textContent='Führe zuerst eine ausreichende Messreihe bis über den Äquivalenzbereich hinaus durch.';}
+      return;
+    }
+  }
+
   const ok=resultIsCorrect(result,field);
   if(!ok){
     field.setAttribute('aria-invalid','true');
