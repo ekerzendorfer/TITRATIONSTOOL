@@ -270,7 +270,7 @@ body.hub-quant #taskWorkspace .task-workspace-grid{grid-template-columns:1fr}
 body.hub-quant #taskWorkspace .task-content{display:none}
 body.hub-quant #taskResults{padding:16px 18px}
 body.hub-quant #settingsFieldset{display:none}
-body.hub-quant #startBtn,body.hub-quant #exportBtn,body.hub-quant #challengeBox{display:none!important}
+body.hub-quant #startBtn,body.hub-quant #exportBtn,body.hub-quant #challengeBox,body.hub-quant #indicatorEvaluation,body.hub-quant #haeggDetails{display:none!important}
 body.hub-quant #referenceMetric{visibility:hidden}
 body.hub-quant .task-result-item.is-locked{display:none}
 body.hub-quant .task-result-item.is-locked input,body.hub-quant .task-result-item.is-locked select{cursor:not-allowed}
@@ -1332,6 +1332,8 @@ async function initAnalytikBridge(){
     el.startBtn.disabled=true;
     el.exportBtn.disabled=true;
     el.referenceMetric.textContent='–';
+    el.epMetric.closest('.metric').hidden=true;
+    el.referenceMetric.closest('.metric').hidden=true;
     el.hubDropSize.value='0.10';
     el.dropSize.value='0.10';
     el.dropVal.textContent='0,10';
