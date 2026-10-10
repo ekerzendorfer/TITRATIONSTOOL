@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.8.1</title>
+<title>Titrations-Labor – v15.8.2</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -288,7 +288,7 @@ body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.8.1</span><br>SÄUREN_LAB-Brückenaufgabe</div>
+    <div class="version"><span class="badge">v15.8.2</span><br>SÄUREN_LAB-Brückenaufgabe</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -331,7 +331,7 @@ body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
   </div>
 
   <section id="taskArea" class="task-area card" hidden>
-    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Elf Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung, Stoffidentifikation und eine direkte Brücke zum SÄUREN_LAB.</p></div><span class="task-badge">v15.8.1 · Aufgabenpool</span></div>
+    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Elf Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung, Stoffidentifikation und eine direkte Brücke zum SÄUREN_LAB.</p></div><span class="task-badge">v15.8.2 · Aufgabenpool</span></div>
     <div class="panelbody">
       <div id="taskCatalog" class="task-catalog" aria-label="Aufgabenauswahl"></div>
       <article id="taskWorkspace" class="task-workspace" hidden>
@@ -585,12 +585,12 @@ body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.8.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.8.2 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.8.1';
+const APP_VERSION = '15.8.2';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -861,7 +861,7 @@ function guidedResults(epKey,stoichFactor){
     {key:'ntit',label:'2. n(Maßlösung) / mmol',kind:'number',expected:0,tolerance:0.025,placeholder:'c · V',help:'Bei c in mol/L und V in mL ergibt c · V direkt mmol.'},
     {key:'ratio',label:'3. Stoffmengenverhältnis Maßlösung : Analyt',kind:'select',expected:String(stoichFactor),options:[['','Bitte wählen'],['1','1 : 1'],['2','2 : 1']],help:'Aus der ausgeglichenen Reaktionsgleichung ableiten.'},
     {key:'nanalyte',label:'4. n(Analyt) / mmol',kind:'number',expected:0,tolerance:0.025,placeholder:'Stoffmenge Analyt',help:stoichFactor===1?'Bei 1 : 1 ist n(Analyt) = n(Maßlösung).':'Am zweiten ÄP gilt n(Analyt) = n(Maßlösung) / 2.'},
-    {key:'canalyte',label:'5. c(Analyt) / mol·L⁻¹',kind:'number',expected:0,tolerance:0.0015,placeholder:'n / V(Probe)',help:'mmol / mL ist zahlenmäßig mol/L.'},
+    {key:'canalyte',label:'5. c(Analyt) / mol·L⁻¹',kind:'number',expected:0,tolerance:0.0015,placeholder:'n / V(Probe)',help:'Jetzt wird aus der Stoffmenge im 20,00-mL-Aliquot wieder eine Konzentration: c = n / V. Praktischer Einheitenhinweis: mmol geteilt durch mL ergibt denselben Zahlenwert wie mol geteilt durch Liter.'},
     {key:'beta',label:'6. β(Analyt) / g·L⁻¹',kind:'number',expected:0,tolerance:0.10,placeholder:'c · M',help:'Molare Konzentration mit der molaren Masse multiplizieren.'}
   ];
 }
@@ -882,10 +882,10 @@ function salicylicQuantResults(veq){
     {key:'veq',label:'1. V(ÄP1) / mL',kind:'number',expected:veq,tolerance:0.18,placeholder:'V(ÄP1)',help:'Ersten Äquivalenzpunkt aus Kurve und Ableitung bestimmen.'},
     {key:'ntit',label:'2. n(NaOH) im Aliquot / mmol',kind:'number',expected:nAliquot,tolerance:0.006,placeholder:'c · V',help:'Bei c in mol/L und V in mL ergibt c · V direkt mmol.'},
     {key:'ratio',label:'3. Stoffmengenverhältnis NaOH : Salicylsäure',kind:'select',expected:'1',options:[['','Bitte wählen'],['1','1 : 1'],['2','2 : 1']],help:'Für den ersten Äquivalenzpunkt wird die Carboxylgruppe erfasst.'},
-    {key:'naliquot',label:'4. n(Salicylsäure) im 20,00-mL-Aliquot / mmol',kind:'number',expected:nAliquot,tolerance:0.006,placeholder:'mmol im Aliquot',help:'Am ersten ÄP gilt 1 : 1.'},
+    {key:'naliquot',label:'4. n(Salicylsäure) im 20,00-mL-Aliquot / mmol',kind:'number',expected:nAliquot,tolerance:0.006,placeholder:'mmol im Aliquot',help:'Du hast in Schritt 2 die Stoffmenge der verbrauchten NaOH berechnet und in Schritt 3 das Verhältnis 1 : 1 festgestellt. Deshalb ist die Stoffmenge Salicylsäure im aliquotierten 20,00-mL-Teil genau gleich groß wie n(NaOH) am ersten Äquivalenzpunkt.'},
     {key:'cstock',label:'5. c(Salicylsäure) in der 100,0-mL-Lösung / mol·L⁻¹',kind:'number',expected:cStock,tolerance:0.00035,placeholder:'n / V',help:'mmol / mL ist zahlenmäßig mol/L.'},
-    {key:'ntotal',label:'6. n(Salicylsäure) im gesamten Rückstand / mmol',kind:'number',expected:nTotal,tolerance:0.03,placeholder:'auf 100,0 mL zurückrechnen',help:'Aliquot 20,00 mL aus 100,0 mL → Faktor 5.'},
-    {key:'mass',label:'7. m(Salicylsäure) im ursprünglichen Rückstand / g',kind:'number',expected:mass,tolerance:0.004,placeholder:'n · M',help:'M(Salicylsäure) = 138,121 g·mol⁻¹.'}
+    {key:'ntotal',label:'6. n(Salicylsäure) im gesamten Rückstand / mmol',kind:'number',expected:nTotal,tolerance:0.03,placeholder:'auf 100,0 mL zurückrechnen',help:'Das titrierte Aliquot war nur ein Teil der gesamten 100,0-mL-Lösung. Überlege: Wie oft sind 20,00 mL in 100,0 mL enthalten? Mit diesem Faktor rechnest du die Stoffmenge des Aliquots auf den gesamten ursprünglich gelösten Rückstand hoch.'},
+    {key:'mass',label:'7. m(Salicylsäure) im ursprünglichen Rückstand / g',kind:'number',expected:mass,tolerance:0.004,placeholder:'n · M',help:'Zum Schluss wird aus der Stoffmenge eine Masse: m = n · M. Achte auf die Einheit: Wenn n in mmol eingesetzt wird, zuerst in mol umrechnen (1000 mmol = 1 mol). M(Salicylsäure) = 138,121 g·mol⁻¹.'}
   ];
 }
 
