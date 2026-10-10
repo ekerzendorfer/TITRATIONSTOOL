@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.8.0</title>
+<title>Titrations-Labor – v15.8.1</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -256,6 +256,28 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
 .bridge-banner>div:first-child{display:grid;gap:3px}.bridge-banner strong{color:#1d5f65}.bridge-banner span{color:var(--muted);font-size:.84rem}
 .bridge-actions{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:650px){.bridge-banner{align-items:stretch;flex-direction:column}.bridge-actions{display:grid;grid-template-columns:1fr}}
+
+.hub-quant-panel{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-color:#b7d8ce;background:#f2faf6}
+.hub-quant-copy h2{margin:.15rem 0 .45rem}.hub-quant-copy p{margin:.35rem 0;max-width:850px}.hub-quant-note{color:var(--muted);font-size:.88rem}
+.hub-step-control{min-width:150px;font-weight:800}.hub-step-control select{margin-top:6px}
+body.hub-quant .modebar{display:none}
+body.hub-quant #taskArea{padding:0;overflow:hidden}
+body.hub-quant #taskArea>.panelhead{display:none}
+body.hub-quant #taskArea>.panelbody{padding:0}
+body.hub-quant #taskCatalog{display:none}
+body.hub-quant #taskWorkspace{border:0;border-radius:0;margin:0}
+body.hub-quant #taskWorkspace .task-workspace-grid{grid-template-columns:1fr}
+body.hub-quant #taskWorkspace .task-content{display:none}
+body.hub-quant #taskResults{padding:16px 18px}
+body.hub-quant #settingsFieldset{display:none}
+body.hub-quant #startBtn,body.hub-quant #exportBtn,body.hub-quant #challengeBox{display:none!important}
+body.hub-quant #referenceMetric{visibility:hidden}
+body.hub-quant .task-result-item.is-locked{opacity:.48}
+body.hub-quant .task-result-item.is-locked input,body.hub-quant .task-result-item.is-locked select{cursor:not-allowed}
+body.hub-quant .task-result-item.is-complete{border-color:#9fceb5;background:#f3fbf6}
+body.hub-quant .task-result-status.is-ok{color:#1f6b45;font-weight:800}
+body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
+@media(max-width:760px){.hub-quant-panel{flex-direction:column}.hub-step-control{width:100%}}
 </style>
 </head>
 <body>
@@ -266,7 +288,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.8.0</span><br>SÄUREN_LAB-Brückenaufgabe</div>
+    <div class="version"><span class="badge">v15.8.1</span><br>SÄUREN_LAB-Brückenaufgabe</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -282,6 +304,24 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </div>
 
+  <section id="hubQuantPanel" class="hub-quant-panel card" hidden>
+    <div class="hub-quant-copy">
+      <p class="eyebrow">VCÖ-01 · quantitative Challenge</p>
+      <h2>Salicylsäure im Rückstand bestimmen</h2>
+      <p>Der gesamte Rückstand wurde quantitativ auf <strong>100,0 mL</strong> gebracht. Titriere ein <strong>20,00-mL-Aliquot</strong> manuell mit <strong>0,0200 mol·L⁻¹ NaOH</strong> und bestimme den <strong>ersten Äquivalenzpunkt</strong>.</p>
+      <p class="hub-quant-note">Auto-Titration und Referenz-Äquivalenzpunkt sind in dieser Challenge deaktiviert. Die Ableitungsdarstellungen dürfen als analytisches Werkzeug verwendet werden.</p>
+    </div>
+    <label class="hub-step-control">Volumenschritt
+      <select id="hubDropSize">
+        <option value="0.50">0,50 mL</option>
+        <option value="0.20">0,20 mL</option>
+        <option value="0.10" selected>0,10 mL</option>
+        <option value="0.05">0,05 mL</option>
+        <option value="0.02">0,02 mL</option>
+      </select>
+    </label>
+  </section>
+
   <div class="modebar card">
     <div class="modebar-copy"><strong>Arbeitsbereich</strong><span>Freies Experimentieren oder eine vorbereitete Unterrichtsaufgabe.</span></div>
     <div class="seg" aria-label="Arbeitsbereich wählen">
@@ -291,7 +331,7 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
   </div>
 
   <section id="taskArea" class="task-area card" hidden>
-    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Elf Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung, Stoffidentifikation und eine direkte Brücke zum SÄUREN_LAB.</p></div><span class="task-badge">v15.8.0 · Aufgabenpool</span></div>
+    <div class="panelhead task-head"><div><h2>Begleitende Aufgaben</h2><p>Elf Aufgaben verbinden Kurvenauswertung, Indikatorwahl, quantitative Auswertung, Stoffidentifikation und eine direkte Brücke zum SÄUREN_LAB.</p></div><span class="task-badge">v15.8.1 · Aufgabenpool</span></div>
     <div class="panelbody">
       <div id="taskCatalog" class="task-catalog" aria-label="Aufgabenauswahl"></div>
       <article id="taskWorkspace" class="task-workspace" hidden>
@@ -545,12 +585,12 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
     </div>
   </dialog>
 
-  <div class="footer">TITRATIONSTOOL v15.8.0 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
+  <div class="footer">TITRATIONSTOOL v15.8.1 · entwickelt von Mag. Erich Kerzendorfer · fachliche und technische Überarbeitung mit ChatGPT</div>
 </div>
 <script>
 'use strict';
 
-const APP_VERSION = '15.8.0';
+const APP_VERSION = '15.8.1';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -786,8 +826,8 @@ const TASKS = [
 },
 {
   id:'TITR_A11', title:'VCÖ-01 – Salicylsäure im Rückstand quantitativ bestimmen', level:'SEK II · Brücke', duration:'20–30 min', category:'ANALYTIK-HUB',
-  goal:'Aus dem ersten Äquivalenzpunkt einer Salicylsäure-Titration die Stoffmenge und Masse im ursprünglichen Rückstand bestimmen.',
-  order:'Der zuvor identifizierte Rückstand wird quantitativ in einen 100,0-mL-Messkolben überführt. Von dieser Lösung werden 20,00 mL pipettiert und mit 0,0200 mol·L⁻¹ NaOH titriert.\n\nBestimme den ersten Äquivalenzpunkt möglichst genau und rechne anschließend schrittweise auf die gesamte Salicylsäuremenge im ursprünglichen Rückstand zurück.\n\nFür die quantitative Auswertung wird am ersten Äquivalenzpunkt das Carboxylproton erfasst: n(NaOH) : n(Salicylsäure) = 1 : 1. Die wesentlich schwächer saure phenolische OH-Gruppe gehört nicht zu diesem quantitativen Endpunkt.',
+  goal:'Die Titration manuell durchführen, den ersten Äquivalenzpunkt selbst bestimmen und daraus Stoffmenge und Masse im ursprünglichen Rückstand berechnen.',
+  order:'Der zuvor identifizierte Rückstand wird quantitativ in einen 100,0-mL-Messkolben überführt. Von dieser Lösung werden 20,00 mL pipettiert und mit 0,0200 mol·L⁻¹ NaOH titriert.\n\nFühre die Titration selbst durch. Wähle die Volumenschritte zweckmäßig und bestimme den ersten Äquivalenzpunkt aus deinen Messdaten. Rechne anschließend schrittweise auf die gesamte Salicylsäuremenge im ursprünglichen Rückstand zurück.\n\nFür die quantitative Auswertung wird am ersten Äquivalenzpunkt das Carboxylproton erfasst: n(NaOH) : n(Salicylsäure) = 1 : 1. Die wesentlich schwächer saure phenolische OH-Gruppe gehört nicht zu diesem quantitativen Endpunkt.',
   setup:{analyteType:'weak_acid',substance:'salicylic',c0:0.01000,v0:20.0,cTit:0.0200,indicator:'phph',dropSize:0.10,speed:420},
   locks:['simMode','analyteType','substanceSelect','c0','v0','cTit','pk1','pk2','poly','indicator'],
   hideAutomaticResults:true, hideSampleConcentration:true, firstEquivalenceOnly:true,
@@ -1004,7 +1044,7 @@ function cacheElements(){
     'simStatus','statusDot','typeStatus','phDisplay','volDisplay','buretteDisplay','totalVolumeDisplay','buretteLiquid','liquid','fallingDrop','mixPlume','errorBox','warningBox','settingsFieldset','simMode',
     'analyteType','substanceSelect','substanceSelectText','substanceNameDisplay','substanceTypeBadge','substanceGrid','substanceFormulaDisplay','substanceMassDisplay','substancePkItem','substancePkLabel','substancePkDisplay','substanceNote',
     'customSubstanceFields','customName','customFormula','customMolarMass','customNote','polyLabel','poly','sampleConcTitle','titrantConcTitle','c0','v0','v0Container','cTit','volumePkRow','pk1Label','pk1LabelText','pk1','pk2','pk2Label','pkLockNote','indicator','indicatorPreview','indicatorPreviewTitle','indicatorModel','indicatorGradient','indicatorRangeText','indicatorCurrentDot','indicatorCurrentText','indicatorEvaluation','dropSize','dropVal','speed',
-    'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','simModeLabel','taskArea','taskCatalog','taskWorkspace','taskActiveBadges','taskTitle','taskGoal','taskOrder','taskVariant','taskResults','taskHintBtn','taskCheckBtn','taskSolutionBtn','taskReloadBtn','taskHint','taskFeedback','taskSolution','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable','bridgeBanner','bridgeMessage','bridgeSubmitBtn','bridgeReturnBtn'
+    'showSubstanceDialog','substanceDialog','closeSubstanceDialog','substanceTableBody','simModeLabel','taskArea','taskCatalog','taskWorkspace','taskActiveBadges','taskTitle','taskGoal','taskOrder','taskVariant','taskResults','taskHintBtn','taskCheckBtn','taskSolutionBtn','taskReloadBtn','taskHint','taskFeedback','taskSolution','dropBtn','startBtn','resetBtn','exportBtn','challengeBox','guess','checkChallengeBtn','infoBox','pointMetric','stepMetric','epMetric','referenceMetric','d1Info','d2Info','tableSummary','dataTable','dataVolumeHeader','chartCaption','overlayOption','overlayCurve','titrateChart','haeggChart','haeggDetails','haeggSummary','haeggNote','haeggChartWrap','haeggUnavailable','bridgeBanner','bridgeMessage','bridgeSubmitBtn','bridgeReturnBtn','hubQuantPanel','hubDropSize'
   ].forEach(id=>el[id]=document.getElementById(id));
   el.viewButtons=[...document.querySelectorAll('[data-view]')];
   el.labModeButtons=[...document.querySelectorAll('[data-lab-mode]')];
@@ -1054,6 +1094,11 @@ function bindEvents(){
   el.taskSolutionBtn.addEventListener('click',toggleTaskSolution);
   el.taskReloadBtn.addEventListener('click',()=>{if(activeTaskId){bridgeTaskCorrect=false;if(el.bridgeSubmitBtn)el.bridgeSubmitBtn.disabled=true;loadTask(activeTaskId);}});
   el.bridgeSubmitBtn.addEventListener('click',sendBridgeResult);
+  el.hubDropSize.addEventListener('change',()=>{
+    el.dropSize.value=el.hubDropSize.value;
+    el.dropVal.textContent=decimalComma(Number(el.dropSize.value),2);
+    updateWarnings();updateMetrics();
+  });
   el.bridgeReturnBtn.addEventListener('click',()=>{if(window.AnalytikBridge&&bridgeRun)window.AnalytikBridge.returnToHub(bridgeRun);});
   window.addEventListener('beforeunload',stopAllTimers);
 }
@@ -1137,6 +1182,7 @@ function renderActiveTask(task){
   el.taskVariant.hidden=!task.variantText;el.taskVariant.textContent=task.variantText||'';
   el.taskResults.innerHTML=`<h4>${escapeHTML(task.resultHeading||'Ergebnisse schrittweise eintragen')}</h4>`+task.results.map(renderTaskResult).join('');
   el.taskHint.hidden=true;el.taskFeedback.hidden=true;el.taskSolution.hidden=true;el.taskSolution.textContent=task.solution;el.taskSolutionBtn.textContent='LehrerInnenlösung';
+  if(bridgeMode&&task.id==='TITR_A11')initSequentialQuantResults(task);
 }
 function renderTaskResult(result){
   const id=`taskResult_${result.key}`,help=result.help?`<span class="task-result-help">${escapeHTML(result.help)}</span>`:'';
@@ -1151,8 +1197,69 @@ function showNextTaskHint(){
   taskHintIndex=Math.min(taskHintIndex+1,task.hints.length-1);
 }
 function parseLocaleNumber(value){const normalized=String(value).trim().replace(/\s/g,'').replace(',','.');return normalized===''?NaN:Number(normalized);}
+
+function resultIsCorrect(result,field){
+  if(result.kind==='select')return field.value===result.expected;
+  const value=parseLocaleNumber(field.value);
+  return Number.isFinite(value)&&Math.abs(value-result.expected)<=result.tolerance;
+}
+
+function setSequentialItemState(result,index,enabled){
+  const field=document.getElementById(`taskResult_${result.key}`);
+  const item=field?.closest('.task-result-item');
+  if(!field||!item)return;
+  field.disabled=!enabled;
+  item.classList.toggle('is-locked',!enabled);
+  item.dataset.step=String(index+1);
+}
+
+function initSequentialQuantResults(task){
+  bridgeTaskCorrect=false;
+  el.bridgeSubmitBtn.disabled=true;
+  task.results.forEach((result,index)=>{
+    const field=document.getElementById(`taskResult_${result.key}`);
+    if(!field)return;
+    const fresh=field.cloneNode(true);
+    field.replaceWith(fresh);
+    setSequentialItemState(result,index,index===0);
+    const validate=()=>checkSequentialQuantStep(task,result,index);
+    fresh.addEventListener(result.kind==='select'?'change':'blur',validate);
+    if(result.kind!=='select')fresh.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();fresh.blur();}});
+  });
+}
+
+function checkSequentialQuantStep(task,result,index){
+  const field=document.getElementById(`taskResult_${result.key}`);
+  if(!field||field.disabled)return;
+  const status=document.getElementById(`taskResultStatus_${result.key}`);
+  const item=field.closest('.task-result-item');
+  field.removeAttribute('aria-invalid');
+  const ok=resultIsCorrect(result,field);
+  if(!ok){
+    field.setAttribute('aria-invalid','true');
+    if(status){status.className='task-result-status is-error';status.textContent='Noch nicht richtig – prüfe Messwert, Einheit und Rechenschritt.';}
+    return;
+  }
+  if(status){status.className='task-result-status is-ok';status.textContent=index<task.results.length-1?'✓ richtig – nächster Schritt freigeschaltet.':'✓ richtig – Auswertung vollständig.';}
+  item?.classList.add('is-complete');
+  field.disabled=true;
+  const next=task.results[index+1];
+  if(next){
+    setSequentialItemState(next,index+1,true);
+    const nextField=document.getElementById(`taskResult_${next.key}`);
+    nextField?.focus();
+  }else{
+    bridgeTaskCorrect=true;
+    el.bridgeSubmitBtn.disabled=false;
+    el.bridgeMessage.textContent='Quantitative Auswertung vollständig. Das Ergebnis kann an den Hub zurückgegeben werden.';
+    el.taskFeedback.className='task-feedback is-ok';
+    el.taskFeedback.innerHTML='<strong>Auswertung abgeschlossen.</strong> Alle Rechenschritte sind korrekt.';
+    el.taskFeedback.hidden=false;
+  }
+}
 function checkTaskAnswers(){
   const task=activeTask();if(!task)return;
+  if(bridgeMode&&activeTaskId==='TITR_A11')return;
   let allCorrect=true;const messages=[];
   task.results.forEach(result=>{
     const field=document.getElementById(`taskResult_${result.key}`);if(!field)return;
@@ -1179,7 +1286,7 @@ function toggleTaskSolution(){
 }
 function taskIdentityHidden(){const task=activeTask();return labMode==='tasks'&&Boolean(task?.hideSubstanceIdentity)&&!taskSolutionVisible;}
 function analyteDisplayName(){return taskIdentityHidden()?'unbekannte einprotonige schwache Säure':currentParams?.analyte?.name||'Analyt';}
-function referenceRevealAllowed(){return(!challengeActive||challengeResolved)&&(labMode!=='tasks'||taskSolutionVisible);}
+function referenceRevealAllowed(){if(bridgeMode&&activeTaskId==='TITR_A11')return false;return(!challengeActive||challengeResolved)&&(labMode!=='tasks'||taskSolutionVisible);}
 function taskAnalysisHidden(){const task=activeTask();return labMode==='tasks'&&Boolean(task?.hideAutomaticResults)&&!taskSolutionVisible;}
 
 async function loadAnalytikBridgeScript(){
@@ -1204,11 +1311,20 @@ async function initAnalytikBridge(){
     if(run.app_id!=='TITRATIONSTOOL')throw new Error('Run ist nicht für TITRATIONSTOOL bestimmt.');
     if(!run.input||run.input.mode!=='hub_quantitative_salicylic')throw new Error('Unbekannter Hub-Auftrag.');
     bridgeRun=run;bridgeInput=run.input;bridgeTaskCorrect=false;
+    document.body.classList.add('hub-quant');
     el.bridgeBanner.hidden=false;
-    el.bridgeMessage.textContent='Bestimme die Salicylsäuremenge aus dem ersten Äquivalenzpunkt und führe die vollständige Rückrechnung durch.';
+    el.hubQuantPanel.hidden=false;
+    el.bridgeMessage.textContent='Manuelle quantitative Challenge: Äquivalenzpunkt bestimmen und anschließend schrittweise auswerten.';
     el.bridgeSubmitBtn.disabled=true;
     setLabMode('tasks');
     loadTask('TITR_A11');
+    el.startBtn.disabled=true;
+    el.exportBtn.disabled=true;
+    el.referenceMetric.textContent='–';
+    el.hubDropSize.value='0.10';
+    el.dropSize.value='0.10';
+    el.dropVal.textContent='0,10';
+    updateWarnings();updateMetrics();
   }catch(err){
     el.bridgeBanner.hidden=false;
     el.bridgeMessage.textContent='Hub-Verbindung fehlgeschlagen: '+err.message;
@@ -1546,7 +1662,7 @@ function addStep(){
   try{volAdded=roundInternal(nextVolume,10);lastPH=calculatePH(volAdded,currentParams);titrationData.push({x:volAdded,y:lastPH});recalculateAnalysis();updateAll();animateAddition();if(volAdded>=currentParams.maxVolume-tolerance)finishSimulation();}
   catch(error){stopAllTimers();showError(`Die Berechnung wurde abgebrochen: ${error.message}`);}
 }
-function toggleAutoSimulation(){
+function toggleAutoSimulation(){if(bridgeMode&&activeTaskId==='TITR_A11')return;
   if(autoTimer){clearTimeout(autoTimer);autoTimer=null;el.startBtn.textContent='Auto-Titration fortsetzen';el.settingsFieldset.disabled=false;setStatus('Auto-Titration pausiert.','warn');return;}
   if(!currentParams||volAdded>=currentParams.maxVolume-1e-9)return;
   el.startBtn.textContent='Auto-Titration pausieren';el.settingsFieldset.disabled=true;setStatus('Auto-Titration läuft.','ok');
