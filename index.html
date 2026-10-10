@@ -1323,6 +1323,10 @@ async function initAnalytikBridge(){
     if(!run.input||run.input.mode!=='hub_quantitative_salicylic')throw new Error('Unbekannter Hub-Auftrag.');
     bridgeRun=run;bridgeInput=run.input;bridgeTaskCorrect=false;
     document.body.classList.add('hub-quant');
+    const headerSubtitle=document.querySelector('header .subtitle');
+    if(headerSubtitle)headerSubtitle.textContent='VCÖ-01 · Salicylsäure durch eine manuelle Säure-Base-Titration quantitativ bestimmen.';
+    const setupHeading=document.querySelector('.workspace aside .panelhead h2');
+    if(setupHeading)setupHeading.textContent='Manuelle Titration';
     el.bridgeBanner.hidden=false;
     el.hubQuantPanel.hidden=false;
     el.bridgeMessage.textContent='Manuelle quantitative Challenge: Äquivalenzpunkt bestimmen und anschließend schrittweise auswerten.';
