@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Browserbasiertes Titrationslabor für den Chemieunterricht">
-<title>Titrations-Labor – v15.8.3</title>
+<title>Titrations-Labor – v15.8.4</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -40,7 +40,7 @@ h1{margin:0;font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.08}
 .subtitle{margin:10px 0 0;color:var(--muted);max-width:850px}
 .version{text-align:right;color:var(--muted);white-space:nowrap}
 .badge{display:inline-block;background:var(--accent2);color:#fff;padding:6px 10px;border-radius:999px;font-weight:800;margin-bottom:6px}
-.statusbar{margin-top:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.statusbar{margin-top:14px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;line-height:1.45}
 .status-left{display:flex;align-items:center;gap:8px;font-weight:750}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--ok);display:inline-block}
 .workspace{display:grid;grid-template-columns:minmax(310px,.9fr) minmax(0,2.1fr);gap:16px;margin-top:16px}
@@ -252,8 +252,8 @@ dialog::backdrop{background:rgba(23,32,51,.42);backdrop-filter:blur(2px)}
 @media(max-width:650px){.modebar{align-items:stretch}.modebar .seg{min-width:0;width:100%}.task-catalog{grid-template-columns:1fr}.task-actions{display:grid;grid-template-columns:1fr}.task-actions button{width:100%}}
 
 
-.bridge-banner{display:flex;justify-content:space-between;align-items:center;gap:14px;border-color:#b9d7da;background:#edf8f8;padding:16px 18px}
-.bridge-banner>div:first-child{display:grid;gap:3px}.bridge-banner strong{color:#1d5f65}.bridge-banner span{color:var(--muted);font-size:.84rem}
+.bridge-banner{display:flex;justify-content:space-between;align-items:center;gap:16px;border-color:#b9d7da;background:#edf8f8;padding:19px 22px;line-height:1.45}
+.bridge-banner>div:first-child{display:grid;gap:6px}.bridge-banner strong{color:#1d5f65}.bridge-banner span{color:var(--muted);font-size:.84rem}
 .bridge-actions{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:650px){.bridge-banner{align-items:stretch;flex-direction:column}.bridge-actions{display:grid;grid-template-columns:1fr}}
 
@@ -288,7 +288,7 @@ body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
       <h1>Titrations-Labor</h1>
       <p class="subtitle">Starke oder schwache Säuren und Basen mit einer starken Maßlösung titrieren, Titrationskurven aufnehmen und Äquivalenzpunkte fachlich korrekt auswerten.</p>
     </div>
-    <div class="version"><span class="badge">v15.8.3</span><br>SÄUREN_LAB-Brückenaufgabe</div>
+    <div class="version"><span class="badge">v15.8.4</span><br>SÄUREN_LAB-Brückenaufgabe</div>
   </header>
 
   <div class="statusbar card" aria-live="polite">
@@ -590,7 +590,7 @@ body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
 <script>
 'use strict';
 
-const APP_VERSION = '15.8.3';
+const APP_VERSION = '15.8.4';
 const KW = 1e-14;
 const COLORS = { curve:'#345a7d', d1:'#2f7452', d2:'#9d3037', reference:'#8a5d14', muted:'#8a98a8' };
 
@@ -1018,7 +1018,7 @@ let tChart=null, hChart=null, autoTimer=null, holdDelay=null, holdInterval=null;
 let volAdded=0, lastPH=NaN, titrationData=[], derivativeData={d1:[],d2:[],candidates:[]};
 let selectedView='curve', challengeActive=false, challengeResolved=false, secretV0=20, currentParams=null;
 let labMode='free', activeTaskId=null, activeTaskRuntime=null, taskHintIndex=0, taskSolutionVisible=false;
-let bridgeMode=new URLSearchParams(window.location.search).get('bridge')==='1', bridgeRun=null, bridgeInput=null, bridgeTaskCorrect=false;
+let bridgeMode=new URLSearchParams(window.location.search).get('bridge')==='1', bridgeRun=null, bridgeInput=null, bridgeTaskCorrect=false, hubExpert=false;
 const el={};
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -1177,15 +1177,22 @@ function loadTask(id){
 }
 function renderActiveTask(task){
   el.taskWorkspace.hidden=false;
-  el.taskActiveBadges.innerHTML=`<span class="task-badge">${escapeHTML(task.id)}</span><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span>${task.category?`<span class="task-badge">${escapeHTML(task.category)}</span>`:''}`;
-  el.taskTitle.textContent=task.title;el.taskGoal.innerHTML=`<strong>Lernziel:</strong> ${escapeHTML(task.goal)}`;el.taskOrder.textContent=task.order;
+  el.taskActiveBadges.innerHTML=`<span class="task-badge">${escapeHTML(task.id)}</span><span class="task-badge">${escapeHTML(task.level)}</span><span class="task-badge">${escapeHTML(task.duration)}</span>${task.category?`<span class="task-badge">${escapeHTML(task.category)}</span>`:''}${bridgeMode&&hubExpert?`<span class="task-badge">Expert</span>`:''}`;
+  el.taskTitle.textContent=task.title;
+  el.taskGoal.innerHTML=bridgeMode&&hubExpert&&task.id==='TITR_A11'
+    ? '<strong>Arbeitsauftrag · Expert:</strong> Äquivalenzpunkt bestimmen und die quantitative Rückrechnung selbstständig durchführen.'
+    : `<strong>Lernziel:</strong> ${escapeHTML(task.goal)}`;
+  el.taskOrder.textContent=bridgeMode&&hubExpert&&task.id==='TITR_A11'
+    ? 'Der bestätigte Rückstand wurde quantitativ auf 100,0 mL gebracht; 20,00 mL werden mit 0,0200 mol·L⁻¹ NaOH titriert. Bestimme V(ÄP1) aus den Messdaten und führe die Stoffmengen- und Massenrechnung bis zum ursprünglichen Rückstand durch.'
+    : task.order;
   el.taskVariant.hidden=!task.variantText;el.taskVariant.textContent=task.variantText||'';
   el.taskResults.innerHTML=`<h4>${escapeHTML(bridgeMode&&task.id==='TITR_A11'?'Schrittweise quantitative Auswertung':(task.resultHeading||'Ergebnisse schrittweise eintragen'))}</h4>`+task.results.map(renderTaskResult).join('');
   el.taskHint.hidden=true;el.taskFeedback.hidden=true;el.taskSolution.hidden=true;el.taskSolution.textContent=task.solution;el.taskSolutionBtn.textContent='LehrerInnenlösung';
   if(bridgeMode&&task.id==='TITR_A11')initSequentialQuantResults(task);
 }
 function renderTaskResult(result){
-  const id=`taskResult_${result.key}`,help=result.help?`<span class="task-result-help">${escapeHTML(result.help)}</span>`:'';
+  const showHelp=!(bridgeMode&&hubExpert&&activeTaskId==='TITR_A11');
+  const id=`taskResult_${result.key}`,help=showHelp&&result.help?`<span class="task-result-help">${escapeHTML(result.help)}</span>`:'';
   const control=result.kind==='select'
     ?`<select id="${id}" data-task-result="${result.key}">${result.options.map(([value,label])=>`<option value="${escapeHTML(value)}">${escapeHTML(label)}</option>`).join('')}</select>`
     :`<input id="${id}" data-task-result="${result.key}" type="text" inputmode="decimal" autocomplete="off" placeholder="${escapeHTML(result.placeholder||'')}">`;
@@ -1321,15 +1328,18 @@ async function initAnalytikBridge(){
     if(!run)throw new Error('Analyse-Run nicht gefunden.');
     if(run.app_id!=='TITRATIONSTOOL')throw new Error('Run ist nicht für TITRATIONSTOOL bestimmt.');
     if(!run.input||run.input.mode!=='hub_quantitative_salicylic')throw new Error('Unbekannter Hub-Auftrag.');
-    bridgeRun=run;bridgeInput=run.input;bridgeTaskCorrect=false;
+    bridgeRun=run;bridgeInput=run.input;bridgeTaskCorrect=false;hubExpert=bridgeInput.learning_mode==='expert';
     document.body.classList.add('hub-quant');
+    document.body.classList.toggle('hub-expert',hubExpert);
     const headerSubtitle=document.querySelector('header .subtitle');
     if(headerSubtitle)headerSubtitle.textContent='VCÖ-01 · Salicylsäure durch eine manuelle Säure-Base-Titration quantitativ bestimmen.';
     const setupHeading=document.querySelector('.workspace aside .panelhead h2');
     if(setupHeading)setupHeading.textContent='Manuelle Titration';
     el.bridgeBanner.hidden=false;
     el.hubQuantPanel.hidden=false;
-    el.bridgeMessage.textContent='Manuelle quantitative Challenge: Äquivalenzpunkt bestimmen und anschließend schrittweise auswerten.';
+    el.bridgeMessage.textContent=hubExpert
+      ? 'Expert: Titration durchführen, V(ÄP1) bestimmen und die quantitative Rückrechnung selbstständig bearbeiten.'
+      : 'Manuelle quantitative Challenge: Äquivalenzpunkt bestimmen und anschließend schrittweise auswerten.';
     el.bridgeSubmitBtn.disabled=true;
     setLabMode('tasks');
     loadTask('TITR_A11');
@@ -1369,6 +1379,7 @@ function sendBridgeResult(){
     source:'app',
     source_result_id:bridgeRun.source_result_id||bridgeInput.source_confirmation_result_id||null,
     measurement:{
+      learning_mode:hubExpert?'expert':'guided',
       equivalence_volume_ml:taskResultNumber('veq'),
       titrant_concentration_mol_l:qc.cTit,
       aliquot_volume_ml:qc.aliquot,
