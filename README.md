@@ -1,4 +1,4 @@
-# TITRATIONSTOOL v15.8.3
+# TITRATIONSTOOL v15.8.4
 
 ## Neu: TITR_A10 – Brückenaufgabe zum SÄUREN_LAB
 
@@ -93,3 +93,17 @@ Die Hilfen nennen weiterhin keinen gesuchten Zahlenwert.
 - mehr Innenabstand in der Bridge-Karte und der quantitativen VCÖ-01-Hub-Karte
 - kompakteres responsives Verhalten der rechten Volumenschritt-Spalte auf schmalen Bildschirmen
 - keine funktionale Änderung an Titration, Challenge oder RESULT-Rückgabe
+
+
+## v15.8.4 – Expert-Modus im VCÖ-01-Hubauftrag
+
+Der Hub übergibt jetzt den Arbeitsmodus an die quantitative Salicylsäure-Challenge.
+
+Im Expert-Modus:
+- sichtbares Expert-Badge
+- kompakter Arbeitsauftrag ohne vorweggenommene 1:1-Rechenhilfe
+- die siebenstufige Rechenkette bleibt erhalten
+- Inline-Hilfetexte unter den einzelnen Rechenschritten werden ausgeblendet
+- Plausibilitätsprüfung und schrittweise Freischaltung bleiben unverändert
+
+Zusätzlich wurden Statusleiste und Hub-Auftragskarte mit mehr Innenabstand versehen.
