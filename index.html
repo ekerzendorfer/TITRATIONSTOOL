@@ -449,16 +449,16 @@ body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
 
             <div class="formrow">
               <label><span id="sampleConcTitle" class="field-title">c(Probe) / mol·L⁻¹</span>
-                <input id="c0" type="number" min="0.001" max="2" step="0.001" value="0.100">
+                <input id="c0" type="number" min="0.001" max="2" step="any" value="0.100">
               </label>
               <label><span id="titrantConcTitle" class="field-title">c(NaOH) / mol·L⁻¹</span>
-                <input id="cTit" type="number" min="0.001" max="2" step="0.001" value="0.100">
+                <input id="cTit" type="number" min="0.001" max="2" step="any" value="0.100">
               </label>
             </div>
 
             <div id="volumePkRow" class="formrow parameter-row">
               <label id="v0Container"><span class="field-title">V(Probe) / mL</span>
-                <input id="v0" type="number" min="1" max="100" step="0.1" value="20.0">
+                <input id="v0" type="number" min="1" max="100" step="any" value="20.0">
               </label>
               <label id="pk1Label"><span id="pk1LabelText" class="field-title">pK<sub>S</sub></span>
                 <input id="pk1" type="number" min="0" max="14" step="0.01" value="4.76">
@@ -476,10 +476,10 @@ body.hub-quant .task-result-status.is-error{color:#9d3037;font-weight:750}
               <span class="note">c(Citronensäure) wird über c(Probe) eingestellt. Alle Konzentrationen gelten für die ausreagierte, abgekochte Stammlösung. Standard: 10,0 mL Aliquot aus 100,0 mL.</span>
               <div class="formrow">
                 <label>c(Ascorbinsäure) / mol·L⁻¹
-                  <input id="cAsc" type="number" min="0" max="2" step="0.0001" value="0.0100">
+                  <input id="cAsc" type="number" min="0" max="2" step="any" value="0.0100">
                 </label>
                 <label>c(Na⁺) vor der Titration / mol·L⁻¹
-                  <input id="cNaVor" type="number" min="0" max="2" step="0.0001" value="0.04105">
+                  <input id="cNaVor" type="number" min="0" max="2" step="any" value="0.04105">
                 </label>
               </div>
               <span class="note">Idealisiertes Modell: Carbonat/CO₂ vollständig entfernt; Ascorbinsäure im Bereich bis pH 10 einprotonig. Tatsächliche Tablettengehalte sind experimentell zu bestimmen.</span>
@@ -1245,11 +1245,12 @@ function loadTask(id){
   populateSubstanceOptions(true);
   el.substanceSelect.value=task.setup.substance;
   syncAnalyteControls();
-  el.c0.value=Number(task.setup.c0).toFixed(task.randomization?5:3);
+  const preciseCitric=task.quantContext?.kind==='citric';
+  el.c0.value=preciseCitric?String(task.setup.c0):Number(task.setup.c0).toFixed(task.randomization?5:3);
   if(task.setup.cAsc!==undefined)el.cAsc.value=String(task.setup.cAsc);
   if(task.setup.cNaVor!==undefined)el.cNaVor.value=String(task.setup.cNaVor);
-  el.v0.value=Number(task.setup.v0).toFixed(1);
-  el.cTit.value=Number(task.setup.cTit).toFixed(3);
+  el.v0.value=preciseCitric?String(task.setup.v0):Number(task.setup.v0).toFixed(1);
+  el.cTit.value=preciseCitric?String(task.setup.cTit):Number(task.setup.cTit).toFixed(3);
   el.indicator.value=task.setup.indicator;
   el.dropSize.value=Number(task.setup.dropSize).toFixed(2);
   el.speed.value=String(task.setup.speed||420);
@@ -1451,6 +1452,11 @@ async function initAnalytikBridge(){
     el.bridgeSubmitBtn.disabled=true;
     setLabMode('tasks');
     loadTask(taskId);
+    if(citric&&currentParams){
+      const paras=el.hubQuantPanel.querySelector('.hub-quant-copy').querySelectorAll('p');
+      if(paras[1])paras[1].textContent+=' Modellansatz: c(Cit)='+decimalComma(currentParams.c0,5)+' mol/L'
+        +(matrix?', c(Asc)='+decimalComma(currentParams.cAsc,5)+' mol/L, c(Na⁺, vor)='+decimalComma(currentParams.cNaVor,5)+' mol/L.':'.');
+    }
     el.startBtn.disabled=true;
     el.exportBtn.disabled=true;
     el.referenceMetric.textContent='–';
