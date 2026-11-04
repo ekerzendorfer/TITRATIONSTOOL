@@ -1,4 +1,33 @@
-# TITRATIONSTOOL v15.8.4
+# TITRATIONSTOOL v15.9.0
+
+## Citronensäure und CO₂-freie Brausetabletten-Matrix
+
+Neu im freien Labor: Citronensäure (C₆H₈O₇, M = 192,12 g/mol, pKₛ 3,13 / 4,76 / 6,40) mit dreiprotonigem Ladungsbilanz-Modell und vier Citrat-Spezies im Hägg-Diagramm. Die CO₂-freie Brausetabletten-Matrix ergänzt Ascorbinsäure (pKₛ₁ = 4,10) und vorgelegte Na⁺-Ionen, die als Vorneutralisation in die Ladungsbilanz eingehen. Die Konzentrationen c(Cit), c(Asc) und c(Na⁺) sind einstellbar. CSV-Export einschließlich pKₛ₃ und Matrixwerten.
+
+Modellbeispiel, **keine bekannte Produktzusammensetzung**: Aus 100,0 mL Stammlösung werden 10,0 mL aliquotiert. c(Cit) = 0,0300 mol/L, c(Asc) = 0,0100 mol/L, c(Na⁺) = 0,04105 mol/L und c(NaOH) = 0,100 mol/L ergeben pH(start) ≈ 4,25 und V(End-ÄP) ≈ 5,895 mL. Für reine Citronensäure bei derselben Konzentration: End-ÄP = 9,000 mL. Der pH am End-ÄP ist konzentrationsabhängig. Phenolphthalein ist als visueller Indikator geeignet.
+
+Modellgrenzen: angenommene vollständige Entfernung von CO₂/Carbonat; idealisierte Aktivitäten; Ascorbinsäure im Bereich bis etwa pH 10 als einprotonig. Aus einer einzigen Titration lässt sich die unbekannte Citronensäuremasse einer realen Brausetablette nicht eindeutig bestimmen.
+
+### Hub-Brücke
+
+Die unveränderte bestehende Bridge wird mit ?bridge=1&run=<RUN_ID> geladen. Für reine Citronensäure genügt im run.input acid="citric"; für die vorneutralisierte Matrix zusätzlich preset="brausetablette". Unterstützt werden mode="hub_titration" und mode="hub_quantitative_citric"; der bisherige salicylic-Auftrag ohne Citrat-Merkmal bleibt kompatibel.
+
+Felder in run.input für die Matrix (alle optional, Standardwerte aus dem Beispiel):
+- c_Cit: 0.0300
+- c_Asc: 0.0100
+- c_Na_vor: 0.04105
+- aliquot_ml: 10.0
+- stock_volume_ml: 100.0
+- titrant_concentration_mol_l: 0.100
+- learning_mode: "guided" oder "expert"
+
+Aliases: citric_concentration_mol_l, ascorbic_concentration_mol_l, sodium_pre_concentration_mol_l, aliquot_volume_ml. Die Rückgabe verwendet weiterhin analysis_type="ACID_BASE_TITRATION_QUANT", measurement.raw_points und measurement.equivalence_volume_ml. Modellparameter und die tatsächlich ermittelte Restacidität werden zusätzlich gespeichert. Bei der Matrix wird aus der Restacidität nicht automatisch eine Citronensäuremasse abgeleitet.
+
+Regressionstests: node --test tests/titration-regression.cjs.
+
+---
+
+## Vorheriger Stand: TITRATIONSTOOL v15.8.4
 
 ## Neu: TITR_A10 – Brückenaufgabe zum SÄUREN_LAB
 
