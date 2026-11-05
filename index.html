@@ -54,7 +54,9 @@ h1{margin:0;font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.08}
 .formrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .parameter-row{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}
 .parameter-row.is-diprotic{grid-template-columns:repeat(3,minmax(0,1fr))}
-.parameter-row.is-triprotic{grid-template-columns:repeat(4,minmax(0,1fr))}
+.parameter-row.is-triprotic{grid-template-columns:repeat(3,minmax(0,1fr))}
+.parameter-row.is-triprotic #v0Container{grid-column:1/-1}
+.parameter-row>label{min-width:0}
 .field-title{white-space:nowrap}
 label{display:grid;gap:6px;font-weight:750}
 .note{font-size:.84rem;color:var(--muted);font-weight:450}
@@ -171,10 +173,13 @@ tbody tr:last-child td{border-bottom:0}
 .substance-title strong{font-size:1.02rem;color:var(--accent2)}
 .substance-badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#dce9f4;color:var(--accent2);font-size:.73rem;font-weight:800}
 .substance-grid{display:grid;grid-template-columns:minmax(112px,1.45fr) minmax(98px,1.15fr) minmax(46px,.65fr);gap:6px;margin-top:8px}
+.substance-grid.is-triprotic{grid-template-columns:repeat(2,minmax(0,1fr))}
+.substance-grid.is-triprotic #substancePkItem{grid-column:1/-1}
+#substancePkDisplay{white-space:normal;overflow-wrap:anywhere}
 .substance-item{padding:6px 7px;border-radius:9px;background:rgba(255,255,255,.84);min-width:0}
 .substance-item span{display:block;color:var(--muted);font-size:.72rem}
 .substance-item strong{display:block;margin-top:1px;font-size:.87rem;white-space:nowrap}
-#substanceFormulaDisplay{font-size:.84rem;letter-spacing:-.015em}
+#substanceFormulaDisplay{font-size:.84rem;letter-spacing:-.015em;white-space:normal;overflow-wrap:anywhere}
 #substanceMassDisplay{font-size:.82rem}
 .substance-card .lock-note{font-size:.74rem;line-height:1.35}
 .custom-fields{padding:12px;border:1px dashed var(--border);border-radius:11px;background:#fbfcfe}
@@ -1664,6 +1669,7 @@ function syncAnalyteControls(){
   el.pk1LabelText.innerHTML=isWeakBase?`pK<sub>S</sub>(${escapeHTML(conjugateFormula)})`:showPk2?'pK<sub>S1</sub>':'pK<sub>S</sub>';
   el.substancePkItem.hidden=!showPk;
   el.substanceGrid.classList.toggle('no-pk',!showPk);
+  el.substanceGrid.classList.toggle('is-triprotic',showPk3);
   el.substancePkLabel.textContent=isWeakBase?`pKₛ(${conjugateFormula})`:showPk2?'pKₛ-Werte':'pKₛ-Wert';
   el.sampleConcTitle.textContent='c(Probe) / mol·L⁻¹';
   el.titrantConcTitle.textContent=`c(${cfg.titrant.formula}) / mol·L⁻¹`;
